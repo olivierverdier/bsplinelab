@@ -1,8 +1,11 @@
 # -*- coding: UTF-8 -*-
 from __future__ import division
 
-from numpy import array, dot, arange, linspace, nonzero
-from pylab import plot
+from numpy import array, dot, arange, linspace, nonzero, r_, isscalar, newaxis, squeeze
+from pylab import plot, legend
+
+from IPython.Debugger import Tracer
+dh = Tracer()
 
 class BSpline(object):
 	
@@ -35,53 +38,98 @@ class BSpline(object):
 	
 	def plot_knots(self):
 		kns = self.knots[self.length:-self.length]
-		pts = array([self(kn) for kn in kns[:-1]])
+		pts = array([self(kn,i) for i,kn in enumerate(kns[:-1])])
 		plot(pts[:,0],pts[:,1],'sg')
 	
 	plotres = 200
 	
-	def plot(self,a=None,b=None):
+	def plot(self, knot=None, with_knots=False):
 		self.plot_points()
-		self.plot_knots()
-		if a is None or b is None:
-			a = self.knots[self.length]+self.ktol
-			b = self.knots[-self.length]-self.ktol
-		ts = linspace(a,b,self.plotres)
-		vals = array([self(t) for t in ts])
-		plot(vals[:,0],vals[:,1])
-	
-	def __call__(self, t):
-		left = self.find(t)
-		pts = self.points[left-self.length:left+2]
-		kns = self.knots[left - self.degree +1:left + self.degree + 1]
+		if knot is not None:
+			k_range = [knot]
+		else:
+			k_range = range(self.length, len(self.knots)-self.length-1)
+		for k in k_range:
+			left = self.knots[k]
+			right = self.knots[k+1]
+			times = linspace(left, right ,self.plotres * (right-left) + 1)
+			val = self(times,k)
+			plot(val[:,0],val[:,1], label="k = %d" % k)
+			if with_knots:
+				plot(val[[0,-1],0], val[[0,-1],1], 'gs')
+					
+	def __call__(self, t, lknot=None):
+		if lknot is None:
+			if isscalar(t):
+				lknot = self.find(t)
+			else:
+				raise ValueError("A time array is only possible when the left knot is specified.")
+
+		pts = self.points[lknot-self.length:lknot+2]
+		kns = self.knots[lknot - self.degree +1:lknot + self.degree + 1]
+		if len(kns) != 2*self.degree or len(pts) != self.length + 2:
+			raise ValueError("Wrong knot index.")
+
+		scalar_t = isscalar(t)
+		if scalar_t:
+			t = array([t])
+		# we put the time on the first index; all other arrays must be reshaped accordingly
+		t = t.reshape(-1,1,1)
+		pts = pts[newaxis,...]
+		
 		for n in reversed(1+arange(self.degree)):
 			diffs = kns[n:] - kns[:-n]
 			lcoeff = (kns[n:] - t)/diffs
 			rcoeff = (t - kns[:-n])/diffs
-			pts = rcoeff.reshape(-1,1) * pts[1:] + lcoeff.reshape(-1,1) * pts[:-1]
+			pts = rcoeff.transpose(0,2,1) * pts[:,1:,:] + lcoeff.transpose(0,2,1) * pts[:,:-1,:]
 			kns = kns[1:-1]
-		return pts[0]
+		result = pts[:,0,:]
+		if scalar_t:
+			result = squeeze(result) # test this
+		return result
 
 if __name__ == '__main__':
-	ps = array([[1.,2], [2,3], [2,5], [1,6],[1,9]])
-	knots = array([1.,2.,3.,4.,5.,5.,5.])
-#	knots = array([3.,3.,3.,4.,4.,4.])
-	s = BSpline(ps, knots)
-	s(3.5)
+	ex1 = {
+	'pts': array([[1.,2], [2,3], [2,5], [1,6]]),
+	'knots': array([3.,3.,3.,4.,4.,4.])
+	}
+
+	ex2 = {
+	'pts': array([[1.,2], [2,3], [2,5], [1,6], [1,9]]),
+	'knots': array([1.,2.,3.,4.,5.,6.,7.])
+	}
+	
+	# only C0
+	ex3 = {
+	'pts': array([[1.,2], [2,3], [2,5], [1,6], [1,9], [2,11], [2,9]]),
+	'knots': array([1.,2.,3.,4.,4.,4.,5.,6.,6.])
+	}
+	
+	# discontinuous
+	ex4 = {
+	'pts': array([[1.,2], [2,3], [2,5], [1,6], [1,9], [2,11], [2,9], [1.5,8]]),
+	'knots': array([1.,2.,3.,4.,4.,4.,4.,5.,6.,6.])
+	}
+	
+	ex = ex4
+	
+	s = BSpline(ex['pts'], ex['knots'])
+	
+	print s(array([3.2,3.5]), 2)
 	from pylab import clf
 	clf()
 #	s.plot_points()
 #	s.plot_knots()
-#	s.plot()#(3.01,4.99)
+	s.plot(with_knots=True)
 	
-	deBoor = array([[0.7,-0.4],
-				[1.0,-0.4],
-				[2.5,-1.2],
-				[3.2,-.5],
-				[-0.2,-.5],
-				[.5,-1.2],
-				[2.0,-.4],
-				[2.3,-.4]])
-	param = array([1.,1.,1.,1.2,1.4,1.6,1.8,2.,2.,2.])
-	sc = BSpline(deBoor,param)
-	sc.plot()
+## 	deBoor = array([[0.7,-0.4],
+## 				[1.0,-0.4],
+## 				[2.5,-1.2],
+## 				[3.2,-.5],
+## 				[-0.2,-.5],
+## 				[.5,-1.2],
+## 				[2.0,-.4],
+## 				[2.3,-.4]])
+## 	param = array([1.,1.,1.,1.2,1.4,1.6,1.8,2.,2.,2.])
+## 	sc = BSpline(deBoor,param)
+## 	sc.plot()
