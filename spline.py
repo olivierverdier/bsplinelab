@@ -18,6 +18,10 @@ class BSpline(object):
 	ktol = 1e-1
 	
 	def find(self, t):
+		"""
+		Unfinished function to find out between which node a time t is.
+		"""
+		raise DeprecationWarning
 		# test this!
 		dist = self.knots - t
 		# test if it's right on a knot
@@ -34,30 +38,52 @@ class BSpline(object):
 ## 		return candidate
 	
 	def plot_points(self):
-		plot(self.points[:,0],self.points[:,1],'ro')
+		"""
+		Plot the control points.
+		"""
+		plot(self.points[:,0],self.points[:,1],'ro:')
 	
-	def plot_knots(self):
-		kns = self.knots[self.length:-self.length]
-		pts = array([self(kn,i) for i,kn in enumerate(kns[:-1])])
-		plot(pts[:,0],pts[:,1],'sg')
+## 	def plot_knots(self):
+## 		kns = self.knots[self.length:-self.length]
+## 		pts = array([self(kn,i) for i,kn in enumerate(kns[:-1])])
+## 		plot(pts[:,0],pts[:,1],'sg')
 	
 	plotres = 200
 	
-	def plot(self, knot=None, with_knots=False):
-		self.plot_points()
-		if knot is not None:
-			k_range = [knot]
-		else:
+	def compute(self, k_range=None):
+		"""
+		Compute the points from knot numbers k_range till the next ones.
+		"""
+		if k_range is None:
 			k_range = range(self.length, len(self.knots)-self.length-1)
+		res = []
 		for k in k_range:
 			left = self.knots[k]
 			right = self.knots[k+1]
 			times = linspace(left, right ,self.plotres * (right-left) + 1)
-			val = self(times,k)
-			plot(val[:,0],val[:,1], label="k = %d" % k)
+			res.append((times,k,self(times,k)))
+		return res
+	
+	def plot(self, knot=None, with_knots=False):
+		"""
+		Plot the curve.
+		"""
+		self.plot_points()
+		res = self.compute(knot)
+		for t,k,val in res:
+			plot(val[:,0],val[:,1], label="%1.f - %1.f" % (self.knots[k], self.knots[k+1]))
 			if with_knots:
 				plot(val[[0,-1],0], val[[0,-1],1], 'gs')
-					
+	
+	def plot_basis(self):
+		"""
+		Plot the basis function for the given knot (or all of them)
+		"""
+		save_pts = self.points
+		for k in k_range:
+			self.points = zeros(len(self.knots))
+			
+		
 	def __call__(self, t, lknot=None):
 		if lknot is None:
 			if isscalar(t):
@@ -87,6 +113,13 @@ class BSpline(object):
 		if scalar_t:
 			result = squeeze(result) # test this
 		return result
+	
+## class BSpline_basis(BSpline):
+## 	def __init__(self, *args, **kwargs):
+## 		super(BSpline_basis, self).__init__(self, *args, **kwargs)
+## 		self.points = arange(len(self.points)).reshape(-1,1)
+	
+			
 
 if __name__ == '__main__':
 	ex1 = {
@@ -111,6 +144,13 @@ if __name__ == '__main__':
 	'knots': array([1.,2.,3.,4.,4.,4.,4.,5.,6.,6.])
 	}
 	
+        deBoor=[[0.7,-0.4],[1.0,-0.4],[2.5,-1.2],[3.2,-.5],[-0.2,-.5],[.5,-1.2],[2.0,-.4],[2.3,-.4]]
+        param=[1.,1.,1.,1.2,1.4,1.6,1.8,2.,2.,2.]
+
+	ex_Claus = {}
+	ex_Claus['pts'] = array(deBoor)
+	ex_Claus['knots'] = array(param)
+
 	ex = ex4
 	
 	s = BSpline(ex['pts'], ex['knots'])
