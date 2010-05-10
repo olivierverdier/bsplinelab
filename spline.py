@@ -49,28 +49,25 @@ class BSpline(object):
 ## 		plot(pts[:,0],pts[:,1],'sg')
 	
 	plotres = 200
-	
-	def compute(self, k_range=None):
+
+	def generate_points(self, k_range=None):
 		"""
 		Compute the points from knot numbers k_range till the next ones.
 		"""
 		if k_range is None:
 			k_range = range(self.length, len(self.knots)-self.length-1)
-		res = []
 		for k in k_range:
-			left = self.knots[k]
-			right = self.knots[k+1]
-			times = linspace(left, right ,self.plotres * (right-left) + 1)
-			res.append((times,k,self(times,k)))
-		return res
+			left, right = self.knots[k], self.knots[k+1]
+			times = linspace(left, right, self.plotres * (right-left) + 1)
+			yield (times,k,self(times,k))
+	
 	
 	def plot(self, knot=None, with_knots=False):
 		"""
 		Plot the curve.
 		"""
 		self.plot_points()
-		res = self.compute(knot)
-		for t,k,val in res:
+		for t,k,val in self.generate_points(knot):
 			plot(val[:,0],val[:,1], label="%1.f - %1.f" % (self.knots[k], self.knots[k+1]))
 			if with_knots:
 				plot(val[[0,-1],0], val[[0,-1],1], 'gs')
