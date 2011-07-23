@@ -50,12 +50,15 @@ class BSpline(object):
 
 	plotres = 200
 
+	def k_range(self):
+		return range(self.length, len(self.knots)-self.length-1)
+
 	def generate_points(self, k_range=None):
 		"""
 		Compute the points from knot numbers k_range till the next ones.
 		"""
 		if k_range is None:
-			k_range = range(self.length, len(self.knots)-self.length-1)
+			k_range = self.k_range()
 		for k in k_range:
 			left, right = self.knots[k], self.knots[k+1]
 			times = np.linspace(left, right, self.plotres * (right-left) + 1)
@@ -71,14 +74,6 @@ class BSpline(object):
 			plt.plot(val[:,0],val[:,1], label="%1.f - %1.f" % (self.knots[k], self.knots[k+1]))
 			if with_knots:
 				plt.plot(val[[0,-1],0], val[[0,-1],1], 'gs')
-
-	def plot_basis(self):
-		"""
-		Plot the basis function for the given knot (or all of them)
-		"""
-		save_pts = self.points
-		for k in k_range:
-			self.points = zeros(len(self.knots))
 
 
 	def __call__(self, t, lknot=None):
