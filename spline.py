@@ -106,10 +106,23 @@ class BSpline(object):
 			result = np.squeeze(result) # test this
 		return result
 
-## class BSpline_basis(BSpline):
-## 	def __init__(self, *args, **kwargs):
-## 		super(BSpline_basis, self).__init__(self, *args, **kwargs)
-## 		self.points = arange(len(self.points)).reshape(-1,1)
+class Bezier(BSpline):
+	def __init__(self, points):
+		nb_points = len(points)
+		self.rknot = nb_points-1
+		knots = np.zeros(2*self.rknot)
+		knots[self.rknot:] = 1
+		super(Bezier,self).__init__(points,knots)
+
+	def __call__(self,t):
+		return super(Bezier,self).__call__(t, lknot=self.rknot-1)
+
+	def plot(self, left=0, right=1):
+		self.plot_points()
+		ts = np.linspace(left,right,self.plotres)
+		res = self(ts)
+		plt.plot(res[:,0], res[:,1])
+
 
 
 
@@ -118,6 +131,9 @@ if __name__ == '__main__':
 	'points': np.array([[1.,2], [2,3], [2,5], [1,6]]),
 	'knots': np.array([3.,3.,3.,4.,4.,4.])
 	}
+
+	b = Bezier(ex1['points'])
+	#b.plot()
 
 	ex2 = {
 	'points': np.array([[1.,2], [2,3], [2,5], [1,6], [1,9]]),
