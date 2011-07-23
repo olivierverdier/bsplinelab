@@ -71,7 +71,7 @@ class BSpline(object):
 		"""
 		self.plot_points()
 		for t,k,val in self.generate_points(knot):
-			plt.plot(val[:,0],val[:,1], label="%1.f - %1.f" % (self.knots[k], self.knots[k+1]))
+			plt.plot(val[:,0],val[:,1], label="{:1.0f} - {:1.0f}".format(self.knots[k], self.knots[k+1]))
 			if with_knots:
 				plt.plot(val[[0,-1],0], val[[0,-1],1], 'gs')
 
