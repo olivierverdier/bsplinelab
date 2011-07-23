@@ -10,8 +10,8 @@ dh = Tracer()
 class BSpline(object):
 
 	def __init__(self, points, knots):
-		self.points = points
-		self.knots = knots
+		self.points = np.array(points, float)
+		self.knots = np.array(knots, float)
 		self.length = len(knots) - len(points)
 		self.degree = self.length + 1
 
