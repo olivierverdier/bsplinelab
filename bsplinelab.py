@@ -261,16 +261,23 @@ class BSplineLab(HasTraits):
 		self.plot = container
 
 
-butterfly = {
-	'control_points': [[0.7,-0.4],[1.0,-0.4],[2.5,-1.2],[3.2,-.5],[-0.2,-.5],[.5,-1.2],[2.0,-.4],[2.3,-.4]],
-	'knots': [1.,1.,1.,1.2,1.4,1.6,1.8,2.,2.,2.],
-	}
-
-control_points = np.array([[1.3,2], [2,3], [1.8,5], [1,6], [2,2]])
-knots = [0.,0.2,0.5,0.8,1.2,1.5,]#1.8,2]
-
-demo = BSplineLab(**butterfly)
 
 if __name__ == "__main__":
+	bretzel = {
+		'control_points': [[0.7,-0.4],[1.0,-0.4],[2.5,-1.2],[3.2,-.5],[-0.2,-.5],[.5,-1.2],[2.0,-.4],[2.3,-.4]],
+		'knots': [1.,1.,1.,1.2,1.4,1.6,1.8,2.,2.,2.],
+		}
+
+	quadratic = {
+		'control_points': [[1.3,2], [2,3], [1.8,5], [1,6], [1.1,2.8]],
+		'knots': [0.,0.2,0.5,0.8,1.2,1.5,],
+		}
+
+	bezier = {
+		'control_points': np.array([[1.,2], [2,3], [2,5], [1,6]]),
+		'knots': [0.,0.,0.,1.,1.,1.],
+	}
+
+	demo = BSplineLab(**bretzel)
 	demo.configure_traits()
 
