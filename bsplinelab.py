@@ -15,7 +15,6 @@ alt-right-arrow moves you forwards and backwards through the "zoom history".
 
 # Major library imports
 import numpy as np
-from scipy.special import jn
 
 from enthought.chaco.example_support import COLOR_PALETTE
 
@@ -218,16 +217,9 @@ class BSplineLab(HasTraits):
 		plot_factory = Plot(self.plot_data)
 		self.plot_factory = plot_factory
 
-		#lineplot = create_line_plot((x,y), color=tuple(COLOR_PALETTE[0]), width=2.0)
 		lineplot, = plot_factory.plot(['x','y'])
-
 		lineplot.selected_color = "none"
-		#scatter = ScatterPlot(index = lineplot.index,
-						#value = lineplot.value,
-						#index_mapper = lineplot.index_mapper,
-						#value_mapper = lineplot.value_mapper,
-						#color = tuple(COLOR_PALETTE[0]),
-						#marker_size = 5)
+
 		scatter, = plot_factory.plot(['x','y'], type='scatter', color= tuple(COLOR_PALETTE[0]), marker_size=5)
 		scatter.index.sort_order = "ascending"
 
