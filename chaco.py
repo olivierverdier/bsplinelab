@@ -31,7 +31,7 @@ from enthought.traits.ui.api import Item, Group, View, TextEditor
 from enthought.chaco.api import add_default_axes, add_default_grids, OverlayPlotContainer, PlotLabel, ScatterPlot, create_line_plot, LinePlot, ArrayPlotData, Plot
 from enthought.chaco.tools.api import PanTool, ZoomTool
 
-from spline import Bezier
+from spline import BSpline
 
 class PointDraggingTool(DragTool):
 
@@ -164,7 +164,7 @@ class Demo(HasTraits):
 
 
 	def _knots_default(self):
-		return [1.,2.]
+		return [0.,0.2,0.5,0.8,1.2,1.5,]#1.8,2]
 
 	def _plot_data_default(self):
 		# Create the initial data
@@ -175,14 +175,13 @@ class Demo(HasTraits):
 		self._add_spline_points(controls)
 		return controls
 
-	@classmethod
 	def plot_points(self, control_matrix):
-		b = Bezier(control_matrix)
-		ts = np.linspace(0,1,300)
-		values = b(ts)
+		b = BSpline(control_matrix, self.knots)
+		self._bspline = b
+		vlist = list(v for (t,k,v) in b.generate_points())
+		values = np.vstack(vlist)
 		return values
 
-	@classmethod
 	def _add_spline_points(self, plot_data,):
 		control_matrix = np.vstack([plot_data.arrays['x'], plot_data.arrays['y']]).T
 		values = self.plot_points(control_matrix)
