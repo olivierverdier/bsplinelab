@@ -24,7 +24,7 @@ from enthought.chaco.example_support import COLOR_PALETTE
 # Enthought library imports
 from enthought.enable.tools.api import DragTool
 from enthought.enable.api import Component, ComponentEditor, Window
-from enthought.traits.api import HasTraits, Instance, Int, Tuple, on_trait_change, Array, List, Float, CFloat, Str
+from enthought.traits.api import HasTraits, Instance, Int, Tuple, on_trait_change, Array, List, ListFloat, Float, CFloat, Str
 from enthought.traits.ui.api import Item, Group, View, TextEditor
 
 # Chaco imports
@@ -125,6 +125,18 @@ class PointDraggingTool(DragTool):
 
 		return None
 
+class StrListFloat(List):
+	def validate(self, object, name, value):
+		if isinstance(value, basestring):
+			try:
+				list_value = eval(value)
+			except SyntaxError:
+				self.error(object, name, value)
+		else:
+			list_value = value
+		validated_value = super(StrListFloat, self).validate(object, name, list_value)
+		return validated_value
+
 
 #===============================================================================
 # # Create the Chaco plot.
@@ -139,15 +151,20 @@ title="Simple line plot"
 class Demo(HasTraits):
 	plot_data = Instance(ArrayPlotData)
 	plot = Instance(Component)
+	knots = StrListFloat()
 
 	traits_view = View(
 					Group(
 						Item('plot', editor=ComponentEditor(size=size),
 							show_label=False),
+						Item('knots', editor=TextEditor()),
 						orientation = "vertical",),
 					resizable=True, title=title
 					)
 
+
+	def _knots_default(self):
+		return [1.,2.]
 
 	def _plot_data_default(self):
 		# Create the initial data
