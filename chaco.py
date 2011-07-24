@@ -26,7 +26,7 @@ from enthought.traits.api import HasTraits, Instance, Int, Tuple, on_trait_chang
 from enthought.traits.ui.api import Item, Group, View, TextEditor
 
 # Chaco imports
-from enthought.chaco.api import add_default_axes, add_default_grids, OverlayPlotContainer, PlotLabel, ScatterPlot, create_line_plot, LinePlot, ArrayPlotData, Plot
+from enthought.chaco.api import add_default_axes, add_default_grids, OverlayPlotContainer, PlotLabel, ScatterPlot, create_line_plot, LinePlot, ArrayPlotData, Plot, palette14, palette11
 from enthought.chaco.tools.api import PanTool, ZoomTool
 
 from spline import BSpline
@@ -175,16 +175,30 @@ class Demo(HasTraits):
 
 	def plot_points(self, control_matrix):
 		b = BSpline(control_matrix, self.knots)
+		b.plotres = 300
 		self._bspline = b
 		vlist = list(v for (t,k,v) in b.generate_points())
-		values = np.vstack(vlist)
-		return values
+		return vlist
+
+	palette = palette14
 
 	def _add_spline_points(self, plot_data,):
 		control_matrix = np.vstack([plot_data.arrays['x'], plot_data.arrays['y']]).T
-		values = self.plot_points(control_matrix)
-		plot_data.set_data(name='xp', new_data=values[:,0])
-		plot_data.set_data(name='yp', new_data=values[:,1])
+		vlist = self.plot_points(control_matrix)
+		# remove existing spline renderers
+		self.plot.remove(*self.spline_renderers)
+		# rebuild a new list of spline renderers
+		def gen_renderers():
+			for index, values in enumerate(vlist):
+				xname = 'xp[{}]'.format(index)
+				yname = 'yp[{}]'.format(index)
+				plot_data.set_data(name=xname, new_data=values[:,0])
+				plot_data.set_data(name=yname, new_data=values[:,1])
+				spline_renderer, = self.plot_factory.plot([xname,yname], color=self.palette[index % len(self.palette)], line_width=3.)
+				yield spline_renderer
+		self.spline_renderers = list(gen_renderers())
+		self.plot.add(*self.spline_renderers)
+		self.plot.request_redraw()
 
 	def _update_spline_points(self):
 		self._add_spline_points(self.plot_data,)
@@ -195,6 +209,7 @@ class Demo(HasTraits):
 
 
 		plot_factory = Plot(self.plot_data)
+		self.plot_factory = plot_factory
 
 		#lineplot = create_line_plot((x,y), color=tuple(COLOR_PALETTE[0]), width=2.0)
 		lineplot, = plot_factory.plot(['x','y'])
@@ -227,14 +242,12 @@ class Demo(HasTraits):
 
 		scatter.tools.append(PointDraggingTool(scatter))
 
-		spline_renderer, = plot_factory.plot(['xp','yp'], type='line')
 
 		polygon_renderer, = plot_factory.plot(['x','y'], type='polygon', alpha=.3, face_color=[.2,.2,.8])
 		container.add(polygon_renderer)
 
 		container.add(lineplot)
 		container.add(scatter)
-		container.add(spline_renderer)
 
 		# Add the title at the top
 		container.overlays.append(PlotLabel("Line Editor",
