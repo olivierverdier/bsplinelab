@@ -1,8 +1,12 @@
 #!/usr/bin/env python
+# −*− coding: UTF−8 −*−
+from __future__ import division
 """
-Allows editing of a line plot.
+Allows experimenting with B-Splines.
 
-Left-dragging a point will move its position.
+Left-dragging a control point will move its position.
+
+Modifying, adding or removing knots will redraw the spline accordingly.
 
 Right-drag pans the plot.
 
@@ -31,6 +35,11 @@ from enthought.chaco.tools.api import PanTool, ZoomTool
 from spline import BSpline
 
 class PointDraggingTool(DragTool):
+	"""
+Point Dragging Tool, as implemented in the `edit_line.py` Chaco example.
+
+https://github.com/enthought/chaco/blob/master/examples/demo/edit_line.py
+	"""
 
 	component = Instance(Component)
 
@@ -123,6 +132,9 @@ class PointDraggingTool(DragTool):
 		return None
 
 class StrListFloat(List):
+	"""
+Simple Trait class that allows to set up a list of float using a string.
+	"""
 	def validate(self, object, name, value):
 		if isinstance(value, basestring):
 			try:
@@ -136,16 +148,21 @@ class StrListFloat(List):
 
 
 #===============================================================================
-# # Create the Chaco plot.
-#===============================================================================
-#===============================================================================
 # Attributes to use for the plot view.
 size=(700,600)
 title="BSpline"
 #===============================================================================
-# # Demo class that is used by the demo.py application.
+# Main Class
 #===============================================================================
 class BSplineLab(HasTraits):
+	"""
+The class may be instantiated with a nx2 array (the control points) and a list of floats (the knots).
+The application is then run by calling the method `configure_traits`:
+
+>>> lab = BsplineLab(control_points=np.array([[1.,2], [2,3], [2,5], [1,6]]),
+		knots=[0.,0.,0.,1.,1.,1.])
+>>> lab.configure_traits()
+	"""
 	plot_data = Instance(ArrayPlotData)
 	plot = Instance(Component)
 	knots = StrListFloat()
