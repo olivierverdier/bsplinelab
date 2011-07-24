@@ -97,6 +97,8 @@ class BSpline(object):
 
 		for n in reversed(1+np.arange(self.degree)):
 			diffs = kns[n:] - kns[:-n]
+			# trick to handle cases of equal knots:
+			diffs[diffs==0.] = np.finfo(kns.dtype).eps
 			lcoeff = (kns[n:] - t)/diffs
 			rcoeff = (t - kns[:-n])/diffs
 			pts = rcoeff.transpose(0,2,1) * pts[:,1:,:] + lcoeff.transpose(0,2,1) * pts[:,:-1,:]
