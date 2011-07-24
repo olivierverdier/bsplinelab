@@ -252,7 +252,7 @@ class BSplineLab(HasTraits):
 		container.add(scatter)
 
 		# Add the title at the top
-		container.overlays.append(PlotLabel("Line Editor",
+		container.overlays.append(PlotLabel("BSpline Lab",
 								component=container,
 								font = "swiss 16",
 								overlay_position="top"))
