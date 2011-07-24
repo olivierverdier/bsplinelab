@@ -146,7 +146,7 @@ title="BSpline"
 #===============================================================================
 # # Demo class that is used by the demo.py application.
 #===============================================================================
-class Demo(HasTraits):
+class BSplineLab(HasTraits):
 	plot_data = Instance(ArrayPlotData)
 	plot = Instance(Component)
 	knots = StrListFloat()
@@ -161,17 +161,23 @@ class Demo(HasTraits):
 					)
 
 
-	def _knots_default(self):
-		return [0.,0.2,0.5,0.8,1.2,1.5,]#1.8,2]
+	def __init__(self, control_points, knots):
+		self._set_control_points(control_points)
+		self._setup_plot()
+		self.spline_renderers = []
+		self.on_trait_change(self._update_spline_points, 'knots')
+		self._set_knots(knots)
 
-	def _plot_data_default(self):
+	def _set_control_points(self, control_points):
 		# Create the initial data
-		points = np.array([[1.3,2], [2,3], [1.8,5], [1,6], [2,2]])
-		y = points[:,1]
-		x = points[:,0]
+		control_points = np.array(control_points)
+		y = control_points[:,1]
+		x = control_points[:,0]
 		controls = ArrayPlotData(x=x, y=y,)
-		self._add_spline_points(controls)
-		return controls
+		self.plot_data = controls
+
+	def _set_knots(self, knots):
+		self.knots = knots
 
 	def plot_points(self, control_matrix):
 		b = BSpline(control_matrix, self.knots)
@@ -203,7 +209,7 @@ class Demo(HasTraits):
 	def _update_spline_points(self):
 		self._add_spline_points(self.plot_data,)
 
-	def _plot_default(self):
+	def _setup_plot(self):
 		container = OverlayPlotContainer(padding = 50, fill_padding = True,
 										bgcolor = "lightgray", use_backbuffer=True)
 
@@ -242,7 +248,6 @@ class Demo(HasTraits):
 
 		scatter.tools.append(PointDraggingTool(scatter))
 
-
 		polygon_renderer, = plot_factory.plot(['x','y'], type='polygon', alpha=.3, face_color=[.2,.2,.8])
 		container.add(polygon_renderer)
 
@@ -255,11 +260,18 @@ class Demo(HasTraits):
 								font = "swiss 16",
 								overlay_position="top"))
 
-		return container
+		self.plot = container
 
 
+butterfly = {
+	'control_points': [[0.7,-0.4],[1.0,-0.4],[2.5,-1.2],[3.2,-.5],[-0.2,-.5],[.5,-1.2],[2.0,-.4],[2.3,-.4]],
+	'knots': [1.,1.,1.,1.2,1.4,1.6,1.8,2.,2.,2.],
+	}
 
-demo = Demo()
+control_points = np.array([[1.3,2], [2,3], [1.8,5], [1,6], [2,2]])
+knots = [0.,0.2,0.5,0.8,1.2,1.5,]#1.8,2]
+
+demo = BSplineLab(**butterfly)
 
 if __name__ == "__main__":
 	demo.configure_traits()
