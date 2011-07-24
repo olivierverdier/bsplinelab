@@ -15,10 +15,8 @@ alt-right-arrow moves you forwards and backwards through the "zoom history".
 
 # Major library imports
 import numpy as np
-from numpy import linspace
 from scipy.special import jn
 
-from enthought.enable.example_support import DemoFrame, demo_main
 from enthought.chaco.example_support import COLOR_PALETTE
 
 # Enthought library imports
