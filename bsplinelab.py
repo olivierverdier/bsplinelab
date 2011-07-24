@@ -167,6 +167,7 @@ class BSplineLab(HasTraits):
 		self.spline_renderers = []
 		self.on_trait_change(self._update_spline_points, 'knots')
 		self._set_knots(knots)
+		self.zoom_tool.zoom_out(1.1)
 
 	def _set_control_points(self, control_points):
 		# Create the initial data
@@ -243,8 +244,8 @@ class BSplineLab(HasTraits):
 
 		# The ZoomTool tool is stateful and allows drawing a zoom
 		# box to select a zoom region.
-		zoom = ZoomTool(scatter, tool_mode="box", always_on=False, drag_button=None)
-		scatter.overlays.append(zoom)
+		self.zoom_tool = ZoomTool(scatter, tool_mode="box", always_on=False, drag_button=None)
+		scatter.overlays.append(self.zoom_tool)
 
 		scatter.tools.append(PointDraggingTool(scatter))
 
