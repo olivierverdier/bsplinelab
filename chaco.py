@@ -248,9 +248,6 @@ class BSplineLab(HasTraits):
 
 		scatter.tools.append(PointDraggingTool(scatter))
 
-		polygon_renderer, = plot_factory.plot(['x','y'], type='polygon', alpha=.3, face_color=[.2,.2,.8])
-		container.add(polygon_renderer)
-
 		container.add(lineplot)
 		container.add(scatter)
 
