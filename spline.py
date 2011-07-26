@@ -51,6 +51,8 @@ class BSpline(object):
 	plotres = 200
 
 	def k_range(self):
+		if self.length < 0:
+			return []
 		return range(self.length, len(self.knots)-self.length-1)
 
 	def generate_points(self, k_range=None):
