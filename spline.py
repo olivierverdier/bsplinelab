@@ -47,18 +47,18 @@ class BSpline(object):
 
 	plotres = 200
 
-	def k_range(self):
+	def knot_range(self):
 		if self.length < 0:
 			return []
 		return range(self.length, len(self.knots)-self.length-1)
 
-	def generate_points(self, k_range=None):
+	def generate_points(self, knot_range=None):
 		"""
-		Compute the points from knot numbers k_range till the next ones.
+		Compute the points from knot numbers knot_range till the next ones.
 		"""
-		if k_range is None:
-			k_range = self.k_range()
-		for k in k_range:
+		if knot_range is None:
+			knot_range = self.knot_range()
+		for k in knot_range:
 			left, right = self.knots[k], self.knots[k+1]
 			times = np.linspace(left, right, self.plotres * (right-left) + 1)
 			yield (times,k,self(times,k,))
