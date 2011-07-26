@@ -4,9 +4,6 @@ from __future__ import division
 import numpy as np
 import matplotlib.pyplot as plt
 
-from IPython.Debugger import Tracer
-dh = Tracer()
-
 class BSpline(object):
 
 	def __init__(self, points, knots):
