@@ -60,7 +60,7 @@ class BSpline(object):
 			knot_range = self.knot_range()
 		for k in knot_range:
 			left, right = self.knots[k], self.knots[k+1]
-			times = np.linspace(left, right, self.plotres * (right-left) + 1)
+			times = np.linspace(left, right, self.plotres)
 			yield (times,k,self(times,k,))
 
 
