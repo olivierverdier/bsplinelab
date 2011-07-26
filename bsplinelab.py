@@ -272,8 +272,15 @@ The application is then run by calling the method `configure_traits`:
 
 
 if __name__ == "__main__":
-	bretzel = {
-		'control_points': [[0.7,-0.4],[1.0,-0.4],[2.5,-1.2],[3.2,-.5],[-0.2,-.5],[.5,-1.2],[2.0,-.4],[2.3,-.4]],
+	pretzel = {
+		'control_points': np.array([[-3.2,  0.9],
+								   [-2. ,  0.9],
+								   [ 4. , -2.3],
+								   [ 6.8,  0.5],
+								   [-6.8,  0.5],
+								   [-4. , -2.3],
+								   [ 2. ,  0.9],
+								   [ 3.2,  0.9]]),
 		'knots': [1.,1.,1.,1.2,1.4,1.6,1.8,2.,2.,2.],
 		}
 
@@ -287,6 +294,6 @@ if __name__ == "__main__":
 		'knots': [0.,0.,0.,1.,1.,1.],
 	}
 
-	demo = BSplineLab(**bretzel)
+	demo = BSplineLab(**pretzel)
 	demo.configure_traits()
 
