@@ -115,14 +115,8 @@ class Bezier(BSpline):
 		knots[self.rknot:] = 1
 		super(Bezier,self).__init__(control_points,knots)
 
-	def __call__(self,t):
+	def __call__(self, t, k=None):
 		return super(Bezier,self).__call__(t, lknot=self.rknot-1)
-
-	def plot(self, left=0, right=1):
-		self.plot_control_points()
-		ts = np.linspace(left,right,self.plotres)
-		res = self(ts)
-		plt.plot(res[:,0], res[:,1])
 
 def plot_nbasis(n):
 	nb_pts = 2*n+1
