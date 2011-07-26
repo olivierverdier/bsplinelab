@@ -6,10 +6,10 @@ import matplotlib.pyplot as plt
 
 class BSpline(object):
 
-	def __init__(self, points, knots):
-		self.points = np.array(points, float)
+	def __init__(self, control_points, knots):
+		self.control_points = np.array(control_points, float)
 		self.knots = np.array(knots, float)
-		self.length = len(knots) - len(points)
+		self.length = len(knots) - len(control_points)
 		self.degree = self.length + 1
 
 	ktol = 1e-1
@@ -34,11 +34,11 @@ class BSpline(object):
 ## 		candidate = (dist > 0).argmax() - 1
 ## 		return candidate
 
-	def plot_points(self):
+	def plot_control_points(self):
 		"""
 		Plot the control points.
 		"""
-		plt.plot(self.points[:,0],self.points[:,1],'ro:')
+		plt.plot(self.control_points[:,0],self.control_points[:,1],'ro:')
 
 ## 	def plot_knots(self):
 ## 		kns = self.knots[self.length:-self.length]
@@ -68,7 +68,7 @@ class BSpline(object):
 		"""
 		Plot the curve.
 		"""
-		self.plot_points()
+		self.plot_control_points()
 		for t,k,val in self.generate_points(knot):
 			plt.plot(val[:,0],val[:,1], label="{:1.0f} - {:1.0f}".format(self.knots[k], self.knots[k+1]))
 			if with_knots:
@@ -82,7 +82,7 @@ class BSpline(object):
 			else:
 				raise ValueError("A time array is only possible when the left knot is specified.")
 
-		pts = self.points[lknot-self.length:lknot+2]
+		pts = self.control_points[lknot-self.length:lknot+2]
 		kns = self.knots[lknot - self.degree +1:lknot + self.degree + 1]
 		if len(kns) != 2*self.degree or len(pts) != self.length + 2:
 			raise ValueError("Wrong knot index.")
@@ -108,18 +108,18 @@ class BSpline(object):
 		return result
 
 class Bezier(BSpline):
-	def __init__(self, points):
-		nb_points = len(points)
-		self.rknot = nb_points-1
+	def __init__(self, control_points):
+		nb_control_points = len(control_points)
+		self.rknot = nb_control_points-1
 		knots = np.zeros(2*self.rknot)
 		knots[self.rknot:] = 1
-		super(Bezier,self).__init__(points,knots)
+		super(Bezier,self).__init__(control_points,knots)
 
 	def __call__(self,t):
 		return super(Bezier,self).__call__(t, lknot=self.rknot-1)
 
 	def plot(self, left=0, right=1):
-		self.plot_points()
+		self.plot_control_points()
 		ts = np.linspace(left,right,self.plotres)
 		res = self(ts)
 		plt.plot(res[:,0], res[:,1])
@@ -127,10 +127,10 @@ class Bezier(BSpline):
 def plot_nbasis(n):
 	nb_pts = 2*n+1
 	knots = np.arange(nb_pts+n-1)
-	points = np.vstack([np.arange(nb_pts),np.zeros(nb_pts)]).T
-	points[n,1] = 1.
+	control_points = np.vstack([np.arange(nb_pts),np.zeros(nb_pts)]).T
+	control_points[n,1] = 1.
 
-	spline = BSpline(points, knots)
+	spline = BSpline(control_points, knots)
 	spline.plot()
 
 from scipy.linalg import toeplitz
@@ -181,35 +181,35 @@ def noplot_basis(x, h=1.):
 
 if __name__ == '__main__':
 	ex1 = {
-	'points': np.array([[1.,2], [2,3], [2,5], [1,6]]),
+	'control_points': np.array([[1.,2], [2,3], [2,5], [1,6]]),
 	'knots': np.array([3.,3.,3.,4.,4.,4.])
 	}
 
-	b = Bezier(ex1['points'])
+	b = Bezier(ex1['control_points'])
 	#b.plot()
 
 	plot_nbasis(2)
 
 	ex2 = {
-	'points': np.array([[1.,2], [2,3], [2,5], [1,6], [1,9]]),
+	'control_points': np.array([[1.,2], [2,3], [2,5], [1,6], [1,9]]),
 	'knots': np.array([1.,2.,3.,4.,5.,6.,7.])
 	}
 
 	# only C0
 	ex3 = {
-	'points': np.array([[1.,2], [2,3], [2,5], [1,6], [1,9], [2,11], [2,9]]),
+	'control_points': np.array([[1.,2], [2,3], [2,5], [1,6], [1,9], [2,11], [2,9]]),
 	'knots': np.array([1.,2.,3.,4.,4.,4.,5.,6.,6.])
 	}
 
 	# discontinuous cubic
 	ex4 = {
-	'points': np.array([[1.,2], [2,3], [2,5], [1,6], [1,9], [2,11], [2,9], [1.5,8]]),
+	'control_points': np.array([[1.,2], [2,3], [2,5], [1,6], [1,9], [2,11], [2,9], [1.5,8]]),
 	'knots': np.array([1.,2.,3.,4.,4.,4.,4.,5.,6.,6.])
 	}
 
 	# discontinuous quad
 	ex_d2 = {
-	'points': np.array([[1.,2], [2,3], [1,6], [1,9], [2,11],  [1.5,8]]),
+	'control_points': np.array([[1.,2], [2,3], [1,6], [1,9], [2,11],  [1.5,8]]),
 	'knots': np.array([1.,1.,2.,2.,2.,3.,3.,])
 	}
 
@@ -218,12 +218,12 @@ if __name__ == '__main__':
 	param=[1.,1.,1.,1.2,1.4,1.6,1.8,2.,2.,2.]
 
 	ex_Claus = {}
-	ex_Claus['points'] = np.array(deBoor)
+	ex_Claus['control_points'] = np.array(deBoor)
 	ex_Claus['knots'] = np.array(param)
 
 	ex = ex4
 
-	s = BSpline(ex['pts'], ex['knots'])
+	s = BSpline(**ex)
 
 	print s(np.array([3.2,3.5]), 2)
 #	s.plot_points()
