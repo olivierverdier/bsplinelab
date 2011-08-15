@@ -25,8 +25,8 @@ from enthought.chaco.example_support import COLOR_PALETTE
 # Enthought library imports
 from enthought.enable.tools.api import DragTool
 from enthought.enable.api import Component, ComponentEditor, Window
-from enthought.traits.api import HasTraits, Instance, Int, Tuple, on_trait_change, Array, List, ListFloat, Float, CFloat, Str
-from enthought.traits.ui.api import Item, Group, View, TextEditor
+from enthought.traits.api import HasTraits, Instance, Int, Tuple, on_trait_change, Array, List, ListFloat, Float, Range, CFloat, Str
+from enthought.traits.ui.api import Item, HGroup, Group, View, TextEditor, ArrayEditor
 
 # Chaco imports
 from enthought.chaco.api import add_default_axes, add_default_grids, OverlayPlotContainer, PlotLabel, ScatterPlot, create_line_plot, LinePlot, ArrayPlotData, Plot, palette14, palette11
@@ -163,14 +163,17 @@ The application is then run by calling the method `configure_traits`:
 		knots=[0.,0.,0.,1.,1.,1.])
 >>> lab.configure_traits()
 	"""
-	plot_data = Instance(ArrayPlotData)
+	control_points = Array(np.float, editor=ArrayEditor(width=-50))
+	plot_data = ArrayPlotData
 	plot = Instance(Component)
 	knots = StrListFloat()
+	display = Str()
 
 	traits_view = View(
 					Group(
 						Item('plot', editor=ComponentEditor(size=size),
 							show_label=False),
+						Item('display', style='readonly', show_label=False),
 						Item('knots', editor=TextEditor()),
 						orientation = "vertical",),
 					resizable=True, title=title
@@ -181,13 +184,39 @@ The application is then run by calling the method `configure_traits`:
 		self._set_control_points(control_points)
 		self._setup_plot()
 		self.spline_renderers = []
-		self.on_trait_change(self._update_spline_points, 'knots')
+		self.on_trait_change(self._update, 'knots')
 		self._set_knots(knots)
 		self.zoom_tool.zoom_out(1.1)
 
+	def _update(self):
+		self._update_spline_points()
+		self._update_display()
+
+	def _display_info(self):
+		nb_knots = len(self.knots)
+		nb_control_points = len(self.control_points)
+		degree = self._bspline.degree
+		nb_curves = self._bspline.nb_curves
+		info = dict(
+				nb_knots=nb_knots,
+				nb_control_points=nb_control_points,
+				nb_curves = nb_curves,
+				degree = degree,
+				)
+		if degree < 0:
+			msg = "too few knots/controls."
+		elif nb_curves <= 0:
+			msg = "too many knots/controls."
+		else:
+			msg = "{nb_curves} curves of degree {degree}."
+		return ("{nb_knots} knots, {nb_control_points} controls: "+msg).format(**info)
+
+	def _update_display(self):
+		self.display = self._display_info()
+
 	def _set_control_points(self, control_points):
 		# Create the initial data
-		control_points = np.array(control_points)
+		self.control_points = control_points = np.array(control_points)
 		y = control_points[:,1]
 		x = control_points[:,0]
 		controls = ArrayPlotData(x=x, y=y,)
@@ -206,8 +235,7 @@ The application is then run by calling the method `configure_traits`:
 	palette = palette14
 
 	def _add_spline_points(self, plot_data,):
-		control_matrix = np.vstack([plot_data.arrays['x'], plot_data.arrays['y']]).T
-		vlist = self.plot_points(control_matrix)
+		vlist = self.plot_points(self.control_points)
 		# remove existing spline renderers
 		self.plot.remove(*self.spline_renderers)
 		# rebuild a new list of spline renderers
@@ -224,6 +252,8 @@ The application is then run by calling the method `configure_traits`:
 		self.plot.request_redraw()
 
 	def _update_spline_points(self):
+		control_matrix = np.vstack([self.plot_data.arrays['x'], self.plot_data.arrays['y']]).T
+		self.control_points = control_matrix
 		self._add_spline_points(self.plot_data,)
 
 	def _setup_plot(self):
