@@ -72,7 +72,7 @@ Compute information about nb of curves and degree.
 	def knot_range(self):
 		if self.length < 0:
 			return []
-		return range(self.length, len(self.knots)-self.length-1)
+		return range(self.length, self.length + self.nb_curves)
 
 	def generate_points(self, knot_range=None):
 		"""
