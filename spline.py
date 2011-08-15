@@ -70,13 +70,16 @@ Compute information about nb of curves and degree.
 	plotres = 200
 
 	def knot_range(self):
+		"""
+The range of knots from which to generate the points.
+		"""
 		if self.length < 0:
 			return []
 		return range(self.length, self.length + self.nb_curves)
 
 	def generate_points(self, knot_range=None):
 		"""
-		Compute the points from knot numbers knot_range till the next ones.
+		Compute the points from knot numbers `knot_range` till the next ones.
 		"""
 		if knot_range is None:
 			knot_range = self.knot_range()
@@ -130,6 +133,9 @@ Compute information about nb of curves and degree.
 		return result
 
 class Bezier(BSpline):
+	"""
+Special case of a BSpline. For n+1 points, the knot list is [0]*n+[1]*n.
+	"""
 	def __init__(self, control_points):
 		nb_control_points = len(control_points)
 		self.rknot = nb_control_points-1
