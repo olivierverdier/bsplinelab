@@ -77,14 +77,16 @@ The range of knots from which to generate the points.
 			return []
 		return range(self.length, self.length + self.nb_curves)
 
-	def generate_points(self, knot_range=None):
+	def generate_points(self, knot_range=None, margin=0.):
 		"""
 		Compute the points from knot numbers `knot_range` till the next ones.
 		"""
 		if knot_range is None:
 			knot_range = self.knot_range()
 		for k in knot_range:
-			left, right = self.knots[k], self.knots[k+1]
+			width = self.knots[k+1]-self.knots[k]
+			extra = margin*width
+			left, right = self.knots[k]-margin, self.knots[k+1]+margin
 			times = np.linspace(left, right, self.plotres)
 			yield (times,k,self(times,k,))
 
