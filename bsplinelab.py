@@ -168,6 +168,7 @@ The application is then run by calling the method `configure_traits`:
 	plot = Instance(Component)
 	knots = StrListFloat()
 	display = Str()
+	margin = Range(0.,1.)
 
 	traits_view = View(
 					Group(
@@ -175,6 +176,7 @@ The application is then run by calling the method `configure_traits`:
 							show_label=False),
 						Item('display', style='readonly', show_label=False),
 						Item('knots', editor=TextEditor()),
+						Item('margin',),
 						orientation = "vertical",),
 					resizable=True, title=title
 					)
@@ -185,6 +187,7 @@ The application is then run by calling the method `configure_traits`:
 		self._setup_plot()
 		self.spline_renderers = []
 		self.on_trait_change(self._update, 'knots')
+		self.on_trait_change(self._update, 'margin')
 		self._set_knots(knots)
 		self.zoom_tool.zoom_out(1.1)
 
@@ -229,7 +232,7 @@ The application is then run by calling the method `configure_traits`:
 		b = BSpline(control_matrix, self.knots)
 		b.plotres = 300
 		self._bspline = b
-		vlist = list(v for (t,k,v) in b.generate_points())
+		vlist = list(v for (t,k,v) in b.generate_points(margin=self.margin))
 		return vlist
 
 	palette = palette14
