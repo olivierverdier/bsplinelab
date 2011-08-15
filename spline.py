@@ -5,12 +5,34 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class BSpline(object):
+	ur"""
+BSpline class.
 
+Suppose that there are n+1 control points:
+
+======== ========= ====== =======
+nb knots nb curves degree remarks
+-------- --------- ------ -------
+n        n+1       0      n+1 points
+n+1      n         1      n segments
+n+2      n-1       2
+...      ...       ...
+2n       1         n      if first n and last n knots are equal: Bézier case
+-------- --------- ------ -------
+	"""
 	def __init__(self, control_points, knots):
 		self.control_points = np.array(control_points, float)
 		self.knots = np.array(knots, float)
-		self.length = len(knots) - len(control_points)
+		self.compute_info()
+
+	def compute_info(self):
+		"""
+Compute information about nb of curves and degree.
+		"""
+		nb_control_points = len(self.control_points)
+		self.length = len(self.knots) - nb_control_points
 		self.degree = self.length + 1
+		self.nb_curves = nb_control_points - self.degree
 
 	ktol = 1e-1
 
