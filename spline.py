@@ -35,27 +35,20 @@ Compute information about nb of curves and degree.
 		self.degree = self.length + 1
 		self.nb_curves = nb_control_points - self.degree
 
-	ktol = 1e-1
+	ktol = 1e-13
 
-	def find(self, t):
+	def left_knot(self, t):
 		"""
-		Unfinished function to find out between which node a time t is.
+		Find out between which node a time t is.
 		"""
-		raise DeprecationWarning
-		# test this!
-		dist = self.knots - t
-		# test if it's right on a knot
-		on_knot = abs(dist)
-		nearest = on_knot.argmin()
-		# if the nearest is on the right, return the previous one:
-		knot = self.knots[nearest]
-		if t < knot:
-			nearest -= 1
-# 		if nearest not in range(self.length,len(self.knots) + )
-		return nearest
-## 		# otherwise take the left node
-## 		candidate = (dist > 0).argmax() - 1
-## 		return candidate
+		diff = self.knots[self.length:-self.length] - t
+		isrightof = diff > self.ktol
+		if np.all(isrightof):
+			raise ValueError("Time too small")
+		if np.all(~isrightof):
+			raise ValueError("Time too big")
+		left = np.argmax(isrightof) - 1 # argmax gives the right knot...
+		return left + self.length
 
 	def plot_control_points(self):
 		"""
@@ -106,7 +99,7 @@ The range of knots from which to generate the points.
 	def __call__(self, t, lknot=None):
 		if lknot is None:
 			if np.isscalar(t):
-				lknot = self.find(t)
+				lknot = self.left_knot(t)
 			else:
 				raise ValueError("A time array is only possible when the left knot is specified.")
 
