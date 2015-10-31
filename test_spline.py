@@ -17,11 +17,16 @@ class TestBezier(unittest.TestCase):
 	Check that Bézier with three points generates the parabola y=x**2.
 		"""
 		b = self.b
-		pt_list = list(pts for (t,k,pts) in b.generate_points())
-		self.assertEqual(len(pt_list),1)
 		self.assertEqual(b.nb_curves,1)
-		all_pts = np.vstack(pt_list)
+		ts = np.linspace(0.,1., 200)
+		all_pts = b(ts)
 		npt.assert_array_almost_equal(all_pts[:,0]**2, all_pts[:,1])
+		npt.assert_allclose(b(.5), 0.)
+		self.assertEqual(np.shape(b(.5)), (1,))
+
+	def test_generate(self):
+		pt_list = list(pts for (t,k,pts) in self.b.generate_points())
+		self.assertEqual(len(pt_list), self.b.nb_curves)
 
 	def test_left_knot(self):
 		self.assertEqual(self.b.left_knot(.2), 1)
@@ -39,12 +44,13 @@ class Test_DoubleQuad(unittest.TestCase):
 		self.assertEqual(self.spline.nb_curves,2)
 		self.assertEqual(len(self.spline.knot_range()), self.spline.nb_curves)
 
-	def test_points(self):
-		pt_list = [pts for t,k,pts in self.spline.generate_points()]
-		self.assertEqual(len(pt_list), self.spline.nb_curves)
-		a0,a1 = np.array(pt_list[0]), np.array(pt_list[1])
+	def test_generate(self):
+		gen_pts = list(self.spline.generate_points())
+		self.assertEqual(len(gen_pts), self.spline.nb_curves)
+		a0,a1 = np.array(gen_pts[0][2]), np.array(gen_pts[1][2])
 		npt.assert_array_almost_equal(a0[:,0]**2, a0[:,1])
 		npt.assert_array_almost_equal(-(a1[:,0]-2)**2, a1[:,1]-2)
+		npt.assert_allclose(self.spline(gen_pts[0][0]), gen_pts[0][2])
 
 class Test_BSpline(unittest.TestCase):
 	def setUp(self):
@@ -64,3 +70,14 @@ class Test_BSpline(unittest.TestCase):
 			self.b.left_knot(2.5)
 		with self.assertRaises(ValueError):
 			self.b.left_knot(5.5)
+
+class Test_BSpline3(unittest.TestCase):
+	def setUp(self):
+		ex2 = {
+		'control_points': np.array([[1.,2,0], [2,3,1], [2,5,3], [1,6,3], [1,9,2]]),
+		'knots': np.array([1.,2.,3.,4.,5.,6.,7.])
+		}
+		self.b = BSpline(**ex2)
+
+	def test_call(self):
+		self.b(3.5)

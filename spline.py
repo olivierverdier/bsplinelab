@@ -97,20 +97,15 @@ The range of knots from which to generate the points.
 
 
 	def __call__(self, t, lknot=None):
+		t = np.array(t)
 		if lknot is None:
-			if np.isscalar(t):
-				lknot = self.left_knot(t)
-			else:
-				raise ValueError("A time array is only possible when the left knot is specified.")
+			lknot = self.left_knot(t.flatten()[0])
 
 		pts = self.control_points[lknot-self.length:lknot+2]
 		kns = self.knots[lknot - self.degree +1:lknot + self.degree + 1]
 		if len(kns) != 2*self.degree or len(pts) != self.length + 2:
 			raise ValueError("Wrong knot index.")
 
-		scalar_t = np.isscalar(t)
-		if scalar_t:
-			t = np.array([t])
 		# we put the time on the first index; all other arrays must be reshaped accordingly
 		t = t.reshape(-1,1,1)
 		pts = pts[np.newaxis,...]
@@ -123,8 +118,6 @@ The range of knots from which to generate the points.
 			pts = geodesic(pts[:,:-1,:], pts[:,1:,:], rcoeff.transpose(0,2,1))
 			kns = kns[1:-1]
 		result = pts[:,0,:]
-		if scalar_t:
-			result = np.squeeze(result) # test this
 		return result
 
 def geodesic(P1, P2, theta):
