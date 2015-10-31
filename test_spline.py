@@ -9,7 +9,7 @@ from spline import *
 
 class TestBezier(unittest.TestCase):
 	def test_quad(self):
-		ur"""
+		u"""
 	Check that Bézier with three points generates the parabola y=x**2.
 		"""
 		controls = [[1.,1],[0,-1],[-1,1]]

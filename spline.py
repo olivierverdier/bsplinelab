@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class BSpline(object):
-	ur"""
+	"""
 BSpline class.
 
 Suppose that there are n+1 control points:
