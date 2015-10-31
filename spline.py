@@ -149,14 +149,14 @@ Special case of a BSpline. For n+1 points, the knot list is [0]*n+[1]*n.
 	def __call__(self, t, k=None):
 		return super(Bezier,self).__call__(t, lknot=self.rknot-1)
 
-def plot_nbasis(n):
+def get_basis(n):
 	nb_pts = 2*n+1
 	knots = np.arange(nb_pts+n-1)
 	control_points = np.vstack([np.arange(nb_pts),np.zeros(nb_pts)]).T
 	control_points[n,1] = 1.
 
 	spline = BSpline(control_points, knots)
-	spline.plot()
+	return spline
 
 from scipy.linalg import toeplitz
 
