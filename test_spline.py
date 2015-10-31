@@ -70,6 +70,12 @@ class Test_BSpline(unittest.TestCase):
 		with self.assertRaises(ValueError):
 			self.b.left_knot(5.5)
 
+	def test_wrong_knot(self):
+		with self.assertRaises(ValueError):
+			self.b(3.5, lknot=1)
+		with self.assertRaises(ValueError):
+			self.b(3.5, lknot=4)
+
 class Test_BSpline3(unittest.TestCase):
 	def setUp(self):
 		ex2 = {

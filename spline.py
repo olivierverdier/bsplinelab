@@ -102,8 +102,8 @@ The range of knots from which to generate the points.
 			lknot = self.left_knot(t.flatten()[0])
 
 		pts = self.control_points[lknot-self.length:lknot+2]
-		kns = self.knots[lknot - self.degree +1:lknot + self.degree + 1]
-		if len(kns) != 2*self.degree or len(pts) != self.length + 2:
+		kns = self.knots[lknot - self.degree + 1:lknot + self.degree + 1]
+		if len(pts) != self.length + 2: # equivalent condition: len(kns) != 2*self.degree
 			raise ValueError("Wrong knot index.")
 
 		# we put the time on the first index; all other arrays must be reshaped accordingly
