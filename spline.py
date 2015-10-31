@@ -61,7 +61,7 @@ Compute information about nb of curves and degree.
 		"""
 		Plot the control points.
 		"""
-		plt.plot(self.control_points[:,0],self.control_points[:,1],'ro:')
+		plt.plot(self.control_points[:,0],self.control_points[:,1], marker='o', ls=':', color='black', markersize=10, mfc='white', mec='red')
 
 ## 	def plot_knots(self):
 ## 		kns = self.knots[self.length:-self.length]
@@ -92,15 +92,15 @@ The range of knots from which to generate the points.
 			yield (times,k,self(times,k,))
 
 
-	def plot(self, knot=None, with_knots=False):
+	def plot(self, knot=None, with_knots=False, margin=0.):
 		"""
 		Plot the curve.
 		"""
 		self.plot_control_points()
-		for t,k,val in self.generate_points(knot):
-			plt.plot(val[:,0],val[:,1], label="{:1.0f} - {:1.0f}".format(self.knots[k], self.knots[k+1]))
+		for t,k,val in self.generate_points(knot, margin):
+			plt.plot(val[:,0],val[:,1], label="{:1.0f} - {:1.0f}".format(self.knots[k], self.knots[k+1]), lw=2)
 			if with_knots:
-				plt.plot(val[[0,-1],0], val[[0,-1],1], 'gs')
+				plt.plot(val[[0,-1],0], val[[0,-1],1], marker='o', ls='none', markerfacecolor='white', markersize=5, markeredgecolor='black')
 
 
 	def __call__(self, t, lknot=None):
