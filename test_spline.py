@@ -76,6 +76,14 @@ class Test_BSpline(unittest.TestCase):
 		with self.assertRaises(ValueError):
 			self.b(3.5, lknot=4)
 
+	def test_abscissae(self):
+		pts = np.random.random_sample([7,2])
+		knots = [0,0,0,2,3,4,5,5,5]
+		b = BSpline(pts, knots)
+		computed = b.abscissae()
+		expected = np.array([0, 2/3, 5/3, 3, 4, 14/3, 5]) # values from Sederberg §6.14
+		npt.assert_allclose(computed, expected)
+
 class Test_BSpline3(unittest.TestCase):
 	def setUp(self):
 		ex2 = {
@@ -90,3 +98,4 @@ class Test_BSpline3(unittest.TestCase):
 	@unittest.expectedFailure
 	def test_scalar_shape(self):
 		self.assertEqual(np.shape(self.b(3.5)), (1,))
+

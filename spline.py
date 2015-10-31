@@ -120,6 +120,15 @@ The range of knots from which to generate the points.
 		result = pts[:,0]
 		return result
 
+	def abscissae(self):
+		"""
+		Return the Greville abscissae.
+		"""
+		kernel = np.ones(self.degree)/self.degree
+		res = np.convolve(kernel, self.knots, 'valid')
+		return res
+
+
 def geodesic(P1, P2, theta):
 	"""
 	The geodesic between two points.
@@ -149,16 +158,6 @@ def get_basis(n):
 	spline = BSpline(control_points, knots)
 	return spline
 
-from scipy.linalg import toeplitz
-
-def greville(knots):
-	n = len(knots)//2
-	col = np.zeros(len(knots) - (n-1))
-	col[0] = 1
-	row = np.zeros_like(knots)
-	row[:n] = 1
-	mat = toeplitz(col, row)/n
-	return mat
 
 def plot_basis(x, h=1.):
 	n = len(x)
