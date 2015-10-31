@@ -115,9 +115,9 @@ The range of knots from which to generate the points.
 			# trick to handle cases of equal knots:
 			diffs[diffs==0.] = np.finfo(kns.dtype).eps
 			rcoeff = (t - kns[:-n])/diffs
-			pts = geodesic(pts[:,:-1,:], pts[:,1:,:], rcoeff.transpose(0,2,1))
+			pts = geodesic(pts[:,:-1], pts[:,1:], rcoeff.transpose(0,2,1))
 			kns = kns[1:-1]
-		result = pts[:,0,:]
+		result = pts[:,0]
 		return result
 
 def geodesic(P1, P2, theta):
