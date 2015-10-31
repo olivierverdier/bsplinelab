@@ -119,14 +119,19 @@ The range of knots from which to generate the points.
 			diffs = kns[n:] - kns[:-n]
 			# trick to handle cases of equal knots:
 			diffs[diffs==0.] = np.finfo(kns.dtype).eps
-			lcoeff = (kns[n:] - t)/diffs
 			rcoeff = (t - kns[:-n])/diffs
-			pts = rcoeff.transpose(0,2,1) * pts[:,1:,:] + lcoeff.transpose(0,2,1) * pts[:,:-1,:]
+			pts = geodesic(pts[:,:-1,:], pts[:,1:,:], rcoeff.transpose(0,2,1))
 			kns = kns[1:-1]
 		result = pts[:,0,:]
 		if scalar_t:
 			result = np.squeeze(result) # test this
 		return result
+
+def geodesic(P1, P2, theta):
+	"""
+	The geodesic between two points.
+	"""
+	return (1-theta)*P1 + theta*P2
 
 class Bezier(BSpline):
 	"""
