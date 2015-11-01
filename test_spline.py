@@ -31,6 +31,9 @@ class TestBezier(unittest.TestCase):
 		self.assertEqual(self.b.knots.left_knot(.2), 1)
 		self.assertEqual(self.b.knots.left_knot(.8), 1)
 
+	def test_plot(self):
+		self.b.plot()
+
 
 class Test_DoubleQuad(unittest.TestCase):
 	def setUp(self):
@@ -86,6 +89,10 @@ class Test_BSpline(unittest.TestCase):
 		computed = b.knots.abscissae()
 		expected = np.array([0, 2/3, 5/3, 3, 4, 14/3, 5]) # values from Sederberg §6.14
 		npt.assert_allclose(computed, expected)
+
+	def test_plot(self):
+		self.b.plot(with_knots=True)
+
 
 class Test_BSpline3(unittest.TestCase):
 	def setUp(self):

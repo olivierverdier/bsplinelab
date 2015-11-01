@@ -142,7 +142,7 @@ class BSpline(object):
 		self.plot_control_points()
 		for k, left, right in self.knots.intervals(knot):
 			ts = np.linspace(left, right, self.plotres)
-			val = self(ts)
+			val = self(ts, lknot=k)
 			plt.plot(val[:,0],val[:,1], label="{:1.0f} - {:1.0f}".format(self.knots[k], self.knots[k+1]), lw=2)
 			if with_knots:
 				plt.plot(val[[0,-1],0], val[[0,-1],1], marker='o', ls='none', markerfacecolor='white', markersize=5, markeredgecolor='black')
@@ -154,14 +154,11 @@ class Bezier(BSpline):
 Special case of a BSpline. For n+1 points, the knot list is [0]*n+[1]*n.
 	"""
 	def __init__(self, control_points):
-		nb_control_points = len(control_points)
-		self.rknot = nb_control_points-1
-		knots = np.zeros(2*self.rknot)
-		knots[self.rknot:] = 1
+		degree = len(control_points) - 1
+		knots = np.zeros(2*degree)
+		knots[degree:] = 1
 		super(Bezier,self).__init__(knots, control_points)
 
-	def __call__(self, t, k=None):
-		return super(Bezier,self).__call__(t, lknot=self.rknot-1)
 
 def get_basis(n):
 	nb_pts = 2*n+1
