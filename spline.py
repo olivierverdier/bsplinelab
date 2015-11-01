@@ -24,16 +24,21 @@ n+2      n-1       2
 	def __init__(self, control_points, knots):
 		self.control_points = np.array(control_points, float)
 		self.knots = np.array(knots, float)
-		self.compute_info()
 
-	def compute_info(self):
-		"""
-Compute information about nb of curves and degree.
-		"""
-		nb_control_points = len(self.control_points)
-		self.length = len(self.knots) - nb_control_points
-		self.degree = self.length + 1
-		self.nb_curves = nb_control_points - self.degree
+	def __repr__(self):
+		return "<{} polynomials of degree {}>".format(self.nb_curves, self.degree)
+
+	@property
+	def degree(self):
+		return self.length + 1
+
+	@property
+	def length(self):
+		return len(self.knots) - len(self.control_points)
+
+	@property
+	def nb_curves(self):
+		return len(self.control_points) - self.degree
 
 	ktol = 1e-13
 
