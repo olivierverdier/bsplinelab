@@ -96,7 +96,7 @@ class BSpline(object):
 		"""
 The range of knots from which to generate the points.
 		"""
-		if self.knots.degree - 1 < 0:
+		if self.knots.degree == 0:
 			return []
 		return range(self.knots.degree - 1, self.knots.degree - 1 + self.knots.nb_curves)
 
