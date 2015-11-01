@@ -23,18 +23,14 @@ n+2      n-1       2
 	"""
 	def __init__(self, knots, degree=0):
 		self.knots = np.array(knots, float)
-		self.length = degree - 1
+		self.degree = degree
 
 	def __repr__(self):
 		return "<{} polynomials of degree {}>".format(self.nb_curves, self.degree)
 
 	@property
-	def degree(self):
-		return self.length + 1
-
-	@property
 	def nb_curves(self):
-		return  len(self.knots) - 2*self.length - 1
+		return  len(self.knots) - 2*self.degree + 1
 
 	ktol = 1e-13
 
@@ -42,14 +38,14 @@ n+2      n-1       2
 		"""
 		Find out between which node a time t is.
 		"""
-		diff = self.knots[self.length:-self.length] - t
+		diff = self.knots[self.degree-1:-self.degree+1] - t
 		isrightof = diff > self.ktol
 		if np.all(isrightof):
 			raise ValueError("Time too small")
 		if np.all(~isrightof):
 			raise ValueError("Time too big")
 		left = np.argmax(isrightof) - 1 # argmax gives the right knot...
-		return left + self.length
+		return left + self.degree-1
 
 	def abscissae(self):
 		"""
@@ -77,9 +73,9 @@ class BSpline(object):
 		if lknot is None:
 			lknot = self.knots.left_knot(t.flatten()[0])
 
-		pts = self.control_points[lknot-self.knots.length:lknot+2]
+		pts = self.control_points[lknot-self.knots.degree + 1:lknot+2]
 		kns = self.knots.knots[lknot - self.knots.degree + 1:lknot + self.knots.degree + 1]
-		if len(pts) != self.knots.length + 2: # equivalent condition: len(kns) != 2*self.knots.degree
+		if len(pts) != self.knots.degree + 1: # equivalent condition: len(kns) != 2*self.knots.degree
 			raise ValueError("Wrong knot index.")
 
 		# we put the time on the first index; all other arrays must be reshaped accordingly
@@ -100,9 +96,9 @@ class BSpline(object):
 		"""
 The range of knots from which to generate the points.
 		"""
-		if self.knots.length < 0:
+		if self.knots.degree - 1 < 0:
 			return []
-		return range(self.knots.length, self.knots.length + self.knots.nb_curves)
+		return range(self.knots.degree - 1, self.knots.degree - 1 + self.knots.nb_curves)
 
 	plotres = 200
 
@@ -121,7 +117,7 @@ The range of knots from which to generate the points.
 
 
 ## 	def plot_knots(self):
-## 		kns = self.knots[self.knots.length:-self.knots.length]
+## 		kns = self.knots[self.knots.degree - 1:-self.knots.degree + 1]
 ## 		pts = np.array([self(kn,i) for i,kn in enumerate(kns[:-1])])
 ## 		plot(pts[:,0],pts[:,1],'sg')
 
