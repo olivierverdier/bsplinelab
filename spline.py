@@ -21,10 +21,9 @@ n+2      n-1       2
 2n       1         n      if first n and last n knots are equal: Bézier case
 -------- --------- ------ -------
 	"""
-	def __init__(self, knots, degree=None):
+	def __init__(self, knots, degree=0):
 		self.knots = np.array(knots, float)
-		if degree is not None:
-			self.length = degree - 1
+		self.length = degree - 1
 
 	def __repr__(self):
 		return "<{} polynomials of degree {}>".format(self.nb_curves, self.degree)
@@ -32,7 +31,6 @@ n+2      n-1       2
 	@property
 	def degree(self):
 		return self.length + 1
-
 
 	@property
 	def nb_curves(self):
@@ -53,18 +51,6 @@ n+2      n-1       2
 		left = np.argmax(isrightof) - 1 # argmax gives the right knot...
 		return left + self.length
 
-	def plot_control_points(self):
-		"""
-		Plot the control points.
-		"""
-		plt.plot(self.control_points[:,0],self.control_points[:,1], marker='o', ls=':', color='black', markersize=10, mfc='white', mec='red')
-
-## 	def plot_knots(self):
-## 		kns = self.knots[self.length:-self.length]
-## 		pts = np.array([self(kn,i) for i,kn in enumerate(kns[:-1])])
-## 		plot(pts[:,0],pts[:,1],'sg')
-
-	plotres = 200
 
 	def knot_range(self):
 		"""
@@ -73,6 +59,8 @@ The range of knots from which to generate the points.
 		if self.length < 0:
 			return []
 		return range(self.length, self.length + self.nb_curves)
+
+	plotres = 200
 
 	def generate_points(self, knot_range=None, margin=0.):
 		"""
@@ -87,16 +75,29 @@ The range of knots from which to generate the points.
 			times = np.linspace(left, right, self.plotres)
 			yield (times,k,self(times,k,))
 
-	def plot(self, knot=None, with_knots=False, margin=0.):
+	def abscissae(self):
 		"""
-		Plot the curve.
+		Return the Greville abscissae.
 		"""
-		self.plot_control_points()
-		for t,k,val in self.generate_points(knot, margin):
-			plt.plot(val[:,0],val[:,1], label="{:1.0f} - {:1.0f}".format(self.knots[k], self.knots[k+1]), lw=2)
-			if with_knots:
-				plt.plot(val[[0,-1],0], val[[0,-1],1], marker='o', ls='none', markerfacecolor='white', markersize=5, markeredgecolor='black')
+		kernel = np.ones(self.degree)/self.degree
+		res = np.convolve(kernel, self.knots, 'valid')
+		return res
 
+
+def geodesic(P1, P2, theta):
+	"""
+	The geodesic between two points.
+	"""
+	return (1-theta)*P1 + theta*P2
+
+class BSpline(Knots):
+	def __init__(self, knots, control_points):
+		degree = len(knots) - len(control_points) + 1
+		super(BSpline, self).__init__(knots, degree)
+		self.control_points = np.array(control_points, float)
+
+	def get_knots(self):
+		return Knots(self.knots, self.degree)
 
 	def __call__(self, t, lknot=None):
 		t = np.array(t)
@@ -122,29 +123,28 @@ The range of knots from which to generate the points.
 		result = pts[:,0]
 		return result
 
-	def abscissae(self):
+## 	def plot_knots(self):
+## 		kns = self.knots[self.length:-self.length]
+## 		pts = np.array([self(kn,i) for i,kn in enumerate(kns[:-1])])
+## 		plot(pts[:,0],pts[:,1],'sg')
+
+	def plot_control_points(self):
 		"""
-		Return the Greville abscissae.
+		Plot the control points.
 		"""
-		kernel = np.ones(self.degree)/self.degree
-		res = np.convolve(kernel, self.knots, 'valid')
-		return res
+		plt.plot(self.control_points[:,0],self.control_points[:,1], marker='o', ls=':', color='black', markersize=10, mfc='white', mec='red')
+
+	def plot(self, knot=None, with_knots=False, margin=0.):
+		"""
+		Plot the curve.
+		"""
+		self.plot_control_points()
+		for t,k,val in self.generate_points(knot, margin):
+			plt.plot(val[:,0],val[:,1], label="{:1.0f} - {:1.0f}".format(self.knots[k], self.knots[k+1]), lw=2)
+			if with_knots:
+				plt.plot(val[[0,-1],0], val[[0,-1],1], marker='o', ls='none', markerfacecolor='white', markersize=5, markeredgecolor='black')
 
 
-def geodesic(P1, P2, theta):
-	"""
-	The geodesic between two points.
-	"""
-	return (1-theta)*P1 + theta*P2
-
-class BSpline(Knots):
-	def __init__(self, knots, control_points):
-		super(BSpline, self).__init__(knots)
-		self.control_points = np.array(control_points, float)
-
-	@property
-	def length(self):
-		return len(self.knots) - len(self.control_points)
 
 class Bezier(BSpline):
 	"""
