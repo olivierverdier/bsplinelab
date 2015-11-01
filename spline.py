@@ -77,9 +77,11 @@ The range of knots from which to generate the points.
 			left, right = self.knots[k], self.knots[k+1]
 			yield (k, left, right)
 
-	def get_basis(self, k):
 		nb_control_points = len(self.knots) - self.degree + 1
 		pts = np.zeros([nb_control_points, 2])
+	def get_basis(self, k=None):
+		if k is None:
+			k = self.degree
 		pts[:,0] = self.abscissae()
 		pts[k,1] = 1.
 		return BSpline(self.knots, pts)
