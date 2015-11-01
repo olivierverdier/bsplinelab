@@ -32,6 +32,9 @@ n+2      n-1       2
 	def nb_curves(self):
 		return  len(self.knots) - 2*self.degree + 1
 
+	def __getitem__(self, index):
+		return self.knots[index]
+
 	ktol = 1e-13
 
 	def left_knot(self, t):
@@ -93,7 +96,7 @@ class BSpline(object):
 			lknot = self.knots.left_knot(t.flatten()[0])
 
 		pts = self.control_points[lknot-self.knots.degree + 1:lknot+2]
-		kns = self.knots.knots[lknot - self.knots.degree + 1:lknot + self.knots.degree + 1]
+		kns = self.knots[lknot - self.knots.degree + 1:lknot + self.knots.degree + 1]
 		if len(pts) != self.knots.degree + 1: # equivalent condition: len(kns) != 2*self.knots.degree
 			raise ValueError("Wrong knot index.")
 
@@ -133,7 +136,7 @@ class BSpline(object):
 		for k, left, right in self.knots.intervals(knot):
 			ts = np.linspace(left, right, self.plotres)
 			val = self(ts)
-			plt.plot(val[:,0],val[:,1], label="{:1.0f} - {:1.0f}".format(self.knots.knots[k], self.knots.knots[k+1]), lw=2)
+			plt.plot(val[:,0],val[:,1], label="{:1.0f} - {:1.0f}".format(self.knots[k], self.knots[k+1]), lw=2)
 			if with_knots:
 				plt.plot(val[[0,-1],0], val[[0,-1],1], marker='o', ls='none', markerfacecolor='white', markersize=5, markeredgecolor='black')
 
