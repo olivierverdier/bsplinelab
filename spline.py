@@ -5,9 +5,9 @@ from __future__ import division
 import numpy as np
 import matplotlib.pyplot as plt
 
-class BSpline(object):
+class Knots(object):
 	"""
-BSpline class.
+Knots class.
 
 Suppose that there are n+1 control points:
 
@@ -21,9 +21,10 @@ n+2      n-1       2
 2n       1         n      if first n and last n knots are equal: Bézier case
 -------- --------- ------ -------
 	"""
-	def __init__(self, control_points, knots):
-		self.control_points = np.array(control_points, float)
+	def __init__(self, knots, degree=None):
 		self.knots = np.array(knots, float)
+		if degree is not None:
+			self.length = degree - 1
 
 	def __repr__(self):
 		return "<{} polynomials of degree {}>".format(self.nb_curves, self.degree)
@@ -32,9 +33,6 @@ n+2      n-1       2
 	def degree(self):
 		return self.length + 1
 
-	@property
-	def length(self):
-		return len(self.knots) - len(self.control_points)
 
 	@property
 	def nb_curves(self):
@@ -89,7 +87,6 @@ The range of knots from which to generate the points.
 			times = np.linspace(left, right, self.plotres)
 			yield (times,k,self(times,k,))
 
-
 	def plot(self, knot=None, with_knots=False, margin=0.):
 		"""
 		Plot the curve.
@@ -140,6 +137,15 @@ def geodesic(P1, P2, theta):
 	"""
 	return (1-theta)*P1 + theta*P2
 
+class BSpline(Knots):
+	def __init__(self, knots, control_points):
+		super(BSpline, self).__init__(knots)
+		self.control_points = np.array(control_points, float)
+
+	@property
+	def length(self):
+		return len(self.knots) - len(self.control_points)
+
 class Bezier(BSpline):
 	"""
 Special case of a BSpline. For n+1 points, the knot list is [0]*n+[1]*n.
@@ -149,7 +155,7 @@ Special case of a BSpline. For n+1 points, the knot list is [0]*n+[1]*n.
 		self.rknot = nb_control_points-1
 		knots = np.zeros(2*self.rknot)
 		knots[self.rknot:] = 1
-		super(Bezier,self).__init__(control_points,knots)
+		super(Bezier,self).__init__(knots, control_points)
 
 	def __call__(self, t, k=None):
 		return super(Bezier,self).__call__(t, lknot=self.rknot-1)

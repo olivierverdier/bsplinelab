@@ -36,7 +36,7 @@ class Test_DoubleQuad(unittest.TestCase):
 	def setUp(self):
 		controls = [[-1,1],[0,-1],[2.,3],[3,1]]
 		knots = [0,0,.5,1,1]
-		self.spline = BSpline(controls, knots)
+		self.spline = BSpline(knots, controls)
 
 	def test_info(self):
 		self.assertEqual(self.spline.degree, 2)
@@ -79,7 +79,7 @@ class Test_BSpline(unittest.TestCase):
 	def test_abscissae(self):
 		pts = np.random.random_sample([7,2])
 		knots = [0,0,0,2,3,4,5,5,5]
-		b = BSpline(pts, knots)
+		b = BSpline(knots, pts)
 		computed = b.abscissae()
 		expected = np.array([0, 2/3, 5/3, 3, 4, 14/3, 5]) # values from Sederberg §6.14
 		npt.assert_allclose(computed, expected)
