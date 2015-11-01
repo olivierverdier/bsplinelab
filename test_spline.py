@@ -102,3 +102,15 @@ class Test_BSpline3(unittest.TestCase):
 	def test_scalar_shape(self):
 		self.assertEqual(np.shape(self.b(3.5)), (1,))
 
+class TestKnots(unittest.TestCase):
+	def test_basis(self):
+		"""
+		Check that the basis functions sum up to one.
+		"""
+		w = [ 0, 0, 0, 1/3, 2/3, 1, 1, 1]
+		wk = Knots(w, degree=3)
+		basis = [wk.get_basis(i) for i in range(6)]
+		for k,l,r in wk.intervals():
+			ts = np.linspace(l,r,30)
+			vals = np.array([b(ts, lknot=k) for b in basis])
+			npt.assert_allclose(np.sum(vals[:,:,1], axis=0), 1.)
