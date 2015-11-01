@@ -38,7 +38,7 @@ n+2      n-1       2
 
 	@property
 	def nb_curves(self):
-		return len(self.control_points) - self.degree
+		return  len(self.knots) - 2*self.length - 1
 
 	ktol = 1e-13
 
