@@ -51,30 +51,6 @@ n+2      n-1       2
 		left = np.argmax(isrightof) - 1 # argmax gives the right knot...
 		return left + self.length
 
-
-	def knot_range(self):
-		"""
-The range of knots from which to generate the points.
-		"""
-		if self.length < 0:
-			return []
-		return range(self.length, self.length + self.nb_curves)
-
-	plotres = 200
-
-	def generate_points(self, knot_range=None, margin=0.):
-		"""
-		Compute the points from knot numbers `knot_range` till the next ones.
-		"""
-		if knot_range is None:
-			knot_range = self.knot_range()
-		for k in knot_range:
-			width = self.knots[k+1]-self.knots[k]
-			extra = margin*width
-			left, right = self.knots[k]-margin, self.knots[k+1]+margin
-			times = np.linspace(left, right, self.plotres)
-			yield (times,k,self(times,k,))
-
 	def abscissae(self):
 		"""
 		Return the Greville abscissae.
@@ -90,30 +66,27 @@ def geodesic(P1, P2, theta):
 	"""
 	return (1-theta)*P1 + theta*P2
 
-class BSpline(Knots):
+class BSpline(object):
 	def __init__(self, knots, control_points):
 		degree = len(knots) - len(control_points) + 1
-		super(BSpline, self).__init__(knots, degree)
+		self.knots = Knots(knots, degree)
 		self.control_points = np.array(control_points, float)
-
-	def get_knots(self):
-		return Knots(self.knots, self.degree)
 
 	def __call__(self, t, lknot=None):
 		t = np.array(t)
 		if lknot is None:
-			lknot = self.left_knot(t.flatten()[0])
+			lknot = self.knots.left_knot(t.flatten()[0])
 
-		pts = self.control_points[lknot-self.length:lknot+2]
-		kns = self.knots[lknot - self.degree + 1:lknot + self.degree + 1]
-		if len(pts) != self.length + 2: # equivalent condition: len(kns) != 2*self.degree
+		pts = self.control_points[lknot-self.knots.length:lknot+2]
+		kns = self.knots.knots[lknot - self.knots.degree + 1:lknot + self.knots.degree + 1]
+		if len(pts) != self.knots.length + 2: # equivalent condition: len(kns) != 2*self.knots.degree
 			raise ValueError("Wrong knot index.")
 
 		# we put the time on the first index; all other arrays must be reshaped accordingly
 		t = t.reshape(-1,1,1)
 		pts = pts[np.newaxis,...]
 
-		for n in reversed(1+np.arange(self.degree)):
+		for n in reversed(1+np.arange(self.knots.degree)):
 			diffs = kns[n:] - kns[:-n]
 			# trick to handle cases of equal knots:
 			diffs[diffs==0.] = np.finfo(kns.dtype).eps
@@ -123,8 +96,32 @@ class BSpline(Knots):
 		result = pts[:,0]
 		return result
 
+	def knot_range(self):
+		"""
+The range of knots from which to generate the points.
+		"""
+		if self.knots.length < 0:
+			return []
+		return range(self.knots.length, self.knots.length + self.knots.nb_curves)
+
+	plotres = 200
+
+	def generate_points(self, knot_range=None, margin=0.):
+		"""
+		Compute the points from knot numbers `knot_range` till the next ones.
+		"""
+		if knot_range is None:
+			knot_range = self.knot_range()
+		for k in knot_range:
+			width = self.knots.knots[k+1]-self.knots.knots[k]
+			extra = margin*width
+			left, right = self.knots.knots[k]-margin, self.knots.knots[k+1]+margin
+			times = np.linspace(left, right, self.plotres)
+			yield (times,k,self(times,k,))
+
+
 ## 	def plot_knots(self):
-## 		kns = self.knots[self.length:-self.length]
+## 		kns = self.knots[self.knots.length:-self.knots.length]
 ## 		pts = np.array([self(kn,i) for i,kn in enumerate(kns[:-1])])
 ## 		plot(pts[:,0],pts[:,1],'sg')
 
@@ -140,7 +137,7 @@ class BSpline(Knots):
 		"""
 		self.plot_control_points()
 		for t,k,val in self.generate_points(knot, margin):
-			plt.plot(val[:,0],val[:,1], label="{:1.0f} - {:1.0f}".format(self.knots[k], self.knots[k+1]), lw=2)
+			plt.plot(val[:,0],val[:,1], label="{:1.0f} - {:1.0f}".format(self.knots.knots[k], self.knots.knots[k+1]), lw=2)
 			if with_knots:
 				plt.plot(val[[0,-1],0], val[[0,-1],1], marker='o', ls='none', markerfacecolor='white', markersize=5, markeredgecolor='black')
 

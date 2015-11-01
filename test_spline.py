@@ -17,7 +17,7 @@ class TestBezier(unittest.TestCase):
 	Check that Bézier with three points generates the parabola y=x**2.
 		"""
 		b = self.b
-		self.assertEqual(b.nb_curves,1)
+		self.assertEqual(b.knots.nb_curves,1)
 		ts = np.linspace(0.,1., 200)
 		all_pts = b(ts)
 		npt.assert_array_almost_equal(all_pts[:,0]**2, all_pts[:,1])
@@ -25,11 +25,11 @@ class TestBezier(unittest.TestCase):
 
 	def test_generate(self):
 		pt_list = list(pts for (t,k,pts) in self.b.generate_points())
-		self.assertEqual(len(pt_list), self.b.nb_curves)
+		self.assertEqual(len(pt_list), self.b.knots.nb_curves)
 
 	def test_left_knot(self):
-		self.assertEqual(self.b.left_knot(.2), 1)
-		self.assertEqual(self.b.left_knot(.8), 1)
+		self.assertEqual(self.b.knots.left_knot(.2), 1)
+		self.assertEqual(self.b.knots.left_knot(.8), 1)
 
 
 class Test_DoubleQuad(unittest.TestCase):
@@ -39,13 +39,13 @@ class Test_DoubleQuad(unittest.TestCase):
 		self.spline = BSpline(knots, controls)
 
 	def test_info(self):
-		self.assertEqual(self.spline.degree, 2)
-		self.assertEqual(self.spline.nb_curves,2)
-		self.assertEqual(len(self.spline.knot_range()), self.spline.nb_curves)
+		self.assertEqual(self.spline.knots.degree, 2)
+		self.assertEqual(self.spline.knots.nb_curves,2)
+		self.assertEqual(len(self.spline.knot_range()), self.spline.knots.nb_curves)
 
 	def test_generate(self):
 		gen_pts = list(self.spline.generate_points())
-		self.assertEqual(len(gen_pts), self.spline.nb_curves)
+		self.assertEqual(len(gen_pts), self.spline.knots.nb_curves)
 		a0,a1 = np.array(gen_pts[0][2]), np.array(gen_pts[1][2])
 		npt.assert_array_almost_equal(a0[:,0]**2, a0[:,1])
 		npt.assert_array_almost_equal(-(a1[:,0]-2)**2, a1[:,1]-2)
@@ -60,15 +60,15 @@ class Test_BSpline(unittest.TestCase):
 		self.b = BSpline(**ex2)
 
 	def test_left_knot(self):
-		self.assertEqual(self.b.left_knot(3.8), 2)
-		self.assertEqual(self.b.left_knot(3.2), 2)
-		self.assertEqual(self.b.left_knot(4.8), 3)
-		self.assertEqual(self.b.left_knot(4.0), 3)
-		self.assertEqual(self.b.left_knot(4.0-1e-14), 3)
+		self.assertEqual(self.b.knots.left_knot(3.8), 2)
+		self.assertEqual(self.b.knots.left_knot(3.2), 2)
+		self.assertEqual(self.b.knots.left_knot(4.8), 3)
+		self.assertEqual(self.b.knots.left_knot(4.0), 3)
+		self.assertEqual(self.b.knots.left_knot(4.0-1e-14), 3)
 		with self.assertRaises(ValueError):
-			self.b.left_knot(2.5)
+			self.b.knots.left_knot(2.5)
 		with self.assertRaises(ValueError):
-			self.b.left_knot(5.5)
+			self.b.knots.left_knot(5.5)
 
 	def test_wrong_knot(self):
 		with self.assertRaises(ValueError):
@@ -80,7 +80,7 @@ class Test_BSpline(unittest.TestCase):
 		pts = np.random.random_sample([7,2])
 		knots = [0,0,0,2,3,4,5,5,5]
 		b = BSpline(knots, pts)
-		computed = b.abscissae()
+		computed = b.knots.abscissae()
 		expected = np.array([0, 2/3, 5/3, 3, 4, 14/3, 5]) # values from Sederberg §6.14
 		npt.assert_allclose(computed, expected)
 
