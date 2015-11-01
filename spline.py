@@ -55,6 +55,13 @@ n+2      n-1       2
 		res = np.convolve(kernel, self.knots, 'valid')
 		return res
 
+	def knot_range(self):
+		"""
+The range of knots from which to generate the points.
+		"""
+		if self.degree == 0:
+			return []
+		return range(self.degree - 1, self.degree - 1 + self.nb_curves)
 
 def geodesic(P1, P2, theta):
 	"""
@@ -92,13 +99,6 @@ class BSpline(object):
 		result = pts[:,0]
 		return result
 
-	def knot_range(self):
-		"""
-The range of knots from which to generate the points.
-		"""
-		if self.knots.degree == 0:
-			return []
-		return range(self.knots.degree - 1, self.knots.degree - 1 + self.knots.nb_curves)
 
 	plotres = 200
 
@@ -107,7 +107,7 @@ The range of knots from which to generate the points.
 		Compute the points from knot numbers `knot_range` till the next ones.
 		"""
 		if knot_range is None:
-			knot_range = self.knot_range()
+			knot_range = self.knots.knot_range()
 		for k in knot_range:
 			width = self.knots.knots[k+1]-self.knots.knots[k]
 			extra = margin*width

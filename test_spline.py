@@ -41,7 +41,7 @@ class Test_DoubleQuad(unittest.TestCase):
 	def test_info(self):
 		self.assertEqual(self.spline.knots.degree, 2)
 		self.assertEqual(self.spline.knots.nb_curves,2)
-		self.assertEqual(len(self.spline.knot_range()), self.spline.knots.nb_curves)
+		self.assertEqual(len(self.spline.knots.knot_range()), self.spline.knots.nb_curves)
 
 	def test_generate(self):
 		gen_pts = list(self.spline.generate_points())
@@ -69,6 +69,10 @@ class Test_BSpline(unittest.TestCase):
 			self.b.knots.left_knot(2.5)
 		with self.assertRaises(ValueError):
 			self.b.knots.left_knot(5.5)
+
+	def test_knot_range(self):
+		k = Knots(np.arange(10))
+		self.assertEqual(len(k.knot_range()), 0)
 
 	def test_wrong_knot(self):
 		with self.assertRaises(ValueError):
