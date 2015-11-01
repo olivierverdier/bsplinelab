@@ -23,9 +23,9 @@ class TestBezier(unittest.TestCase):
 		npt.assert_array_almost_equal(all_pts[:,0]**2, all_pts[:,1])
 		npt.assert_allclose(b(.5), 0.)
 
-	def test_generate(self):
-		pt_list = list(pts for (t,k,pts) in self.b.generate_points())
-		self.assertEqual(len(pt_list), self.b.knots.nb_curves)
+	def test_intervals(self):
+		intervals = list(self.b.knots.intervals())
+		self.assertEqual(len(intervals), self.b.knots.nb_curves)
 
 	def test_left_knot(self):
 		self.assertEqual(self.b.knots.left_knot(.2), 1)
@@ -44,12 +44,11 @@ class Test_DoubleQuad(unittest.TestCase):
 		self.assertEqual(len(self.spline.knots.knot_range()), self.spline.knots.nb_curves)
 
 	def test_generate(self):
-		gen_pts = list(self.spline.generate_points())
-		self.assertEqual(len(gen_pts), self.spline.knots.nb_curves)
-		a0,a1 = np.array(gen_pts[0][2]), np.array(gen_pts[1][2])
+		intervals = list(self.spline.knots.intervals())
+		self.assertEqual(len(intervals), self.spline.knots.nb_curves)
+		a0,a1 = [self.spline(np.linspace(l,r,200)) for (k,l,r) in intervals]
 		npt.assert_array_almost_equal(a0[:,0]**2, a0[:,1])
 		npt.assert_array_almost_equal(-(a1[:,0]-2)**2, a1[:,1]-2)
-		npt.assert_allclose(self.spline(gen_pts[0][0]), gen_pts[0][2])
 
 class Test_BSpline(unittest.TestCase):
 	def setUp(self):

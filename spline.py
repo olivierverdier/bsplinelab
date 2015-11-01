@@ -63,6 +63,18 @@ The range of knots from which to generate the points.
 			return []
 		return range(self.degree - 1, self.degree - 1 + self.nb_curves)
 
+	def intervals(self, knot_range=None):
+		"""
+		Compute the intervals from knot numbers `knot_range` till the next ones.
+		"""
+		if knot_range is None:
+			knot_range = self.knot_range()
+		for k in knot_range:
+			width = self.knots[k+1]-self.knots[k]
+			left, right = self.knots[k], self.knots[k+1]
+			yield (k, left, right)
+
+
 def geodesic(P1, P2, theta):
 	"""
 	The geodesic between two points.
@@ -102,20 +114,6 @@ class BSpline(object):
 
 	plotres = 200
 
-	def generate_points(self, knot_range=None, margin=0.):
-		"""
-		Compute the points from knot numbers `knot_range` till the next ones.
-		"""
-		if knot_range is None:
-			knot_range = self.knots.knot_range()
-		for k in knot_range:
-			width = self.knots.knots[k+1]-self.knots.knots[k]
-			extra = margin*width
-			left, right = self.knots.knots[k]-margin, self.knots.knots[k+1]+margin
-			times = np.linspace(left, right, self.plotres)
-			yield (times,k,self(times,k,))
-
-
 ## 	def plot_knots(self):
 ## 		kns = self.knots[self.knots.degree - 1:-self.knots.degree + 1]
 ## 		pts = np.array([self(kn,i) for i,kn in enumerate(kns[:-1])])
@@ -132,7 +130,9 @@ class BSpline(object):
 		Plot the curve.
 		"""
 		self.plot_control_points()
-		for t,k,val in self.generate_points(knot, margin):
+		for k, left, right in self.knots.intervals(knot):
+			ts = np.linspace(left, right, self.plotres)
+			val = self(ts)
 			plt.plot(val[:,0],val[:,1], label="{:1.0f} - {:1.0f}".format(self.knots.knots[k], self.knots.knots[k+1]), lw=2)
 			if with_knots:
 				plt.plot(val[[0,-1],0], val[[0,-1],1], marker='o', ls='none', markerfacecolor='white', markersize=5, markeredgecolor='black')
