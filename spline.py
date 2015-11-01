@@ -161,46 +161,14 @@ Special case of a BSpline. For n+1 points, the knot list is [0]*n+[1]*n.
 		knots[degree:] = 1
 		super(Bezier,self).__init__(knots, control_points)
 
-
-def get_basis(n):
-	nb_pts = 2*n+1
-	knots = np.arange(nb_pts+n-1)
-	control_points = np.vstack([np.arange(nb_pts),np.zeros(nb_pts)]).T
-	control_points[n,1] = 1.
-
-	spline = BSpline(control_points, knots)
-	return spline
-
-
-def plot_basis(x, h=1.):
-	n = len(x)
-	degree = n-2
-	regularity = degree - 1
-	if regularity % 2: # even degree
-		y = (x[:-1] + x[1:])/2
-	else:
-		y = x
-	extra_points = (np.arange(degree//2)+1.)*h
-	points = np.hstack([x[0] - extra_points, y, x[-1]+extra_points])
-	return len(points)
-
-
-
-
-def noplot_basis(x, h=1.):
+def get_basis_knots(x):
+	"""
+	Knots corresponding to the points in the array x.
+	The corresponding basis is obtained by get_basis_knots(x).get_basis()
+	"""
+	x = np.array(x)
 	degree = len(x) - 2
-	regularity = degree - 1
-	mat = np.zeros([len(x), degree*(len(x)-1) +1])
-	elem = np.vstack([np.arange(1,degree+1)[::-1], np.arange(degree)])
-	for i in range(len(x)-1):
-		mat[i:i+2,degree*i:degree*(i+1)] = elem
-	mat[-1,-1] = degree
-	extra_points = np.dot(x,mat)/degree
-	points = np.vstack([extra_points,np.zeros_like(extra_points)])
-	points[1,len(extra_points)//2] = 1.
-	knots = np.array([x]*degree).T.reshape(-1)
-	spline = BSpline(points.T, knots)
-	spline.plot()
-	return spline
+	knots = np.hstack([(degree-1)*[x[0]], x, (degree-1)*[x[-1]]])
+	return Knots(knots, degree)
 
 

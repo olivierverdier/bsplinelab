@@ -7,6 +7,38 @@ import unittest
 
 from spline import *
 
+def get_canonical_knots(n):
+	knots = np.arange(3*n) - (3*n-1)/2
+	knots[:n-1] = knots[n-1]
+	knots[-(n-1):] = knots[-n]
+	return Knots(knots, degree=n)
+
+def get_basis(n):
+	nb_pts = 2*n+1
+	knots = np.arange(3*n) - (3*n-1)/2
+	control_points = np.vstack([np.arange(nb_pts),np.zeros(nb_pts)]).T
+	control_points[n,1] = 1.
+
+	spline = BSpline(knots, control_points)
+	return spline
+
+class TestBasis(unittest.TestCase):
+	def test_nonuniform(self):
+		a,b,c = 0., 2.5, 8
+		ck = get_basis_knots([a,b,c]).get_basis()
+		npt.assert_allclose(ck(a, lknot=0)[0,1], 0)
+		npt.assert_allclose(ck(b, lknot=1)[0,1], 1.)
+		npt.assert_allclose(ck(c, lknot=1)[0,1], 0.)
+		
+	## def test_canonical(self):
+	## 	ck = get_canonical_knots(5)
+	## 	cb = ck.get_basis()
+	## 	k = get_basis_knots(np.arange(5) - 2)
+	## 	kb = k.get_basis()
+	## 	b = get_basis(5)
+	## 	npt.assert_allclose(cb(0.), b(0.))
+
+
 class TestBezier(unittest.TestCase):
 	def setUp(self):
 		controls = [[1.,1],[0,-1],[-1,1]]
