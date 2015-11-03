@@ -11,8 +11,7 @@ setup(
 	author = 'Olivier Verdier',
 	url = 'https://github.com/olivierverdier/bsplinelab',
 	license      = 'MIT',
-	keywords = ['Math', 'Homogeneous space',],
-	packages=['homogint',],
+	keywords = ['Math', 'Splines',],
 	classifiers = [
 	'Development Status :: 4 - Beta',
 	'Intended Audience :: Science/Research',
