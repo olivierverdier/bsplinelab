@@ -127,10 +127,12 @@ class BSpline(object):
 
 	plotres = 200
 
-## 	def plot_knots(self):
-## 		kns = self.knots[self.knots.degree - 1:-self.knots.degree + 1]
-## 		pts = np.array([self(kn,i) for i,kn in enumerate(kns[:-1])])
-## 		plot(pts[:,0],pts[:,1],'sg')
+	def plot_knots(self):
+		ints = list(self.knots.intervals())
+		pts = [self(l,k) for k,l,r in ints]
+		pts.append(self(ints[-1][2], ints[-1][0])) # add last knot as well
+		apts = np.array(pts)
+		plt.plot(apts[:,0],apts[:,1],marker='o', ls='none', markerfacecolor='white', markersize=5, markeredgecolor='black')
 
 	def plot_control_points(self):
 		"""
@@ -147,8 +149,8 @@ class BSpline(object):
 			ts = np.linspace(left, right, self.plotres)
 			val = self(ts, lknot=k)
 			plt.plot(val[:,0],val[:,1], label="{:1.0f} - {:1.0f}".format(self.knots[k], self.knots[k+1]), lw=2)
-			if with_knots:
-				plt.plot(val[[0,-1],0], val[[0,-1],1], marker='o', ls='none', markerfacecolor='white', markersize=5, markeredgecolor='black')
+		if with_knots:
+			self.plot_knots()
 
 
 
