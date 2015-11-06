@@ -110,15 +110,15 @@ class BSpline(object):
 			raise ValueError("Wrong knot index.")
 
 		# we put the time on the first index; all other arrays must be reshaped accordingly
-		t = t.reshape(-1,1,1)
-		pts = pts[np.newaxis,...]
+		t = t.reshape(-1,1) # (T,1)
+		pts = pts[np.newaxis,...] # (1, nbpts, D)
 
 		for n in reversed(1+np.arange(self.knots.degree)):
 			diffs = kns[n:] - kns[:-n]
 			# trick to handle cases of equal knots:
 			diffs[diffs==0.] = np.finfo(kns.dtype).eps
-			rcoeff = (t - kns[:-n])/diffs
-			pts = geodesic(pts[:,:-1], pts[:,1:], rcoeff.transpose(0,2,1))
+			rcoeff = (t - kns[:-n])/diffs # (T,K)
+			pts = geodesic(pts[:,:-1], pts[:,1:], rcoeff[...,np.newaxis]) # ((1|T), K, D), (T,K,1)
 			kns = kns[1:-1]
 		result = pts[:,0]
 		return result
