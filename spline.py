@@ -105,23 +105,22 @@ class BSpline(object):
 			lknot = self.knots.left_knot(t.flatten()[0])
 
 		pts = self.control_points[lknot-self.knots.degree + 1:lknot+2]
-		kns = self.knots[lknot - self.knots.degree + 1:lknot + self.knots.degree + 1]
+		kns = self.knots[lknot - self.knots.degree + 1:lknot + self.knots.degree + 1].reshape(-1,1)
 		if len(pts) != self.knots.degree + 1: # equivalent condition: len(kns) != 2*self.knots.degree
 			raise ValueError("Wrong knot index.")
 
-		# we put the time on the first index; all other arrays must be reshaped accordingly
-		t = t.reshape(-1,1) # (T,1)
-		pts = pts[np.newaxis,...] # (1, nbpts, D)
+		# we put the time on the last index
+		pts = pts[...,np.newaxis] # (K, D, 1)
 
 		for n in reversed(1+np.arange(self.knots.degree)):
-			diffs = kns[n:] - kns[:-n]
+			diffs = kns[n:] - kns[:-n] # (K,1)
 			# trick to handle cases of equal knots:
 			diffs[diffs==0.] = np.finfo(kns.dtype).eps
-			rcoeff = (t - kns[:-n])/diffs # (T,K)
-			pts = geodesic(pts[:,:-1], pts[:,1:], rcoeff[...,np.newaxis]) # ((1|T), K, D), (T,K,1)
+			rcoeff = (t - kns[:-n])/diffs # (K,T)
+			pts = geodesic(pts[:-1], pts[1:], rcoeff[:,np.newaxis,:]) # (K, D, 1), (K, 1, T)
 			kns = kns[1:-1]
-		result = pts[:,0]
-		return result
+		result = pts[0] # (D, T)
+		return result.transpose() # (T, D)
 
 
 	plotres = 200
