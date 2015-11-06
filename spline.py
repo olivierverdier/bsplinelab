@@ -126,19 +126,35 @@ class BSpline(object):
 
 
 	plotres = 200
+	knot_style = {
+			'marker':'o',
+			'linestyle':'none',
+			'markerfacecolor':'white',
+			'markersize':5,
+			'markeredgecolor':'black',
+			}
+	control_style={
+ 			'marker':'o',
+			'linestyle':':',
+			'color':'black',
+			'markersize':10,
+			'markerfacecolor':'white',
+			'markeredgecolor':'red'
+			}
 
 	def plot_knots(self):
 		ints = list(self.knots.intervals())
 		pts = [self(l,k) for k,l,r in ints]
 		pts.append(self(ints[-1][2], ints[-1][0])) # add last knot as well
 		apts = np.array(pts)
-		plt.plot(apts[:,0],apts[:,1],marker='o', ls='none', markerfacecolor='white', markersize=5, markeredgecolor='black')
+		plt.plot(apts[:,0],apts[:,1], **self.knot_style)
+
 
 	def plot_control_points(self):
 		"""
 		Plot the control points.
 		"""
-		plt.plot(self.control_points[:,0],self.control_points[:,1], marker='o', ls=':', color='black', markersize=10, mfc='white', mec='red')
+		plt.plot(self.control_points[:,0],self.control_points[:,1], **self.control_style)
 
 	def plot(self, knot=None, with_knots=False, margin=0.):
 		"""
