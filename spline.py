@@ -103,21 +103,23 @@ class BSpline(object):
 		t = np.array(t)
 		if lknot is None:
 			lknot = self.knots.left_knot(t.flatten()[0])
+		time_shape = (1,)*len(np.shape(t)) # time shape to add for broadcasting
 
 		pts = self.control_points[lknot-self.knots.degree + 1:lknot+2]
-		kns = self.knots[lknot - self.knots.degree + 1:lknot + self.knots.degree + 1].reshape(-1,1)
+		kns = self.knots[lknot - self.knots.degree + 1:lknot + self.knots.degree + 1]
+		kns.shape = kns.shape + time_shape # (K, 1)
 		if len(pts) != self.knots.degree + 1: # equivalent condition: len(kns) != 2*self.knots.degree
 			raise ValueError("Wrong knot index.")
 
 		# we put the time on the last index
-		pts = pts[...,np.newaxis] # (K, D, 1)
+		pts.shape = pts.shape + time_shape # (K, D, 1)
 
 		for n in reversed(1+np.arange(self.knots.degree)):
 			diffs = kns[n:] - kns[:-n] # (K,1)
 			# trick to handle cases of equal knots:
 			diffs[diffs==0.] = np.finfo(kns.dtype).eps
 			rcoeff = (t - kns[:-n])/diffs # (K,T)
-			pts = geodesic(pts[:-1], pts[1:], rcoeff[:,np.newaxis,:]) # (K, D, 1), (K, 1, T)
+			pts = geodesic(pts[:-1], pts[1:], rcoeff[:,np.newaxis,...]) # (K, D, 1), (K, 1, T)
 			kns = kns[1:-1]
 		result = pts[0] # (D, T)
 		return result.transpose() # (T, D)

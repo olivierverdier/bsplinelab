@@ -26,9 +26,9 @@ class TestBasis(unittest.TestCase):
 	def test_nonuniform(self):
 		a,b,c = 0., 2.5, 8
 		ck = get_basis_knots([a,b,c]).get_basis()
-		npt.assert_allclose(ck(a, lknot=0)[0,1], 0)
-		npt.assert_allclose(ck(b, lknot=1)[0,1], 1.)
-		npt.assert_allclose(ck(c, lknot=1)[0,1], 0.)
+		npt.assert_allclose(ck(a, lknot=0)[1], 0)
+		npt.assert_allclose(ck(b, lknot=1)[1], 1.)
+		npt.assert_allclose(ck(c, lknot=1)[1], 0.)
 		
 	## def test_canonical(self):
 	## 	ck = get_canonical_knots(5)
@@ -137,9 +137,8 @@ class Test_BSpline3(unittest.TestCase):
 	def test_call(self):
 		self.b(3.5)
 
-	@unittest.expectedFailure
 	def test_scalar_shape(self):
-		self.assertEqual(np.shape(self.b(3.5)), (1,))
+		self.assertEqual(np.shape(self.b(3.5)), (3,))
 
 class TestKnots(unittest.TestCase):
 	def test_basis(self):
