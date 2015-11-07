@@ -158,6 +158,7 @@ import nbformat
 from nbconvert.preprocessors.execute import ExecutePreprocessor
 
 class TestDemo(unittest.TestCase):
+	@unittest.skip("Testing the demo notebook")
 	def test_demo(self):
 		here = os.path.dirname(__file__)
 		demo = os.path.join(here,'Demo.ipynb')

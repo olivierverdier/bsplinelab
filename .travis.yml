@@ -19,7 +19,7 @@ before_install:
 
 # Install packages
 install:
-  - conda install --yes python=$TRAVIS_PYTHON_VERSION pip numpy matplotlib nose jupyter
+  - conda install --yes python=$TRAVIS_PYTHON_VERSION pip numpy matplotlib nose
   - pip install -e "git+https://github.com/z4r/python-coveralls.git#egg=pycoveralls"
   - pip install nose-cov
   - pip install .
