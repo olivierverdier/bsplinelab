@@ -9,7 +9,23 @@ class Knots(object):
 	"""
 Knots class.
 
-Suppose that there are n+1 control points:
+If:
+	P = Nb points
+	C = Nb curves
+	K = Nb knots
+	D = Degree
+
+then the following relations are implemented in the code:
+
+	C = K - 2D + 1
+	D = K - P + 1
+
+This also gives
+
+	C + D = P
+	K + 1 = P + D
+
+For example, suppose that there are P=n+1 control points:
 
 ======== ========= ====== =======
 nb knots nb curves degree remarks
