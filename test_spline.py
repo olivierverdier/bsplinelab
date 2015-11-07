@@ -152,3 +152,16 @@ class TestKnots(unittest.TestCase):
 			ts = np.linspace(l,r,30)
 			vals = np.array([b(ts, lknot=k) for b in basis])
 			npt.assert_allclose(np.sum(vals[:,:,1], axis=0), 1.)
+
+import os
+import nbformat
+from nbconvert.preprocessors.execute import ExecutePreprocessor
+
+class TestDemo(unittest.TestCase):
+	def test_demo(self):
+		here = os.path.dirname(__file__)
+		demo = os.path.join(here,'Demo.ipynb')
+		nb = nbformat.read(demo, as_version=4)
+		pp = ExecutePreprocessor()
+		pp.allow_errors = False
+		pp.preprocess(nb, resources={})
