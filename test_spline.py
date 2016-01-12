@@ -30,7 +30,7 @@ class TestBasis(unittest.TestCase):
         npt.assert_allclose(ck(a, lknot=0)[1], 0)
         npt.assert_allclose(ck(b, lknot=1)[1], 1.)
         npt.assert_allclose(ck(c, lknot=1)[1], 0.)
-        
+
     def test_constant_abscissae(self):
         k = get_basis_knots(np.arange(2))
         k.abscissae()
@@ -172,3 +172,9 @@ class TestDemo(unittest.TestCase):
         pp = ExecutePreprocessor()
         pp.allow_errors = False
         pp.preprocess(nb, resources={})
+
+class TestMatrix(unittest.TestCase):
+    def test_call(self):
+        control_points = np.array([np.identity(3), np.array([[0.0,1,0], [-1,0,0], [0,0,1]]), np.array([[1.0,0,0],[0, 0, -1],[0,1,0]]), np.identity(3)])
+        b1 = Bezier(control_points)
+        b1(.5)

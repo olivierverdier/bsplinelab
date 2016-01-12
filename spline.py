@@ -127,20 +127,27 @@ class BSpline(object):
         time_shape = (1,)*len(np.shape(t)) # time shape to add for broadcasting
 
         pts = self.control_points[lknot-self.knots.degree + 1:lknot+2]
-        kns = self.knots[lknot - self.knots.degree + 1:lknot + self.knots.degree + 1]
-        kns.shape = kns.shape + time_shape # (K, 1)
         if len(pts) != self.knots.degree + 1: # equivalent condition: len(kns) != 2*self.knots.degree
             raise ValueError("Wrong knot index.")
 
+        data_dim = np.ndim(pts[0]) # data dim to use for broadcasting
+
+        kns = self.knots[lknot - self.knots.degree + 1:lknot + self.knots.degree + 1]
+        kns.shape = kns.shape + time_shape # (K, 1)
+
         # we put the time on the last index
         pts.shape = pts.shape + time_shape # (K, D, 1)
+
+        # reshape the coefficients using data dimension and possible time shape
+        # for vectorial data, this amounts to the slice (:, np.newaxis,...)
+        rcoeff_slice = (slice(None),) + (np.newaxis,)*data_dim + (Ellipsis,)
 
         for n in reversed(1+np.arange(self.knots.degree)):
             diffs = kns[n:] - kns[:-n] # (K,1)
             # trick to handle cases of equal knots:
             diffs[diffs==0.] = np.finfo(kns.dtype).eps
             rcoeff = (t - kns[:-n])/diffs # (K,T)
-            pts = self.geometry(pts[:-1], pts[1:], rcoeff[:,np.newaxis,...]) # (K, D, 1), (K, 1, T)
+            pts = self.geometry(pts[:-1], pts[1:], rcoeff[rcoeff_slice]) # (K, D, 1), (K, 1, T)
             kns = kns[1:-1]
         result = pts[0] # (D, T)
         return result.transpose() # (T, D)
