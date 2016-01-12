@@ -106,7 +106,7 @@ The range of knots from which to generate the points.
         return BSpline(self.knots, pts)
 
 
-def flat_geodesic(P1, P2, theta):
+def flat_geodesic(P1, P2, theta, time_shape):
     """
     The geodesic between two points.
     """
@@ -147,7 +147,7 @@ class BSpline(object):
             # trick to handle cases of equal knots:
             diffs[diffs==0.] = np.finfo(kns.dtype).eps
             rcoeff = (t - kns[:-n])/diffs # (K,T)
-            pts = self.geometry(pts[:-1], pts[1:], rcoeff[rcoeff_slice]) # (K, D, 1), (K, 1, T)
+            pts = self.geometry(pts[:-1], pts[1:], rcoeff[rcoeff_slice], time_shape) # (K, D, 1), (K, 1, T)
             kns = kns[1:-1]
         result = pts[0] # (D, T)
         return result.transpose() # (T, D)
@@ -219,3 +219,21 @@ def get_basis_knots(x):
     return Knots(knots, degree)
 
 
+def SO3geodesic(P1, P2, theta,time_shape):
+    """
+    Geodesics on SO3  calculated via formulas p. 363-364 in 'Lie group methods'
+    Uses einsum for literally everything to handle (K,3,3) and (K,3,3,T) data.
+    """
+    U = np.einsum('imj...,imk...->ijk...', P1,P2)  # P1^T*P2
+    Utr = np.einsum('ijj...->i...', U) #trace of U
+    Utr = Utr[:, np.newaxis,np.newaxis,...]
+    angles = np.arccos((Utr-1)/2) # (K,1,1,T) angle of rotation
+    yhat = 0.5*(U-np.einsum('ijk...->ikj...',U)) # transpose 2. and 3. dimension.
+    yhatsq =np.einsum('ijk...,ikl...->ijl...', yhat, yhat) #yhat*yhat
+    invnormx = 1/np.sin(angles)
+    scalar1= np.sin(theta*angles)*invnormx #(K,1,1,T)
+    scalar2=2*np.sin(theta*angles/2)**2*invnormx**2
+    I = np.identity(3)
+    I.shape = I.shape + time_shape
+    V= I+scalar1*yhat+scalar2*yhatsq 
+    return np.einsum('ijk...,ikl...->ijl...', P1, V)

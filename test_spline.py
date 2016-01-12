@@ -174,7 +174,14 @@ class TestDemo(unittest.TestCase):
         pp.preprocess(nb, resources={})
 
 class TestMatrix(unittest.TestCase):
+    def setUp(self):
+        self.control_points = np.array([np.identity(3), np.array([[0.0,1,0], [-1,0,0], [0,0,1]]), np.array([[1.0,0,0],[0, 0, -1],[0,1,0]]), np.identity(3)])
+        self.b1 = Bezier(self.control_points)
+
     def test_call(self):
-        control_points = np.array([np.identity(3), np.array([[0.0,1,0], [-1,0,0], [0,0,1]]), np.array([[1.0,0,0],[0, 0, -1],[0,1,0]]), np.identity(3)])
-        b1 = Bezier(control_points)
-        b1(.5)
+        self.b1(.5)
+
+    def test_geometry(self):
+        self.bg = Bezier(self.control_points, geometry=SO3geodesic)
+        mat = self.bg(.5)
+        npt.assert_allclose(np.dot(mat, mat.T), np.identity(3), atol=1e-15)
