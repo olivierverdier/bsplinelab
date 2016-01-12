@@ -106,17 +106,19 @@ The range of knots from which to generate the points.
         return BSpline(self.knots, pts)
 
 
-def geodesic(P1, P2, theta):
+def flat_geodesic(P1, P2, theta):
     """
     The geodesic between two points.
     """
     return (1-theta)*P1 + theta*P2
 
 class BSpline(object):
-    def __init__(self, knots, control_points):
+    def __init__(self, knots, control_points, geometry=flat_geodesic):
         degree = len(knots) - len(control_points) + 1
         self.knots = Knots(knots, degree)
         self.control_points = np.array(control_points, float)
+        self.geometry = geometry
+
 
     def __call__(self, t, lknot=None):
         t = np.array(t)
@@ -138,7 +140,7 @@ class BSpline(object):
             # trick to handle cases of equal knots:
             diffs[diffs==0.] = np.finfo(kns.dtype).eps
             rcoeff = (t - kns[:-n])/diffs # (K,T)
-            pts = geodesic(pts[:-1], pts[1:], rcoeff[:,np.newaxis,...]) # (K, D, 1), (K, 1, T)
+            pts = self.geometry(pts[:-1], pts[1:], rcoeff[:,np.newaxis,...]) # (K, D, 1), (K, 1, T)
             kns = kns[1:-1]
         result = pts[0] # (D, T)
         return result.transpose() # (T, D)
@@ -193,11 +195,11 @@ class Bezier(BSpline):
     """
 Special case of a BSpline. For n+1 points, the knot list is [0]*n+[1]*n.
     """
-    def __init__(self, control_points):
+    def __init__(self, control_points, *args, **kwargs):
         degree = len(control_points) - 1
         knots = np.zeros(2*degree)
         knots[degree:] = 1
-        super(Bezier,self).__init__(knots, control_points)
+        super(Bezier,self).__init__(knots, control_points, *args, **kwargs)
 
 def get_basis_knots(x):
     """
