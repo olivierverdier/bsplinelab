@@ -13,6 +13,7 @@ def get_canonical_knots(n):
 	knots[-(n-1):] = knots[-n]
 	return Knots(knots, degree=n)
 
+
 def get_basis(n):
 	nb_pts = 2*n+1
 	knots = np.arange(3*n) - (3*n-1)/2
@@ -30,6 +31,11 @@ class TestBasis(unittest.TestCase):
 		npt.assert_allclose(ck(b, lknot=1)[1], 1.)
 		npt.assert_allclose(ck(c, lknot=1)[1], 0.)
 		
+	def test_constant_abscissae(self):
+		k = get_basis_knots(np.arange(2))
+		k.abscissae()
+
+
 	## def test_canonical(self):
 	## 	ck = get_canonical_knots(5)
 	## 	cb = ck.get_basis()

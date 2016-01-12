@@ -70,6 +70,9 @@ n+2      n-1       2
 		"""
 		Return the Greville abscissae.
 		"""
+		if self.degree == 0:
+			k = np.hstack([-1, self.knots])
+			return k
 		kernel = np.ones(self.degree)/self.degree
 		res = np.convolve(kernel, self.knots, 'valid')
 		return res
