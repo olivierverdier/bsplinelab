@@ -190,6 +190,12 @@ class TestMatrix(unittest.TestCase):
         self.b1(.5)
 
     def test_geometry(self):
-        self.bg = Bezier(self.control_points, geometry=SO3geodesic)
+        self.bg = Bezier(self.control_points[1:], geometry=SO3geodesic)
         mat = self.bg(.5)
         npt.assert_allclose(np.dot(mat, mat.T), np.identity(3), atol=1e-15)
+        npt.assert_allclose(self.bg(0), self.control_points[1])
+
+    def test_geo_vectorize(self):
+        self.bg = Bezier(self.control_points[1:], geometry=SO3geodesic)
+        mats = self.bg(np.linspace(0,.5,10))
+        npt.assert_allclose(mats[0], self.control_points[1])

@@ -150,7 +150,9 @@ class BSpline(object):
             pts = self.geometry(pts[:-1], pts[1:], rcoeff[rcoeff_slice], time_shape) # (K, D, 1), (K, 1, T)
             kns = kns[1:-1]
         result = pts[0] # (D, T)
-        return result.transpose() # (T, D)
+        # put time first by permuting the indices; in the vector case, this is a standard permutation
+        permutation = len(np.shape(t))*(data_dim,) + tuple(range(data_dim))
+        return result.transpose(permutation) # (T, D)
 
 
     plotres = 200
