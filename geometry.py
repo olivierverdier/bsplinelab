@@ -19,8 +19,8 @@ def SO3geodesic(P1, P2, theta):
     yhat = 0.5*(U-np.einsum('ijk...->ikj...',U)) # transpose 2. and 3. dimension.
     yhatsq =np.einsum('ijk...,ikl...->ijl...', yhat, yhat) #yhat*yhat
     invnormx = 1/np.sin(angles)
-    scalar1= np.sin(theta*angles)*invnormx #(K,1,1,T)
-    scalar2=2*np.sin(theta*angles/2)**2*invnormx**2
+    scalar1 = np.sin(theta*angles)*invnormx #(K,1,1,T)
+    scalar2 = 2*np.sin(theta*angles/2)**2*invnormx**2
     I = np.identity(3)
     I.shape = I.shape + time_shape
     V = I + scalar1*yhat + scalar2*yhatsq
