@@ -5,6 +5,7 @@ from __future__ import division
 import numpy.testing as npt
 import unittest
 
+from knots import Knots, get_basis_knots
 from spline import *
 import geometry
 
@@ -27,7 +28,7 @@ def get_basis(n):
 class TestBasis(unittest.TestCase):
     def test_nonuniform(self):
         a,b,c = 0., 2.5, 8
-        ck = get_basis_knots([a,b,c]).get_basis()
+        ck = BSpline(*get_basis_knots([a,b,c]).get_basis_data())
         npt.assert_allclose(ck(a, lknot=0)[1], 0)
         npt.assert_allclose(ck(b, lknot=1)[1], 1.)
         npt.assert_allclose(ck(c, lknot=1)[1], 0.)
@@ -154,7 +155,7 @@ class TestKnots(unittest.TestCase):
         """
         w = [ 0, 0, 0, 1/3, 2/3, 1, 1, 1]
         wk = Knots(w, degree=3)
-        basis = [wk.get_basis(i) for i in range(6)]
+        basis = [BSpline(*wk.get_basis_data(i)) for i in range(6)]
         for k,l,r in wk.intervals():
             ts = np.linspace(l,r,30)
             vals = np.array([b(ts, lknot=k) for b in basis])
