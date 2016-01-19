@@ -5,8 +5,10 @@ from __future__ import division
 import numpy.testing as npt
 import unittest
 
+import numpy as np
+
 from bspline.knots import Knots, get_basis_knots
-from bspline.spline import *
+from bspline.spline import BSpline
 from bspline import plotting
 from bspline.bezier import Bezier
 from bspline import geometry
