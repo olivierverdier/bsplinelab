@@ -1,16 +1,17 @@
 import numpy as np
 
-def flat_geodesic(P1, P2, theta, time_shape):
+def flat_geodesic(P1, P2, theta):
     """
     The geodesic between two points.
     """
     return (1-theta)*P1 + theta*P2
 
-def SO3geodesic(P1, P2, theta,time_shape):
+def SO3geodesic(P1, P2, theta):
     """
     Geodesics on SO3  calculated via formulas p. 363-364 in 'Lie group methods'
     Uses einsum for literally everything to handle (K,3,3) and (K,3,3,T) data.
     """
+    time_shape = (1,)*(np.ndim(P1)-3) # guess the time shape from the number of dimensions of the given points
     U = np.einsum('imj...,imk...->ijk...', P1,P2)  # P1^T*P2
     Utr = np.einsum('ijj...->i...', U) #trace of U
     Utr = Utr[:, np.newaxis,np.newaxis,...]
@@ -22,5 +23,5 @@ def SO3geodesic(P1, P2, theta,time_shape):
     scalar2=2*np.sin(theta*angles/2)**2*invnormx**2
     I = np.identity(3)
     I.shape = I.shape + time_shape
-    V= I+scalar1*yhat+scalar2*yhatsq 
+    V = I + scalar1*yhat + scalar2*yhatsq
     return np.einsum('ijk...,ikl...->ijl...', P1, V)
