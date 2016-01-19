@@ -7,6 +7,7 @@ import unittest
 
 from knots import Knots, get_basis_knots
 from spline import *
+from bezier import Bezier
 import geometry
 
 def get_canonical_knots(n):
