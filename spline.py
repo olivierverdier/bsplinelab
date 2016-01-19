@@ -3,7 +3,6 @@
 from __future__ import division
 
 import numpy as np
-import matplotlib.pyplot as plt
 from knots import Knots
 
 from geometry import flat_geodesic
@@ -49,53 +48,6 @@ class BSpline(object):
         # put time first by permuting the indices; in the vector case, this is a standard permutation
         permutation = len(np.shape(t))*(data_dim,) + tuple(range(data_dim))
         return result.transpose(permutation) # (T, D)
-
-
-    plotres = 200
-    knot_style = {
-            'marker':'o',
-            'linestyle':'none',
-            'markerfacecolor':'white',
-            'markersize':5,
-            'markeredgecolor':'black',
-            }
-    control_style={
-            'marker':'o',
-            'linestyle':':',
-            'color':'black',
-            'markersize':10,
-            'markerfacecolor':'white',
-            'markeredgecolor':'red'
-            }
-
-    def plot_knots(self):
-        ints = list(self.knots.intervals())
-        pts = [self(l,k) for k,l,r in ints]
-        pts.append(self(ints[-1][2], ints[-1][0])) # add last knot as well
-        apts = np.array(pts)
-        plt.plot(apts[:,0],apts[:,1], **self.knot_style)
-
-
-    def plot_control_points(self):
-        """
-        Plot the control points.
-        """
-        plt.plot(self.control_points[:,0],self.control_points[:,1], **self.control_style)
-
-    def plot(self, knot=None, with_knots=False, margin=0.):
-        """
-        Plot the curve.
-        """
-        self.plot_control_points()
-        for k, left, right in self.knots.intervals(knot):
-            ts = np.linspace(left, right, self.plotres)
-            val = self(ts, lknot=k)
-            plt.plot(val[:,0],val[:,1], label="{:1.0f} - {:1.0f}".format(self.knots[k], self.knots[k+1]), lw=2)
-        if with_knots:
-            self.plot_knots()
-
-
-
 
 
 

@@ -7,6 +7,7 @@ import unittest
 
 from knots import Knots, get_basis_knots
 from spline import *
+import plotting
 from bezier import Bezier
 import geometry
 
@@ -73,7 +74,7 @@ class TestBezier(unittest.TestCase):
         self.assertEqual(self.b.knots.left_knot(.8), 1)
 
     def test_plot(self):
-        self.b.plot()
+        plotting.plot(self.b)
 
 
 class Test_DoubleQuad(unittest.TestCase):
@@ -132,7 +133,7 @@ class Test_BSpline(unittest.TestCase):
         npt.assert_allclose(computed, expected)
 
     def test_plot(self):
-        self.b.plot(with_knots=True)
+        plotting.plot(self.b, with_knots=True)
 
 
 class Test_BSpline3(unittest.TestCase):
