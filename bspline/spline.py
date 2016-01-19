@@ -3,9 +3,9 @@
 from __future__ import division
 
 import numpy as np
-from knots import Knots
+from .knots import Knots
 
-from geometry import flat_geodesic
+from .geometry import flat_geodesic
 
 class BSpline(object):
     def __init__(self, knots, control_points, geometry=flat_geodesic):

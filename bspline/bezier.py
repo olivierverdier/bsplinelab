@@ -1,6 +1,6 @@
 
 import numpy as np
-from spline import BSpline
+from .spline import BSpline
 
 class Bezier(BSpline):
     """

@@ -5,11 +5,11 @@ from __future__ import division
 import numpy.testing as npt
 import unittest
 
-from knots import Knots, get_basis_knots
-from spline import *
-import plotting
-from bezier import Bezier
-import geometry
+from bspline.knots import Knots, get_basis_knots
+from bspline.spline import *
+from bspline import plotting
+from bspline.bezier import Bezier
+from bspline import geometry
 
 def get_canonical_knots(n):
     knots = np.arange(3*n) - (3*n-1)/2
