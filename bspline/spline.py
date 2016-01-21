@@ -11,7 +11,7 @@ class BSpline(object):
     def __init__(self, knots, control_points, geometry=flat_geodesic):
         degree = len(knots) - len(control_points) + 1
         self.knots = Knots(knots, degree)
-        self.control_points = np.array(control_points, float)
+        self.control_points = np.array(control_points) 
         self.geometry = geometry
 
 
