@@ -206,3 +206,57 @@ class TestMatrix(unittest.TestCase):
         self.bg = Bezier(self.control_points[1:], geometry=geometry.SO3geodesic)
         mats = self.bg(np.linspace(0,.5,10))
         npt.assert_allclose(mats[0], self.control_points[1])
+
+
+class TestSphere(unittest.TestCase):
+    def SetUp(self):
+        self.control_points = np.array([
+            np.array([1,0]),
+            np.array([1j, 0]),
+            np.array([0, 1j]),
+            np.array([0, 1])
+            ])
+        self.b1 = Bezier(self.control_points[0:], geometry=geometry.sphere_geodesic)
+    
+    def test_call(self):
+        self.b1(.5)
+        
+    def test_geometry(self):
+        self.bg = Bezier(self.control_points[0:], geometry=geometry.sphere_geodesic)
+        v = self.bg(.85)
+        npt.assert_allclose(np.inner(v, v.conj()), 1., atol=1e-15)
+        npt.assert_allclose(self.bg(0), self.control_points[0])   
+    def test_geo_vectorize(self):
+        self.bg = Bezier(self.control_points[0:], geometry=geometry.sphere_geodesic)
+        timesample=np.linspace(0,0.5,10)
+        pts = self.bg(timesample)
+        npt.assert_allclose(pts[0], self.control_points[0])
+        npt.assert_allclose(np.linalg.norm(pts, axis=1), np.ones(timesample.shape))
+
+
+class TestCP(unittest.TestCase):
+    def SetUp(self):
+        self.control_points = np.array([
+            np.array([1,0]),
+            np.array([0, -1]),
+            np.array([1j, 0]),
+            np.array([0, 1j])
+            ])
+        self.b1 = Bezier(self.control_points[0:], geometry=geometry.cp_geodesic)
+    
+    def test_call(self):
+        self.b1(.5)
+        
+    def test_geometry(self):
+        self.bg = Bezier(self.control_points[0:], geometry=geometry.cp_geodesic)
+        v = self.bg(.5)
+        npt.assert_allclose(np.linalg.norm(v), 1., atol=1e-15)
+        npt.assert_allclose(np.inner(self.control_points[0].conj(),self.bg(0))*self.bg(0), self.control_points[0]) # Test for complex colinearity 
+        
+    def test_geo_vectorize(self):
+        self.bg = Bezier(self.control_points[0:], geometry=geometry.cp_geodesic)
+        timesample=np.linspace(0,0.5,10)
+        pts = self.bg(timesample)
+        npt.assert_allclose(np.inner(self.control_points[0].conj(),self.bg(0))*self.bg(0), self.control_points[0]) # Test for complex colinearity 
+        npt.assert_allclose(np.linalg.norm(pts, axis=1), np.ones(timesample.shape))
+        
