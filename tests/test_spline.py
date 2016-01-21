@@ -7,12 +7,11 @@ import unittest
 
 import numpy as np
 
-from ..bspline.knots import Knots, get_basis_knots
-from ..bspline.spline import BSpline
-from ..bspline import plotting
-from ..bspline.bezier import Bezier
-from ..bspline import geometry
-
+from bspline.knots import Knots, get_basis_knots
+from bspline.spline import BSpline
+from bspline import plotting
+from bspline.bezier import Bezier
+from bspline import geometry
 
 def get_canonical_knots(n):
     knots = np.arange(3*n) - (3*n-1)/2
