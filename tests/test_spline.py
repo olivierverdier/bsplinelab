@@ -208,7 +208,7 @@ class TestMatrix(unittest.TestCase):
 
 
 class TestSphere(unittest.TestCase):
-    def SetUp(self):
+    def setUp(self):
         self.control_points = np.array([
             np.array([1,0]),
             np.array([1j, 0]),
@@ -234,7 +234,7 @@ class TestSphere(unittest.TestCase):
 
 
 class TestCP(unittest.TestCase):
-    def SetUp(self):
+    def setUp(self):
         self.control_points = np.array([
             np.array([1,0]),
             np.array([0, -1]),
