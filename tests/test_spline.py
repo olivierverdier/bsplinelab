@@ -13,6 +13,15 @@ from bspline import plotting
 from bspline.bezier import Bezier
 from bspline import geometry
 
+def sphere_geodesic_unstable(P1,P2,theta):
+    """
+    Geodesic on the 2n+1-sphere, undefined when P1 == P2
+    """
+    angle = np.arccos(np.einsum('ij...,ij...->i...',P1.conj(), P2).real)
+    angle = angle[:, np.newaxis,...]
+    return (np.sin((1-theta)*angle)*P1 + np.sin(theta*angle)*P2)/np.sin(angle)
+
+
 def get_canonical_knots(n):
     knots = np.arange(3*n) - (3*n-1)/2
     knots[:n-1] = knots[n-1]
@@ -225,6 +234,7 @@ class TestSphere(unittest.TestCase):
         v = self.bg(.85)
         npt.assert_allclose(np.inner(v, v.conj()), 1., atol=1e-15)
         npt.assert_allclose(self.bg(0), self.control_points[0])   
+
     def test_geo_vectorize(self):
         self.bg = Bezier(self.control_points[0:], geometry=geometry.sphere_geodesic)
         timesample=np.linspace(0,0.5,10)
@@ -232,6 +242,28 @@ class TestSphere(unittest.TestCase):
         npt.assert_allclose(pts[0], self.control_points[0])
         npt.assert_allclose(np.linalg.norm(pts, axis=1), np.ones(timesample.shape))
 
+    @unittest.skip("to be fixed")
+    def test_stable_geodesic(self):
+        P1 = self.control_points[0]
+        P = geometry.sphere_geodesic(P1, P1, .5)
+        npt.assert_allclose(P1, P)
+
+    def test_trivial_bezier(self):
+        P = self.control_points[0]
+        control_points = [P]*3
+        geo = geometry.sphere_geodesic
+        b = Bezier(control_points, geometry=geo)
+        npt.assert_allclose(b(.5), P)
+
+    def test_geodesic(self):
+        """
+        This test is not optimal, ideally, it would compare the two geodesic functions directly, without computing any splines.
+        """
+        self.bg1 = Bezier(self.control_points[0:], geometry=geometry.sphere_geodesic)
+        v1 = self.bg1(np.linspace(.2,.4,10))
+        self.bg2 = Bezier(self.control_points[0:], geometry=sphere_geodesic_unstable)
+        v2 = self.bg2(np.linspace(.2,.4,10))
+        npt.assert_allclose(v1, v2)
 
 class TestCP(unittest.TestCase):
     def setUp(self):
