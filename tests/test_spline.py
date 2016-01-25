@@ -242,7 +242,6 @@ class TestSphere(unittest.TestCase):
         npt.assert_allclose(pts[0], self.control_points[0])
         npt.assert_allclose(np.linalg.norm(pts, axis=1), np.ones(timesample.shape))
 
-    @unittest.skip("to be fixed")
     def test_stable_geodesic(self):
         P1 = self.control_points[0]
         P = geometry.sphere_geodesic(P1, P1, .5)
@@ -277,6 +276,12 @@ class TestCP(unittest.TestCase):
     
     def test_call(self):
         self.b1(.5)
+            
+    def test_stable_geodesic(self):
+        P1 = self.control_points[0]
+        P = geometry.sphere_geodesic(P1, P1, .5)
+        npt.assert_allclose(np.inner(P1.conj(),P)*P,P1) # Test for complex colinearity 
+
         
     def test_geometry(self):
         self.bg = Bezier(self.control_points[0:], geometry=geometry.cp_geodesic)
