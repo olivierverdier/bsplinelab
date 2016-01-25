@@ -1,24 +1,28 @@
 language: python
 python:
   - 3.4
+  - 3.5
 
 sudo: false
 
-# Setup anaconda
+# Setup anaconda following http://conda.pydata.org/docs/travis.html#the-travis-yml-file
 before_install:
-  - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
-  - chmod +x miniconda.sh
-  - ./miniconda.sh -b
-  - echo $PREFIX
-  - export PATH=/home/travis/miniconda2/bin:$PATH
-  - conda update --yes conda
+  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+  - bash ./miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
   # For tests with plot instructions
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
 
 # Install packages
 install:
-  - conda install --yes python=$TRAVIS_PYTHON_VERSION pip numpy matplotlib nose
+  - conda update -q conda
+  # Useful for debugging any issues with conda
+  - conda info -a
+  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION pip numpy matplotlib nose
+  - source activate test-environment
   - pip install -e "git+https://github.com/z4r/python-coveralls.git#egg=pycoveralls"
   - pip install nose-cov
   - pip install .
