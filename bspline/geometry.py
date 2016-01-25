@@ -32,17 +32,24 @@ def sinc(x):
     """
     return np.sinc(x/np.pi)
 
-def sphere_geodesic(P1, P2, theta):
+def sphere_geodesic(P1, P2, theta): 
     """
     Geodesic on the 2n+1-sphere, embedded in C^(n+1)
     """
-    angle = np.arccos(np.einsum('ij...,ij...->i...',P1.conj(), P2).real)
-    angle = angle[:, np.newaxis,...]
+    # will not work properly for 1-sphere in C^1.
+    if np.ndim(P1)==1: 
+        angle = np.arccos(np.inner(P1.conj(), P2))
+    else:
+        angle = np.arccos(np.einsum('ij...,ij...->i...',P1.conj(), P2).real)
+        angle = angle[:, np.newaxis,...]
     # stable formula with sinc:
     return ((1-theta)*sinc((1-theta)*angle)*P1 + theta*sinc(theta*angle)*P2)/sinc(angle)
 
 def cp_geodesic(P1,P2,theta):
-    innerprods = np.einsum('ij...,ij...->i...',P1.conj(), P2)
-    rotations=np.angle(innerprods)
-    rotations = rotations[:, np.newaxis,...]
+    if np.ndim(P1)==1:
+        innerprods = np.angle(np.inner(P1.conj(), P2))
+    else:
+        innerprods = np.einsum('ij...,ij...->i...',P1.conj(), P2)
+        rotations=np.angle(innerprods)
+        rotations = rotations[:, np.newaxis,...]
     return sphere_geodesic(P1, np.exp(-1j*rotations)*P2, theta)
