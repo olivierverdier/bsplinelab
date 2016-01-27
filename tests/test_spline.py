@@ -273,6 +273,15 @@ class TestSphere(unittest.TestCase):
         b = Bezier(P, geometry=geometry.sphere_geodesic)
         npt.assert_allclose(np.linalg.norm(b(.5)), 1.0)
         
+    def test_sp1(self):
+        """
+        Test for 1-sphere that succeeds
+        """
+        P = np.array([[1], [(1+1j)*np.sqrt(0.5)], [1j], [-1]])
+        b = Bezier(P, geometry=geometry.sphere_geodesic)
+        npt.assert_allclose(np.linalg.norm(b(.5)), 1.0)
+                
+
 class TestCP(unittest.TestCase):
     def setUp(self):
         self.control_points = np.array([
