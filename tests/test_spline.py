@@ -263,7 +263,16 @@ class TestSphere(unittest.TestCase):
         self.bg2 = Bezier(self.control_points[0:], geometry=sphere_geodesic_unstable)
         v2 = self.bg2(np.linspace(.2,.4,10))
         npt.assert_allclose(v1, v2)
-
+        
+    @unittest.skip("syntax not supported, see next test")
+    def test_sp1_failed(self):
+        """
+        Test for 1-sphere that fails.
+        """
+        P = np.array([1, (1+1j)*np.sqrt(0.5), 1j, -1])
+        b = Bezier(P, geometry=geometry.sphere_geodesic)
+        npt.assert_allclose(np.linalg.norm(b(.5)), 1.0)
+        
 class TestCP(unittest.TestCase):
     def setUp(self):
         self.control_points = np.array([
