@@ -48,6 +48,7 @@ def sphere_geodesic(P1, P2, theta):
 def cp_geodesic(P1,P2,theta):
     if np.ndim(P1)==1:
         innerprods = np.angle(np.inner(P1.conj(), P2))
+        rotations=np.angle(innerprods)
     else:
         innerprods = np.einsum('ij...,ij...->i...',P1.conj(), P2)
         rotations=np.angle(innerprods)
