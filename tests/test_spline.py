@@ -297,7 +297,7 @@ class TestCP(unittest.TestCase):
             
     def test_stable_geodesic(self):
         P1 = self.control_points[0]
-        P = geometry.sphere_geodesic(P1, P1, .5)
+        P = geometry.cp_geodesic(P1, P1, .5)
         npt.assert_allclose(np.inner(P1.conj(),P)*P,P1) # Test for complex colinearity 
 
         
