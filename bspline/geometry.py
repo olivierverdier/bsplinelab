@@ -16,7 +16,29 @@ class Geometry:
         """
         return (1-theta)*P1 + theta*P2
         
-
+    def involution(self, P1, P2):
+        """
+        The mirroring of P2 through P1
+        """
+        return 2*P1-P2
+    
+    def involution_derivative(self, P1, P2,V2):
+        """
+        The derivative of involution(P1, P2) with respect to P2, in the direction of V1
+        """
+        return -V2
+    
+    def exp(self, P1, V1):
+        """
+        Riemannian exponential
+        """
+        return P1+V1
+    
+    def log(self, P1, P2):
+        """
+        Riemannian logarithm
+        """
+        return P2-P1
         
 
 class Sphere_geometry(Geometry):
@@ -35,7 +57,34 @@ class Sphere_geometry(Geometry):
         
         return ((1-theta)*sinc((1-theta)*angle)*P1 + theta*sinc(theta*angle)*P2)/sinc(angle)
         
-
+    def involution(self, P1, P2):
+        """
+        The mirroring of P2 through P1
+        """
+        if np.ndim(P1)==1:
+            return 2*np.inner(P1.conj(), P2).real*P1-P2
+        else:
+            return 2*np.einsum('ij...,ij...->i...', P1.conj(), P2).real*P1-P2
+    
+    def involution_derivative(self, P1, P2,V2):
+        """
+        The derivative of involution(P1, P2) with respect to P2, in the direction of V2
+        """
+        return self.involution(P1,V2)
+    
+    def exp(self, P1, V1):
+        """
+        Riemannian exponential
+        """
+        angle = np.linalg.norm(V1)
+        return np.cos(angle)*P1+sinc(angle)*V1
+    
+    def log(self, P1, P2):
+        """
+        Riemannian logarithm
+        """
+        angle = np.arccos(np.inner(P1.conj(), P2).real)
+        return (P2-np.cos(angle)*P1)/sinc(angle) #Warning: non-stable.
         
 
    
