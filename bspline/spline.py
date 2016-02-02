@@ -5,10 +5,10 @@ from __future__ import division
 import numpy as np
 from .knots import Knots
 
-from .geometry import flat_geodesic
+from .geometry import Geometry
 
 class BSpline(object):
-    def __init__(self, knots, control_points, geometry=flat_geodesic):
+    def __init__(self, knots, control_points, geometry=Geometry()):
         degree = len(knots) - len(control_points) + 1
         self.knots = Knots(knots, degree)
         self.control_points = np.array(control_points) 
@@ -30,7 +30,7 @@ class BSpline(object):
             # trick to handle cases of equal knots:
             diffs[diffs==0.] = np.finfo(kns.dtype).eps
             rcoeff = (t - kns[:-n])/diffs # (K,T)
-            pts = self.geometry(pts[:-1], pts[1:], rcoeff[rcoeff_slice]) # (K, D, 1), (K, 1, T)
+            pts = self.geometry.geodesic(pts[:-1], pts[1:], rcoeff[rcoeff_slice]) # (K, D, 1), (K, 1, T)
             kns = kns[1:-1]
 
         result = pts[0] # (D, T)
