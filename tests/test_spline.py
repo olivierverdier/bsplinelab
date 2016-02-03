@@ -38,6 +38,16 @@ def get_basis(n):
     spline = BSpline(knots, control_points)
     return spline
 
+class TestGeodesic(unittest.TestCase):
+    @unittest.skip("This will not work with current implementation of geodesic")
+    def test_single_geodesic(self):
+        G = geometry.Geometry()
+        P1 = np.array([0.,0])
+        P2 = np.array([1.,1])
+        theta = np.linspace(0,1)
+        return G.geodesic(P1,P2,theta)
+        
+        
 class TestBasis(unittest.TestCase):
     def test_nonuniform(self):
         a,b,c = 0., 2.5, 8
