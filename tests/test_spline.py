@@ -114,6 +114,15 @@ class Test_BSpline(unittest.TestCase):
         }
         self.b = BSpline(**ex2)
 
+    def test_vectorize(self):
+        control_points = np.array([0.,1.]*2)
+        knots = np.arange(5)
+        s = BSpline(knots, control_points)
+        ts = np.array([1.5,2.5])
+        ss_ = np.array([s(tt) for tt in ts])
+        ss = s(ts)
+        npt.assert_allclose(ss[-1], ss_[-1])
+
     def test_left_knot(self):
         self.assertEqual(self.b.knots.left_knot(3.8), 2)
         self.assertEqual(self.b.knots.left_knot(3.2), 2)
