@@ -88,7 +88,6 @@ The range of knots from which to generate the points.
         if knot_range is None:
             knot_range = self.knot_range()
         for k in knot_range:
-            width = self.knots[k+1]-self.knots[k]
             left, right = self.knots[k], self.knots[k+1]
             yield (k, left, right)
 
