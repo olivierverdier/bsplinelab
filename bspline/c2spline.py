@@ -40,4 +40,4 @@ def c2spline(interpolation_points, initial_control_points, geometry = Geometry()
     'control_points': control_points,
     'knots' : np.array(range(interpolation_points.shape[0])).repeat(3)
     }
-    return BSpline(**ex, geometry=geometry)
+    return BSpline(geometry=geometry, **ex)
