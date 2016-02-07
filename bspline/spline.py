@@ -24,7 +24,8 @@ class BSpline(object):
         # for vectorial data, this amounts to the slice (:, np.newaxis,...)
         rcoeff_slice = (slice(None),) + (np.newaxis,)*data_dim + (Ellipsis,)
 
-        for i in range(self.knots.degree):
+        degree = len(kns) - len(pts) + 1
+        for i in range(degree):
             n = len(kns)//2
             diffs = kns[n:] - kns[:-n] # (K,1)
             # trick to handle cases of equal knots:
