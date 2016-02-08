@@ -88,8 +88,8 @@ class TestBasis(unittest.TestCase):
 
 class TestBezier(unittest.TestCase):
     def setUp(self):
-        controls = np.array([[1.,1],[0,-1],[-1,1]])
-        self.b = Spline(controls)
+        self.controls = np.array([[1.,1],[0,-1],[-1,1]])
+        self.b = Spline(self.controls)
 
     def test_quad(self):
         u"""
@@ -105,6 +105,9 @@ class TestBezier(unittest.TestCase):
     def test_plot(self):
         b = get_single_bspline(self.b)
         plotting.plot(b)
+
+    def test_create_bezier(self):
+        b_ = BSpline(self.controls)
 
 class TestBezierKnots(unittest.TestCase):
     def setUp(self):

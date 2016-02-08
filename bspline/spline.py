@@ -7,11 +7,16 @@ import numpy as np
 from .geometry import Geometry
 
 class BSpline(object):
-    def __init__(self, knots, control_points, geometry=Geometry()):
-        self.degree = len(knots) - len(control_points) + 1
+    def __init__(self, control_points, knots=None, geometry=Geometry()):
+        if knots is None:
+            self.degree = max_degree(len(control_points))
+            self.knots = get_bezier_knots(self.degree)
+        else:
+            self.knots = knots
+            self.degree = len(knots) - len(control_points) + 1
         self.control_points = np.array(control_points)
         self.geometry = geometry
-        self.splines = list(get_splines(knots, control_points, self.geometry))
+        self._splines = list(get_splines(self.knots, self.control_points, self.geometry))
 
     def __call__(self, t):
         for s in self.splines:
@@ -19,6 +24,9 @@ class BSpline(object):
             if a <= t <= b:
                 return s(t)
         raise ValueError("Outside interval")
+
+def max_degree(nb_points):
+    return nb_points - 1
 
 def get_bezier_knots(degree):
     knots = np.zeros(2*degree)
@@ -31,7 +39,7 @@ def get_single_bspline(spline):
 class Spline(object):
     def __init__(self, control_points, knots=None, geometry=Geometry()):
         self.control_points = np.array(control_points)
-        self.degree = len(self.control_points) - 1
+        self.degree = max_degree(len(self.control_points))
         self.data_dim = np.ndim(self.control_points[0])
 
         if knots is None:
