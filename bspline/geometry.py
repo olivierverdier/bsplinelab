@@ -6,7 +6,7 @@ def sinc(x):
     """
     return np.sinc(x/np.pi)
 
-class Geometry:
+class Geometry(object):
     def __init__(self):
         self.type ='flat'
         
@@ -99,7 +99,7 @@ class CP_geometry(Sphere_geometry):
             innerprods = np.einsum('ij...,ij...->i...',P1.conj(), P2)
             rotations=np.angle(innerprods)
             rotations = rotations[:, np.newaxis,...]
-        return super().geodesic(P1, np.exp(-1j*rotations)*P2, theta)
+        return super(CP_geometry, self).geodesic(P1, np.exp(-1j*rotations)*P2, theta)
 
 
      
