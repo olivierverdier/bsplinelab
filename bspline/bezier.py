@@ -1,13 +1,11 @@
 
 import numpy as np
-from .spline import BSpline
+from .spline import Spline
 
-class Bezier(BSpline):
+class Bezier(Spline):
     """
-Special case of a BSpline. For n+1 points, the knot list is [0]*n+[1]*n.
+Special case of a Spline. For n+1 points, the knot list is [0]*n+[1]*n.
     """
     def __init__(self, control_points, *args, **kwargs):
-        degree = len(control_points) - 1
-        knots = np.zeros(2*degree)
-        knots[degree:] = 1
-        super(Bezier,self).__init__(knots, control_points, *args, **kwargs)
+        raise Exception("Deprecated class")
+        super(Bezier,self).__init__(control_points, *args, **kwargs)

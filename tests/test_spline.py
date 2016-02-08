@@ -8,9 +8,8 @@ import unittest
 import numpy as np
 
 from bspline.knots import Knots, get_basis_knots
-from bspline.spline import BSpline
+from bspline.spline import BSpline, Spline, get_single_bspline
 from bspline import plotting
-from bspline.bezier import Bezier
 from bspline import geometry
 
 def sphere_geodesic_unstable(P1,P2,theta):
@@ -52,14 +51,31 @@ class TestBasis(unittest.TestCase):
     def test_nonuniform(self):
         a,b,c = 0., 2.5, 8
         ck = BSpline(*get_basis_knots([a,b,c]).get_basis_data())
-        npt.assert_allclose(ck(a, lknot=0)[1], 0)
-        npt.assert_allclose(ck(b, lknot=1)[1], 1.)
-        npt.assert_allclose(ck(c, lknot=1)[1], 0.)
+        npt.assert_allclose(ck(a)[1], 0)
+        npt.assert_allclose(ck(b)[1], 1.)
+        npt.assert_allclose(ck(c)[1], 0.)
 
     def test_constant_abscissae(self):
         k = get_basis_knots(np.arange(2))
         k.abscissae()
 
+    def test_sum_to_one(self):
+        """
+        Check that the basis functions sum up to one.
+        """
+        w = [ 0, 0, 0, 1/3, 2/3, 1, 1, 1]
+        wk = Knots(w, degree=3)
+        basis = [BSpline(*wk.get_basis_data(i)) for i in range(6)]
+        vals = []
+        for b in basis:
+            vals_b = []
+            for s in b.splines:
+                l,r = s.interval
+                ts = np.linspace(l,r)
+                vals_b.append(s(ts))
+            vals.append(vals_b)
+        avals = np.array(vals)
+        npt.assert_allclose(np.sum(avals[:,:,:,1], axis=0), 1.)
 
     ## def test_canonical(self):
     ##      ck = get_canonical_knots(5)
@@ -72,49 +88,84 @@ class TestBasis(unittest.TestCase):
 
 class TestBezier(unittest.TestCase):
     def setUp(self):
-        controls = [[1.,1],[0,-1],[-1,1]]
-        self.b = Bezier(controls)
+        controls = np.array([[1.,1],[0,-1],[-1,1]])
+        self.b = Spline(controls)
 
     def test_quad(self):
         u"""
     Check that Bézier with three points generates the parabola y=x**2.
         """
         b = self.b
-        self.assertEqual(b.knots.nb_curves,1)
+        # self.assertEqual(b.knots.nb_curves,1)
         ts = np.linspace(0.,1., 200)
         all_pts = b(ts)
         npt.assert_array_almost_equal(all_pts[:,0]**2, all_pts[:,1])
         npt.assert_allclose(b(.5), 0.)
 
+    def test_plot(self):
+        b = get_single_bspline(self.b)
+        plotting.plot(b)
+
+class TestBezierKnots(unittest.TestCase):
+    def setUp(self):
+        self.knots = Knots(np.array([0.,0,1,1]), degree=2)
+
     def test_intervals(self):
-        intervals = list(self.b.knots.intervals())
-        self.assertEqual(len(intervals), self.b.knots.nb_curves)
+        intervals = list(self.knots.intervals())
+        self.assertEqual(len(intervals), self.knots.nb_curves)
 
     def test_left_knot(self):
-        self.assertEqual(self.b.knots.left_knot(.2), 1)
-        self.assertEqual(self.b.knots.left_knot(.8), 1)
-
-    def test_plot(self):
-        plotting.plot(self.b)
+        self.assertEqual(self.knots.left_knot(.2), 1)
+        self.assertEqual(self.knots.left_knot(.8), 1)
 
 
-class Test_DoubleQuad(unittest.TestCase):
+class TestDoubleQuadKnots(unittest.TestCase):
     def setUp(self):
-        controls = [[-1,1],[0,-1],[2.,3],[3,1]]
-        knots = [0,0,.5,1,1]
-        self.spline = BSpline(knots, controls)
+        self.knots = Knots([0,0,.5,1,1], degree=2)
 
     def test_info(self):
-        self.assertEqual(self.spline.knots.degree, 2)
-        self.assertEqual(self.spline.knots.nb_curves,2)
-        self.assertEqual(len(self.spline.knots.knot_range()), self.spline.knots.nb_curves)
+        self.assertEqual(self.knots.degree, 2)
+        self.assertEqual(self.knots.nb_curves,2)
+        self.assertEqual(len(self.knots.knot_range()), self.knots.nb_curves)
+
+class TsetDoubleQuadSpline(unittest.TestCase):
+    def setUp(self):
+        controls = np.array([[-1,1],[0,-1],[2.,3],[3,1]])
+        self.knots = np.array([0,0,.5,1,1])
+        self.spline = BSpline(knots=self.knots, control_points=controls)
+
+    def test_intervals(self):
+        K = Knots(self.knots, degree=3)
+        intervals = list(K.intervals())
+        self.assertEqual(len(intervals), K.nb_curves)
 
     def test_generate(self):
-        intervals = list(self.spline.knots.intervals())
-        self.assertEqual(len(intervals), self.spline.knots.nb_curves)
-        a0,a1 = [self.spline(np.linspace(l,r,200)) for (k,l,r) in intervals]
+        a0,a1 = [s(np.linspace(s.interval[0],s.interval[1],200)) for s in self.spline.splines]
         npt.assert_array_almost_equal(a0[:,0]**2, a0[:,1])
         npt.assert_array_almost_equal(-(a1[:,0]-2)**2, a1[:,1]-2)
+
+    def test_outside_interval(self):
+        with self.assertRaises(ValueError):
+            self.spline(10.)
+
+class TestBigKnot(unittest.TestCase):
+    def setUp(self):
+        self.knots = Knots(np.array([1.,2.,3.,4.,5.,6.,7.]), degree=3)
+
+    def test_left_knot(self):
+        self.assertEqual(self.knots.left_knot(3.8), 2)
+        self.assertEqual(self.knots.left_knot(3.2), 2)
+        self.assertEqual(self.knots.left_knot(4.8), 3)
+        self.assertEqual(self.knots.left_knot(4.0), 3)
+        self.assertEqual(self.knots.left_knot(4.0-1e-14), 3)
+        with self.assertRaises(ValueError):
+            self.knots.left_knot(2.5)
+        with self.assertRaises(ValueError):
+            self.knots.left_knot(5.5)
+
+    def test_knot_range(self):
+        k = Knots(np.arange(10))
+        self.assertEqual(len(k.knot_range()), 0)
 
 class Test_BSpline(unittest.TestCase):
     def setUp(self):
@@ -123,6 +174,13 @@ class Test_BSpline(unittest.TestCase):
         'knots': np.array([1.,2.,3.,4.,5.,6.,7.])
         }
         self.b = BSpline(**ex2)
+
+    @unittest.skip("Obselete test")
+    def test_wrong_knot(self):
+        with self.assertRaises(ValueError):
+            self.b(3.5, lknot=1)
+        with self.assertRaises(ValueError):
+            self.b(3.5, lknot=4)
 
     @unittest.skip("fix later")
     def test_vectorize(self):
@@ -134,38 +192,20 @@ class Test_BSpline(unittest.TestCase):
         ss = s(ts)
         npt.assert_allclose(ss[-1], ss_[-1])
 
-    def test_left_knot(self):
-        self.assertEqual(self.b.knots.left_knot(3.8), 2)
-        self.assertEqual(self.b.knots.left_knot(3.2), 2)
-        self.assertEqual(self.b.knots.left_knot(4.8), 3)
-        self.assertEqual(self.b.knots.left_knot(4.0), 3)
-        self.assertEqual(self.b.knots.left_knot(4.0-1e-14), 3)
-        with self.assertRaises(ValueError):
-            self.b.knots.left_knot(2.5)
-        with self.assertRaises(ValueError):
-            self.b.knots.left_knot(5.5)
 
-    def test_knot_range(self):
-        k = Knots(np.arange(10))
-        self.assertEqual(len(k.knot_range()), 0)
 
-    def test_wrong_knot(self):
-        with self.assertRaises(ValueError):
-            self.b(3.5, lknot=1)
-        with self.assertRaises(ValueError):
-            self.b(3.5, lknot=4)
+    def test_plot(self):
+        plotting.plot(self.b, with_knots=False)
+        plotting.plot(self.b, with_knots=True)
 
+class TestAbscissae(unittest.TestCase):
     def test_abscissae(self):
         pts = np.random.random_sample([7,2])
         knots = [0,0,0,2,3,4,5,5,5]
-        b = BSpline(knots, pts)
-        computed = b.knots.abscissae()
+        K = Knots(knots, degree=3)
+        computed = K.abscissae()
         expected = np.array([0, 2/3, 5/3, 3, 4, 14/3, 5]) # values from Sederberg §6.14
         npt.assert_allclose(computed, expected)
-
-    def test_plot(self):
-        plotting.plot(self.b, with_knots=True)
-
 
 class Test_BSpline3(unittest.TestCase):
     def setUp(self):
@@ -181,18 +221,6 @@ class Test_BSpline3(unittest.TestCase):
     def test_scalar_shape(self):
         self.assertEqual(np.shape(self.b(3.5)), (3,))
 
-class TestKnots(unittest.TestCase):
-    def test_basis(self):
-        """
-        Check that the basis functions sum up to one.
-        """
-        w = [ 0, 0, 0, 1/3, 2/3, 1, 1, 1]
-        wk = Knots(w, degree=3)
-        basis = [BSpline(*wk.get_basis_data(i)) for i in range(6)]
-        for k,l,r in wk.intervals():
-            ts = np.linspace(l,r,30)
-            vals = np.array([b(ts, lknot=k) for b in basis])
-            npt.assert_allclose(np.sum(vals[:,:,1], axis=0), 1.)
 
 import os
 
@@ -219,19 +247,19 @@ class TestMatrix(unittest.TestCase):
                       [0, 0, -1],
                       [0,1,0]]),
             np.identity(3)])
-        self.b1 = Bezier(self.control_points)
+        self.b1 = Spline(self.control_points)
 
     def test_call(self):
         self.b1(.5)
 
     def test_geometry(self):
-        self.bg = Bezier(self.control_points[1:], geometry=geometry.SO3_geometry())
+        self.bg = Spline(self.control_points[1:], geometry=geometry.SO3_geometry())
         mat = self.bg(.5)
         npt.assert_allclose(np.dot(mat, mat.T), np.identity(3), atol=1e-15)
         npt.assert_allclose(self.bg(0), self.control_points[1])
 
     def test_geo_vectorize(self):
-        self.bg = Bezier(self.control_points[1:], geometry=geometry.SO3_geometry())
+        self.bg = Spline(self.control_points[1:], geometry=geometry.SO3_geometry())
         mats = self.bg(np.linspace(0,.5,10))
         npt.assert_allclose(mats[0], self.control_points[1])
 
@@ -244,19 +272,19 @@ class TestSphere(unittest.TestCase):
             np.array([0, 1j]),
             np.array([0, 1])
             ])
-        self.b1 = Bezier(self.control_points[0:], geometry=geometry.Sphere_geometry())
+        self.b1 = Spline(self.control_points[0:], geometry=geometry.Sphere_geometry())
     
     def test_call(self):
         self.b1(.5)
         
     def test_geometry(self):
-        self.bg = Bezier(self.control_points[0:], geometry=geometry.Sphere_geometry())
+        self.bg = Spline(self.control_points[0:], geometry=geometry.Sphere_geometry())
         v = self.bg(.85)
         npt.assert_allclose(np.inner(v, v.conj()), 1., atol=1e-15)
         npt.assert_allclose(self.bg(0), self.control_points[0])   
 
     def test_geo_vectorize(self):
-        self.bg = Bezier(self.control_points[0:], geometry=geometry.Sphere_geometry())
+        self.bg = Spline(self.control_points[0:], geometry=geometry.Sphere_geometry())
         timesample=np.linspace(0,0.5,10)
         pts = self.bg(timesample)
         npt.assert_allclose(pts[0], self.control_points[0])
@@ -272,7 +300,7 @@ class TestSphere(unittest.TestCase):
         P = self.control_points[0]
         control_points = [P]*3
         geo = geometry.Sphere_geometry()
-        b = Bezier(control_points, geometry=geo)
+        b = Spline(control_points, geometry=geo)
         npt.assert_allclose(b(.5), P)
         
     @unittest.skip("Wasn't able to make this work with new structure")
@@ -281,9 +309,9 @@ class TestSphere(unittest.TestCase):
         This test is not optimal, ideally, it would compare the two geodesic functions directly, without computing any splines.
         """
         SG = geometry.Sphere_geometry()
-        self.bg1 = Bezier(self.control_points[0:], geometry=SG)
+        self.bg1 = Spline(self.control_points[0:], geometry=SG)
         v1 = self.bg1(np.linspace(.2,.4,10))
-        self.bg2 = Bezier(self.control_points[0:], geometry=sphere_geodesic_unstable) #This call will fail
+        self.bg2 = Spline(self.control_points[0:], geometry=sphere_geodesic_unstable) #This call will fail
         v2 = self.bg2(np.linspace(.2,.4,10))
         npt.assert_allclose(v1, v2)
     @unittest.skip("syntax not supported, see next test")
@@ -292,7 +320,7 @@ class TestSphere(unittest.TestCase):
         Test for 1-sphere that fails.
         """
         P = np.array([1, (1+1j)*np.sqrt(0.5), 1j, -1])
-        b = Bezier(P, geometry=geometry.Sphere_geometry())
+        b = Spline(P, geometry=geometry.Sphere_geometry())
         npt.assert_allclose(np.linalg.norm(b(.5)), 1.0)
         
     def test_sp1(self):
@@ -300,7 +328,7 @@ class TestSphere(unittest.TestCase):
         Test for 1-sphere that succeeds
         """
         P = np.array([[1], [(1+1j)*np.sqrt(0.5)], [1j], [-1]])
-        b = Bezier(P, geometry=geometry.Sphere_geometry())
+        b = Spline(P, geometry=geometry.Sphere_geometry())
         npt.assert_allclose(np.linalg.norm(b(.5)), 1.0)
                 
 
@@ -312,7 +340,7 @@ class TestCP(unittest.TestCase):
             np.array([1j, 0]),
             np.array([0, 1j])
             ])
-        self.b1 = Bezier(self.control_points[0:], geometry=geometry.CP_geometry())
+        self.b1 = Spline(self.control_points[0:], geometry=geometry.CP_geometry())
     
     def test_call(self):
         self.b1(.5)
@@ -325,13 +353,13 @@ class TestCP(unittest.TestCase):
 
         
     def test_geometry(self):
-        self.bg = Bezier(self.control_points[0:], geometry=geometry.CP_geometry())
+        self.bg = Spline(self.control_points[0:], geometry=geometry.CP_geometry())
         v = self.bg(.5)
         npt.assert_allclose(np.linalg.norm(v), 1., atol=1e-15)
         npt.assert_allclose(np.inner(self.control_points[0].conj(),self.bg(0))*self.bg(0), self.control_points[0]) # Test for complex colinearity 
         
     def test_geo_vectorize(self):
-        self.bg = Bezier(self.control_points[0:], geometry=geometry.CP_geometry())
+        self.bg = Spline(self.control_points[0:], geometry=geometry.CP_geometry())
         timesample=np.linspace(0,0.5,10)
         pts = self.bg(timesample)
         npt.assert_allclose(np.inner(self.control_points[0].conj(),self.bg(0))*self.bg(0), self.control_points[0]) # Test for complex colinearity 
