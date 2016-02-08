@@ -45,8 +45,8 @@ class TestGeodesic(unittest.TestCase):
         P2 = np.array([1.,1])
         theta = np.linspace(0,1)
         return G.geodesic(P1,P2,theta)
-        
-        
+
+
 class TestBasis(unittest.TestCase):
     def test_nonuniform(self):
         a,b,c = 0., 2.5, 8
@@ -276,15 +276,15 @@ class TestSphere(unittest.TestCase):
             np.array([0, 1])
             ])
         self.b1 = Spline(self.control_points[0:], geometry=geometry.Sphere_geometry())
-    
+
     def test_call(self):
         self.b1(.5)
-        
+
     def test_geometry(self):
         self.bg = Spline(self.control_points[0:], geometry=geometry.Sphere_geometry())
         v = self.bg(.85)
         npt.assert_allclose(np.inner(v, v.conj()), 1., atol=1e-15)
-        npt.assert_allclose(self.bg(0), self.control_points[0])   
+        npt.assert_allclose(self.bg(0), self.control_points[0])
 
     def test_geo_vectorize(self):
         self.bg = Spline(self.control_points[0:], geometry=geometry.Sphere_geometry())
@@ -305,7 +305,7 @@ class TestSphere(unittest.TestCase):
         geo = geometry.Sphere_geometry()
         b = Spline(control_points, geometry=geo)
         npt.assert_allclose(b(.5), P)
-        
+
     @unittest.skip("Wasn't able to make this work with new structure")
     def test_geodesic(self):
         """
@@ -325,7 +325,7 @@ class TestSphere(unittest.TestCase):
         P = np.array([1, (1+1j)*np.sqrt(0.5), 1j, -1])
         b = Spline(P, geometry=geometry.Sphere_geometry())
         npt.assert_allclose(np.linalg.norm(b(.5)), 1.0)
-        
+
     def test_sp1(self):
         """
         Test for 1-sphere that succeeds
@@ -333,7 +333,7 @@ class TestSphere(unittest.TestCase):
         P = np.array([[1], [(1+1j)*np.sqrt(0.5)], [1j], [-1]])
         b = Spline(P, geometry=geometry.Sphere_geometry())
         npt.assert_allclose(np.linalg.norm(b(.5)), 1.0)
-                
+
 
 class TestCP(unittest.TestCase):
     def setUp(self):
@@ -344,27 +344,26 @@ class TestCP(unittest.TestCase):
             np.array([0, 1j])
             ])
         self.b1 = Spline(self.control_points[0:], geometry=geometry.CP_geometry())
-    
+
     def test_call(self):
         self.b1(.5)
-            
+
     def test_stable_geodesic(self):
         P1 = self.control_points[0]
         CG = geometry.CP_geometry()
         P = CG.geodesic(P1, P1, .5)
-        npt.assert_allclose(np.inner(P1.conj(),P)*P,P1) # Test for complex colinearity 
+        npt.assert_allclose(np.inner(P1.conj(),P)*P,P1) # Test for complex colinearity
 
-        
+
     def test_geometry(self):
         self.bg = Spline(self.control_points[0:], geometry=geometry.CP_geometry())
         v = self.bg(.5)
         npt.assert_allclose(np.linalg.norm(v), 1., atol=1e-15)
-        npt.assert_allclose(np.inner(self.control_points[0].conj(),self.bg(0))*self.bg(0), self.control_points[0]) # Test for complex colinearity 
-        
+        npt.assert_allclose(np.inner(self.control_points[0].conj(),self.bg(0))*self.bg(0), self.control_points[0]) # Test for complex colinearity
+
     def test_geo_vectorize(self):
         self.bg = Spline(self.control_points[0:], geometry=geometry.CP_geometry())
         timesample=np.linspace(0,0.5,10)
         pts = self.bg(timesample)
-        npt.assert_allclose(np.inner(self.control_points[0].conj(),self.bg(0))*self.bg(0), self.control_points[0]) # Test for complex colinearity 
+        npt.assert_allclose(np.inner(self.control_points[0].conj(),self.bg(0))*self.bg(0), self.control_points[0]) # Test for complex colinearity
         npt.assert_allclose(np.linalg.norm(pts, axis=1), np.ones(timesample.shape))
-        
