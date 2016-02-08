@@ -38,6 +38,6 @@ def c2spline(interpolation_points, initial_control_points, geometry = Geometry()
     
     ex = {
     'control_points': control_points,
-    'knots' : np.array(range(interpolation_points.shape[0])).repeat(3)
+    'knots' : np.array(range(interpolation_points.shape[0]), dtype=float).repeat(3)
     }
     return BSpline(geometry=geometry, **ex)
