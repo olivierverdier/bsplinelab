@@ -18,6 +18,12 @@ class BSpline(object):
         self.geometry = geometry
         self._splines = list(get_splines(self.knots, self.control_points, self.geometry))
 
+    def __repr__(self):
+        return "<{} splines of degree {}>".format(len(self), self.degree)
+
+    def __len__(self):
+        return len(self._splines)
+
     def __call__(self, t):
         for s in self:
             a,b = s.interval
