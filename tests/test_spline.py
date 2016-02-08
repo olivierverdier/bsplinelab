@@ -50,7 +50,7 @@ class TestGeodesic(unittest.TestCase):
 class TestBasis(unittest.TestCase):
     def test_nonuniform(self):
         a,b,c = 0., 2.5, 8
-        ck = BSpline(*get_basis_knots([a,b,c]).get_basis_data())
+        ck = get_basis_knots([a,b,c]).get_basis()
         npt.assert_allclose(ck(a)[1], 0)
         npt.assert_allclose(ck(b)[1], 1.)
         npt.assert_allclose(ck(c)[1], 0.)
@@ -65,7 +65,7 @@ class TestBasis(unittest.TestCase):
         """
         w = [ 0, 0, 0, 1/3, 2/3, 1, 1, 1]
         wk = Knots(w, degree=3)
-        basis = [BSpline(*wk.get_basis_data(i)) for i in range(6)]
+        basis = [wk.get_basis(i) for i in range(6)]
         vals = []
         for b in basis:
             vals_b = []

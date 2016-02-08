@@ -1,5 +1,6 @@
 # coding=utf-8
 import numpy as np
+from .spline import BSpline
 
 class Knots(object):
     """
@@ -91,14 +92,14 @@ The range of knots from which to generate the points.
             left, right = self.knots[k], self.knots[k+1]
             yield (k, left, right)
 
-    def get_basis_data(self, k=None):
+    def get_basis(self, k=None):
         if k is None:
             k = self.degree
         abscissae = self.abscissae()
         pts = np.zeros([len(abscissae), 2])
         pts[:,0] = self.abscissae()
         pts[k,1] = 1.
-        return (self.knots, pts)
+        return BSpline(knots=self.knots, control_points=pts)
 
 
 def get_basis_knots(x):

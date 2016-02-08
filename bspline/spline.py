@@ -3,7 +3,6 @@
 from __future__ import division
 
 import numpy as np
-from .knots import Knots
 
 from .geometry import Geometry
 
@@ -76,8 +75,8 @@ class Spline(object):
 
 def get_splines(knots, points, geometry):
     degree = len(knots) - len(points) + 1
-    K = Knots(knots, degree)
-    for k in range(K.nb_curves):
+    nb_curves = len(points) - degree
+    for k in range(nb_curves):
         kns = knots[k:k+2*degree]
         pts = points[k:k+degree+1]
         yield Spline(knots=kns, control_points=pts, geometry=geometry)
