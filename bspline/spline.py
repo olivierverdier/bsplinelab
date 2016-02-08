@@ -19,11 +19,15 @@ class BSpline(object):
         self._splines = list(get_splines(self.knots, self.control_points, self.geometry))
 
     def __call__(self, t):
-        for s in self.splines:
+        for s in self:
             a,b = s.interval
             if a <= t <= b:
                 return s(t)
         raise ValueError("Outside interval")
+
+    def __iter__(self):
+        for spline in self._splines:
+            yield spline
 
 def max_degree(nb_points):
     return nb_points - 1

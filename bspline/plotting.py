@@ -21,7 +21,7 @@ control_style={
 
 def plot_knots(spline, style=knot_style):
     pts = []
-    for s in spline.splines:
+    for s in spline:
         pts.append(s(s.interval[0]))
     pts.append(s(s.interval[1])) # add last right knot as well
     apts = np.array(pts)
@@ -39,7 +39,7 @@ def plot(spline, knot=None, with_knots=False, margin=0., plotres=200):
     Plot the curve.
     """
     plot_control_points(spline)
-    for s in spline.splines:
+    for s in spline:
         left, right = s.interval
         ts = np.linspace(left, right, plotres)
         val = s(ts)

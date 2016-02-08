@@ -69,7 +69,7 @@ class TestBasis(unittest.TestCase):
         vals = []
         for b in basis:
             vals_b = []
-            for s in b.splines:
+            for s in b:
                 l,r = s.interval
                 ts = np.linspace(l,r)
                 vals_b.append(s(ts))
@@ -143,7 +143,7 @@ class TsetDoubleQuadSpline(unittest.TestCase):
         self.assertEqual(len(intervals), K.nb_curves)
 
     def test_generate(self):
-        a0,a1 = [s(np.linspace(s.interval[0],s.interval[1],200)) for s in self.spline.splines]
+        a0,a1 = [s(np.linspace(s.interval[0],s.interval[1],200)) for s in self.spline]
         npt.assert_array_almost_equal(a0[:,0]**2, a0[:,1])
         npt.assert_array_almost_equal(-(a1[:,0]-2)**2, a1[:,1]-2)
 
