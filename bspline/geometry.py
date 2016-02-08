@@ -9,37 +9,37 @@ def sinc(x):
 class Geometry(object):
     def __init__(self):
         self.type ='flat'
-        
+
     def geodesic(self,P1, P2, theta):
         """
         The geodesic between two points.
         """
         return (1-theta)*P1 + theta*P2
-        
+
     def involution(self, P1, P2):
         """
         The mirroring of P2 through P1
         """
         return 2*P1-P2
-    
+
     def involution_derivative(self, P1, P2,V2):
         """
         The derivative of involution(P1, P2) with respect to P2, in the direction of V1
         """
         return -V2
-    
+
     def exp(self, P1, V1):
         """
         Riemannian exponential
         """
         return P1+V1
-    
+
     def log(self, P1, P2):
         """
         Riemannian logarithm
         """
         return P2-P1
-        
+
 
 class Sphere_geometry(Geometry):
     def __init__(self):
@@ -49,14 +49,14 @@ class Sphere_geometry(Geometry):
         Geodesic on the 2n+1-sphere, embedded in C^(n+1)
         """
         # will not work properly for 1-sphere in C^1.
-        if np.ndim(P1)==1: 
+        if np.ndim(P1)==1:
             angle = np.array([np.arccos(np.inner(P1.conj(), P2).real)])
         else:
             angle = np.arccos(np.einsum('ij...,ij...->i...',P1.conj(), P2).real)
             angle = angle[:, np.newaxis,...]
-        
+
         return ((1-theta)*sinc((1-theta)*angle)*P1 + theta*sinc(theta*angle)*P2)/sinc(angle)
-        
+
     def involution(self, P1, P2):
         """
         The mirroring of P2 through P1
@@ -65,29 +65,29 @@ class Sphere_geometry(Geometry):
             return 2*np.inner(P1.conj(), P2).real*P1-P2
         else:
             return 2*np.einsum('ij...,ij...->i...', P1.conj(), P2).real*P1-P2
-    
+
     def involution_derivative(self, P1, P2,V2):
         """
         The derivative of involution(P1, P2) with respect to P2, in the direction of V2
         """
         return self.involution(P1,V2)
-    
+
     def exp(self, P1, V1):
         """
         Riemannian exponential
         """
         angle = np.linalg.norm(V1)
         return np.cos(angle)*P1+sinc(angle)*V1
-    
+
     def log(self, P1, P2):
         """
         Riemannian logarithm
         """
         angle = np.arccos(np.inner(P1.conj(), P2).real)
         return (P2-np.cos(angle)*P1)/sinc(angle) #Warning: non-stable.
-        
 
-   
+
+
 class CP_geometry(Sphere_geometry):
     def __init__(self):
         self.type = 'complex projective plane'
@@ -102,8 +102,8 @@ class CP_geometry(Sphere_geometry):
         return super(CP_geometry, self).geodesic(P1, np.exp(-1j*rotations)*P2, theta)
 
 
-     
-class SO3_geometry(Geometry):       
+
+class SO3_geometry(Geometry):
     def __init__(self):
          self.type = 'SO3'
     def geodesic(self, P1,P2,theta):
@@ -125,7 +125,3 @@ class SO3_geometry(Geometry):
         I.shape = I.shape + time_shape
         V = I + scalar1*yhat + scalar2*yhatsq
         return np.einsum('ijk...,ikl...->ijl...', P1, V)
-
-
-
-
