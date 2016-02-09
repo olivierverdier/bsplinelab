@@ -20,10 +20,7 @@ control_style={
         }
 
 def plot_knots(spline, style=knot_style, coordinates=(0,1)):
-    pts = []
-    for s in spline:
-        pts.append(s(s.interval[0]))
-    pts.append(s(s.interval[1])) # add last right knot as well
+    pts = [s(s.interval[i]) for i in [0,1] for s in spline]
     apts = np.array(pts)
     plt.plot(apts[:,coordinates[0]],apts[:,coordinates[1]], **style)
 
