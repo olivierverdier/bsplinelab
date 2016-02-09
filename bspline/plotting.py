@@ -34,7 +34,7 @@ def plot_control_points(spline, style=control_style):
     """
     plt.plot(spline.control_points[:,0], spline.control_points[:,1], **style)
 
-def plot(spline, knot=None, with_knots=False, margin=0., plotres=200):
+def plot(spline, with_knots=False, plotres=200):
     """
     Plot the curve.
     """
