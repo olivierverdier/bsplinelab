@@ -19,13 +19,13 @@ control_style={
         'markeredgecolor':'red'
         }
 
-def plot_knots(spline, style=knot_style):
+def plot_knots(spline, style=knot_style, coordinates=(0,1)):
     pts = []
     for s in spline:
         pts.append(s(s.interval[0]))
     pts.append(s(s.interval[1])) # add last right knot as well
     apts = np.array(pts)
-    plt.plot(apts[:,0],apts[:,1], **style)
+    plt.plot(apts[:,coordinates[0]],apts[:,coordinates[1]], **style)
 
 
 def plot_control_points(spline, style=control_style):
@@ -34,7 +34,7 @@ def plot_control_points(spline, style=control_style):
     """
     plt.plot(spline.control_points[:,0], spline.control_points[:,1], **style)
 
-def plot(spline, with_knots=False, plotres=200):
+def plot(spline, with_knots=False, plotres=200, coordinates=(0,1)):
     """
     Plot the curve.
     """
@@ -43,9 +43,9 @@ def plot(spline, with_knots=False, plotres=200):
         left, right = s.interval
         ts = np.linspace(left, right, plotres)
         val = s(ts)
-        plt.plot(val[:,0],val[:,1], label="{:1.0f} - {:1.0f}".format(left, right), lw=2)
+        plt.plot(val[:,coordinates[0]],val[:,coordinates[1]], label="{:1.0f} - {:1.0f}".format(left, right), lw=2)
     if with_knots:
-        plot_knots(spline)
+        plot_knots(spline, coordinates=coordinates)
 
 
 
