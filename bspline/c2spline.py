@@ -10,7 +10,9 @@ from .spline import BSpline
 
 def c2spline(interpolation_points, initial_control_points, geometry = Geometry()):
     # initialize the array for control points of the final spline.
-    control_points=np.zeros([interpolation_points.shape[0]*3-2, interpolation_points.shape[1]]) 
+    S=list(interpolation_points.shape)
+    S[0]=3*S[0]-2
+    control_points=np.zeros(S) 
     # Set up for main loop
     P = interpolation_points[0]
     prev_control_points = initial_control_points[0:2]
