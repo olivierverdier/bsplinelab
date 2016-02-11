@@ -14,7 +14,7 @@ import numpy as np
 
 from bspline import geometry
 
-from bspline.c2spline import c2spline, implicitc2spline
+from bspline.c2spline import implicitc2spline
 
 import bspline.plotting as splt
 import matplotlib.pyplot as plt
