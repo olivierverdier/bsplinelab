@@ -8,6 +8,8 @@ import numpy as np
 from .geometry import Geometry
 from .spline import BSpline
 
+import warnings
+
 def c2spline(interpolation_points, initial_control_points, geometry = Geometry()):
     # initialize the array for control points of the final spline.
     S=list(interpolation_points.shape)
@@ -43,3 +45,43 @@ def c2spline(interpolation_points, initial_control_points, geometry = Geometry()
     'knots' : np.array(range(interpolation_points.shape[0]), dtype=float).repeat(3)
     }
     return BSpline(geometry=geometry, **ex)
+
+def implicitc2spline(interpolation_points, boundary_velocities, geometry=Geometry()):
+    N = interpolation_points.shape[0]
+    S=list(interpolation_points.shape)
+    S[0]=3*S[0]-2
+    control_points=np.zeros(S) 
+    control_points[::3]=interpolation_points
+    
+    velocities=np.zeros(interpolation_points.shape)
+    velocities[[0,-1]]=boundary_velocities/3.0
+    for i in range(0,N-1):
+        control_points[3*i+1]=geometry.exp(interpolation_points[i], velocities[i])
+    for i in range(1,N):
+        control_points[3*i-1]=geometry.exp(interpolation_points[i], -velocities[i])
+    err= np.inf
+    tol = 16*N*np.finfo(float).eps
+    Niter = 0
+    while err> tol and Niter <100:
+        old_velocities=np.copy(velocities)
+        err=0
+        for i in range(1,N-1):
+            wplus = geometry.log(control_points[3*i+1], control_points[3*i+2])
+            wminus = geometry.log(control_points[3*i-1], control_points[3*i-2])
+            fi=geometry.dexpinv(interpolation_points[i], old_velocities[i], wplus)\
+                -geometry.dexpinv(interpolation_points[i], -old_velocities[i], wminus)-2*old_velocities[i]
+            err = err+np.linalg.norm(fi)
+            velocities[i]=old_velocities[i]+0.25*(fi)
+        for i in range(1,N-1):
+            control_points[3*i+1]=geometry.exp(interpolation_points[i], velocities[i])
+            control_points[3*i-1]=geometry.exp(interpolation_points[i], -velocities[i])
+        Niter=Niter+1
+    print("#iterations: "+str(Niter))
+    if Niter==100:
+        warnings.warn("Max iterations reached")
+    ex = {
+    'control_points': control_points,
+    'knots' : np.array(range(interpolation_points.shape[0]), dtype=float).repeat(3)
+    }
+    return BSpline(geometry=geometry, **ex)
+     
