@@ -53,9 +53,9 @@ class Sphere_geometry(Geometry):
         """
         # will not work properly for 1-sphere in C^1.
         if np.ndim(P1)==1:
-            angle = np.array([np.arccos(np.inner(P1.conj(), P2).real)])
+            angle = np.array([np.arccos(np.clip(np.inner(P1.conj(), P2).real), -1,1)])
         else:
-            angle = np.arccos(np.einsum('ij...,ij...->i...',P1.conj(), P2).real)
+            angle = np.arccos(np.clip(np.einsum('ij...,ij...->i...',P1.conj(), P2).real, -1,1))
             angle = angle[:, np.newaxis,...]
 
         return ((1-theta)*sinc((1-theta)*angle)*P1 + theta*sinc(theta*angle)*P2)/sinc(angle)
@@ -135,7 +135,7 @@ class SO3_geometry(Geometry):
         U = np.einsum('imj...,imk...->ijk...', P1,P2)  # P1^T*P2
         Utr = np.einsum('ijj...->i...', U) #trace of U
         Utr = Utr[:, np.newaxis,np.newaxis,...]
-        angles = np.arccos((Utr-1)/2) # (K,1,1,T) angle of rotation
+        angles = np.arccos(np.clip((Utr-1)/2, -1,1)) # (K,1,1,T) angle of rotation
         yhat = 0.5*(U-np.einsum('ijk...->ikj...',U)) # transpose 2. and 3. dimension.
         yhatsq =np.einsum('ijk...,ikl...->ijl...', yhat, yhat) #yhat*yhat
         invnormx = 1/np.sin(angles)
