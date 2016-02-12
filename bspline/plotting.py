@@ -31,11 +31,12 @@ def plot_control_points(spline, style=control_style):
     """
     plt.plot(spline.control_points[:,0], spline.control_points[:,1], **style)
 
-def plot(spline, with_knots=False, plotres=200, coordinates=(0,1)):
+def plot(spline, with_knots=False, with_control_points=True, plotres=200, coordinates=(0,1)):
     """
     Plot the curve.
     """
-    plot_control_points(spline)
+    if with_control_points:
+        plot_control_points(spline)
     for s in spline:
         left, right = s.interval
         ts = np.linspace(left, right, plotres)
