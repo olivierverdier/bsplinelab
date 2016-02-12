@@ -46,7 +46,7 @@ def c2spline(interpolation_points, initial_control_points, geometry = Geometry()
     }
     return BSpline(geometry=geometry, **ex)
 
-def implicitc2spline(interpolation_points, boundary_velocities, geometry=Geometry()):
+def implicitc2spline(interpolation_points, boundary_velocities, geometry=Geometry(), Maxiter=500):
     N = interpolation_points.shape[0]
     S=list(interpolation_points.shape)
     S[0]=3*S[0]-2
@@ -62,8 +62,7 @@ def implicitc2spline(interpolation_points, boundary_velocities, geometry=Geometr
     err= np.inf
     tol = 16*N*np.finfo(float).eps
     Niter = 0
-    Maxiter=500
-    while err> tol and Niter <Maxiter:
+    for Niter in range(Maxiter):
         old_velocities=np.copy(velocities)
         err=0
         for i in range(1,N-1):
@@ -76,11 +75,12 @@ def implicitc2spline(interpolation_points, boundary_velocities, geometry=Geometr
         for i in range(1,N-1):
             control_points[3*i+1]=geometry.exp(interpolation_points[i], velocities[i])
             control_points[3*i-1]=geometry.exp(interpolation_points[i], -velocities[i])
-        Niter=Niter+1
+        if err < tol:
+            break
+    else:
+        raise Exception("No convergence in {} steps".format(Niter))
     print("#iterations: "+str(Niter))
     print("Error: "+str(err))
-    if Niter==Maxiter:
-        warnings.warn("Max iterations reached")
     ex = {
     'control_points': control_points,
     'knots' : np.array(range(interpolation_points.shape[0]), dtype=float).repeat(3)

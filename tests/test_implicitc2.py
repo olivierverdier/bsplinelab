@@ -19,6 +19,7 @@ class TestImplicitC2(unittest.TestCase):
         init_vel = np.array([-1.0,0.0,-1.0])
         end_vel = np.array([-1.0,0.0,1.0])
         boundary_velocities=np.array([init_vel, end_vel])
+        self.boundary_velocities = boundary_velocities
         b= implicitc2spline(interpolation_points, boundary_velocities, geometry=geometry.Sphere_geometry())
         self.b = b
 
@@ -30,3 +31,7 @@ class TestImplicitC2(unittest.TestCase):
     def test_interpolate(self):
         for i,P in enumerate(self.interpolation_points):
             npt.assert_allclose(self.b(i), P)
+
+    def test_maxiter(self):
+        with self.assertRaises(Exception):
+            b = implicitc2spline(self.interpolation_points, self.boundary_velocities, geometry=geometry.Sphere_geometry(), Maxiter=2)
