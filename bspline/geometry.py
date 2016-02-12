@@ -53,7 +53,7 @@ class Sphere_geometry(Geometry):
         """
         # will not work properly for 1-sphere in C^1.
         if np.ndim(P1)==1:
-            angle = np.array([np.arccos(np.clip(np.inner(P1.conj(), P2).real), -1,1)])
+            angle = np.array([np.arccos(np.clip(np.inner(P1.conj(), P2).real, -1,1))])
         else:
             angle = np.arccos(np.clip(np.einsum('ij...,ij...->i...',P1.conj(), P2).real, -1,1))
             angle = angle[:, np.newaxis,...]
