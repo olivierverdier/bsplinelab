@@ -6,6 +6,22 @@ import numpy as np
 from bspline import geometry
 from bspline.c2spline import implicitc2spline
 
+def bis(f, t, h):
+    return (f(t+2*h)
+            + f(t)
+            - 2*f(t+h))/(h*h)
+
+def generate_diffs(f, t, emin=2, emax=6):
+    for k in range(emin,emax):
+        h = 10.**(-k)
+        bbis_diff = bis(f,t,h) - bis(f,t,-h)
+        yield k, bbis_diff
+
+def gen_log10_errors(f, t):
+    for k,d in generate_diffs(f, t):
+        err = np.log10(np.max(np.abs(d)))
+        yield k, err
+
 class TestImplicitC2(unittest.TestCase):
     def setUp(self):
         N = 8
@@ -35,3 +51,14 @@ class TestImplicitC2(unittest.TestCase):
     def test_maxiter(self):
         with self.assertRaises(Exception):
             b = implicitc2spline(self.interpolation_points, self.boundary_velocities, geometry=geometry.Sphere_geometry(), Maxiter=2)
+
+    def test_c2(self, margin=.5):
+        errs = np.array(list(gen_log10_errors(self.b, 1.5))).T
+        imax = np.argmin(errs[1])
+        emax = errs[0,imax] # maximum h exponent at a regular point
+        err = errs[1,imax] + margin # expected error
+
+        for t in range(1, len(self.interpolation_points)-1): # the joint times
+            errs = np.array(list(gen_log10_errors(self.b, t))).T
+            self.assertLessEqual(errs[1,imax], err)
+
