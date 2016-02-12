@@ -41,7 +41,7 @@ b= implicitc2spline(interpolation_points, boundary_velocities, geometry=geometry
 
 
 fig1=plt.figure(1)
-splt.plot(b)
+splt.plot(b, with_control_points=False)
 fig1.suptitle('Spline on S^2, stereographically projected onto R^2')
 
 t=np.floor(N/2)
@@ -59,6 +59,6 @@ fig2=plt.figure(2)
 plt.plot(ddb[:,0],ddb[:, 1],linestyle='None', marker=',')
 fig2.suptitle('Second derivative of spline')
 
-fig3=plt.figure(3)
-plt.plot(ddb[(ts>t-0.1)*(ts<t+0.1),0], ddb[(ts>t-0.1)*(ts<t+0.1),1],linestyle='None', marker=',')
-fig3.suptitle('Zoom-in of second derivative around t=%4.2f'%(t))
+#fig3=plt.figure(3)
+#plt.plot(ddb[(ts>t-0.1)*(ts<t+0.1),0], ddb[(ts>t-0.1)*(ts<t+0.1),1],linestyle='None', marker=',')
+#fig3.suptitle('Zoom-in of second derivative around t=%4.2f'%(t))
