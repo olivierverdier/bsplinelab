@@ -12,7 +12,7 @@ class TestImplicitC2(unittest.TestCase):
         #interpolation_points = np.array([[1.,0,0], [0,0,1.], [0, np.sqrt(0.5), np.sqrt(0.5)], [0,1.,0]]) #spline interpolates these points
         x = np.linspace(-1, 1, N)
         y = np.sin(5*np.pi*x)
-        interpolation_points = np.vstack([x,y,np.ones(x.shape)]).T
+        interpolation_points = np.array([x, y, np.ones(x.shape)]).T
         interpolation_points = interpolation_points/np.array([np.linalg.norm(interpolation_points, axis=1)]).T
         self.interpolation_points = interpolation_points
         #initial and end velocities:
