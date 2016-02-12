@@ -62,7 +62,8 @@ def implicitc2spline(interpolation_points, boundary_velocities, geometry=Geometr
     err= np.inf
     tol = 16*N*np.finfo(float).eps
     Niter = 0
-    while err> tol and Niter <100:
+    Maxiter=500
+    while err> tol and Niter <Maxiter:
         old_velocities=np.copy(velocities)
         err=0
         for i in range(1,N-1):
@@ -77,7 +78,8 @@ def implicitc2spline(interpolation_points, boundary_velocities, geometry=Geometr
             control_points[3*i-1]=geometry.exp(interpolation_points[i], -velocities[i])
         Niter=Niter+1
     print("#iterations: "+str(Niter))
-    if Niter==100:
+    print("Error: "+str(err))
+    if Niter==Maxiter:
         warnings.warn("Max iterations reached")
     ex = {
     'control_points': control_points,
