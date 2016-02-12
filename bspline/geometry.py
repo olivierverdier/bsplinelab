@@ -86,22 +86,25 @@ class Sphere_geometry(Geometry):
         """
         Riemannian logarithm
         """
-        angle = np.arccos(np.inner(P1.conj(), P2).real)
+        angle = np.arccos(np.clip(np.inner(P1.conj(), P2).real, -1,1))
         return (P2-np.cos(angle)*P1)/sinc(angle) #Warning: non-stable.
         
     def g(self, angle):
         """
         function appearing in dexpinv: (cot(theta)-1/theta)/sin(theta)
         """
-        gg= np.asanyarray((1.0/np.tan(angle)-1.0/angle)/np.sin(angle))
+        gg=np.zeros(np.asanyarray(angle).shape)
         idx = np.abs(angle)<2.0e-4 
         gg[idx]=-1.0/3-7.0/90*angle[idx]*angle[idx] # Taylor approximation for small angles (maybe unnecessary)
+        gg[~idx]=(1.0/np.tan(angle[~idx])-1.0/angle[~idx])/np.sin(angle[~idx])
         return gg
         
     def dexpinv(self, P1,V1,W2):
-        """ (d exp_P1)^-1_V1 (W2) """
+        """ 
+        (d exp_P1)^-1_V1 (W2) 
+        """
         angle = np.linalg.norm(V1)
-        s = np.sum(P1.conj()*W2).real # 
+        s = np.inner(P1.conj(),W2).real # 
         return (W2-s*P1)/sinc(angle)+s*self.g(angle)*V1
         
         
