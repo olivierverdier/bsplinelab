@@ -16,7 +16,10 @@ class BSpline(object):
             self.degree = len(knots) - len(control_points) + 1
         self.control_points = np.array(control_points)
         self.geometry = geometry
-        self._splines = list(get_splines(self.knots, self.control_points, self.geometry))
+        self._splines = [Spline(control_points=pts,
+                                knots=kns,
+                                geometry=self.geometry)
+                         for pts, kns in get_splines_data(self.knots, self.control_points)]
 
     def __repr__(self):
         return "<{} splines of degree {}>".format(len(self), self.degree)
@@ -91,10 +94,10 @@ class Spline(object):
         return result.transpose(permutation) # (T, D)
 
 
-def get_splines(knots, points, geometry):
+def get_splines_data(knots, points):
     degree = len(knots) - len(points) + 1
     nb_curves = len(points) - degree
     for k in range(nb_curves):
         kns = knots[k:k+2*degree]
         pts = points[k:k+degree+1]
-        yield Spline(knots=kns, control_points=pts, geometry=geometry)
+        yield pts, kns
