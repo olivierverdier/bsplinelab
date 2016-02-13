@@ -6,7 +6,7 @@ from __future__ import division
 import numpy as np
 
 from .geometry import Geometry
-from .spline import BSpline
+from . import BSpline
 
 import warnings
 

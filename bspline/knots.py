@@ -1,6 +1,6 @@
 # coding=utf-8
 import numpy as np
-from .spline import BSpline
+from . import BSpline
 
 class Knots(object):
     """

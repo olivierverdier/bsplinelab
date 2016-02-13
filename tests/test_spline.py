@@ -7,7 +7,8 @@ import unittest
 
 import numpy as np
 
-from bspline.spline import BSpline, Spline, get_single_bspline
+from bspline import BSpline
+from bspline.bspline import Spline, get_single_bspline
 from bspline import plotting
 from bspline import geometry
 

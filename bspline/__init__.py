@@ -1,1 +1,1 @@
-from .spline import BSpline
+from .bspline import BSpline
