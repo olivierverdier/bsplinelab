@@ -45,33 +45,33 @@ def c2spline(interpolation_points, initial_control_points, geometry = Geometry()
     return BSpline(geometry=geometry, **ex)
 
 def implicitc2spline(interpolation_points, boundary_velocities, geometry=Geometry(), Maxiter=500):
-    N = interpolation_points.shape[0]
-    S=list(interpolation_points.shape)
-    S[0]=3*S[0]-2
-    control_points=np.zeros(S)
-    control_points[::3]=interpolation_points
+    N = len(interpolation_points)
+    S = list(interpolation_points.shape)
+    S[0] = 3*N-2
+    control_points = np.zeros(S)
+    control_points[::3] = interpolation_points
 
-    velocities=np.zeros(interpolation_points.shape)
-    velocities[[0,-1]]=boundary_velocities/3.0
+    velocities = np.zeros_like(interpolation_points)
+    velocities[[0,-1]] = boundary_velocities/3.0
     for i in range(0,N-1):
         control_points[3*i+1]=geometry.exp(interpolation_points[i], velocities[i])
-    for i in range(1,N):
-        control_points[3*i-1]=geometry.exp(interpolation_points[i], -velocities[i])
-    err= np.inf
+        j = i+1
+        control_points[3*j-1]=geometry.exp(interpolation_points[j], -velocities[j])
+    err = np.inf
     tol = 16*N*np.finfo(float).eps
     for Niter in range(Maxiter):
         old_velocities=np.copy(velocities)
-        err=0
+        err = 0
         for i in range(1,N-1):
             wplus = geometry.log(control_points[3*i+1], control_points[3*i+2])
             wminus = geometry.log(control_points[3*i-1], control_points[3*i-2])
-            fi=geometry.dexpinv(interpolation_points[i], old_velocities[i], wplus)\
+            fi = geometry.dexpinv(interpolation_points[i], old_velocities[i], wplus)\
                 -geometry.dexpinv(interpolation_points[i], -old_velocities[i], wminus)-2*old_velocities[i]
-            err = err+np.linalg.norm(fi)
-            velocities[i]=old_velocities[i]+0.25*(fi)
+            err += np.linalg.norm(fi)
+            velocities[i] = old_velocities[i]+0.25*(fi)
         for i in range(1,N-1):
-            control_points[3*i+1]=geometry.exp(interpolation_points[i], velocities[i])
-            control_points[3*i-1]=geometry.exp(interpolation_points[i], -velocities[i])
+            control_points[3*i+1] = geometry.exp(interpolation_points[i], velocities[i])
+            control_points[3*i-1] = geometry.exp(interpolation_points[i], -velocities[i])
         if err < tol:
             break
     else:
