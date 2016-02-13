@@ -8,8 +8,6 @@ import numpy as np
 from .geometry import Geometry
 from . import BSpline
 
-import warnings
-
 def c2spline(interpolation_points, initial_control_points, geometry = Geometry()):
     # initialize the array for control points of the final spline.
     S=list(interpolation_points.shape)
@@ -61,7 +59,6 @@ def implicitc2spline(interpolation_points, boundary_velocities, geometry=Geometr
         control_points[3*i-1]=geometry.exp(interpolation_points[i], -velocities[i])
     err= np.inf
     tol = 16*N*np.finfo(float).eps
-    Niter = 0
     for Niter in range(Maxiter):
         old_velocities=np.copy(velocities)
         err=0
