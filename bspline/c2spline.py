@@ -57,7 +57,6 @@ def implicitc2spline(interpolation_points, boundary_velocities, geometry=Geometr
         control_points[3*i+1]=geometry.exp(interpolation_points[i], velocities[i])
         j = i+1
         control_points[3*j-1]=geometry.exp(interpolation_points[j], -velocities[j])
-    err = np.inf
     tol = 16*N*np.finfo(float).eps
     for Niter in range(Maxiter):
         old_velocities=np.copy(velocities)

@@ -47,6 +47,7 @@ class Geometry(object):
 class Sphere_geometry(Geometry):
     def __init__(self):
         self.type = 'sphere'
+
     def geodesic(self, P1, P2, theta):
         """
         Geodesic on the 2n+1-sphere, embedded in C^(n+1)
@@ -88,26 +89,26 @@ class Sphere_geometry(Geometry):
         """
         angle = np.arccos(np.clip(np.inner(P1.conj(), P2).real, -1,1))
         return (P2-np.cos(angle)*P1)/sinc(angle) #Warning: non-stable.
-        
+
     def g(self, angle):
         """
         function appearing in dexpinv: (cot(theta)-1/theta)/sin(theta)
         """
-        gg=np.zeros(np.asanyarray(angle).shape)
-        idx = np.abs(angle)<2.0e-4 
-        gg[idx]=-1.0/3-7.0/90*angle[idx]*angle[idx] # Taylor approximation for small angles (maybe unnecessary)
-        gg[~idx]=(1.0/np.tan(angle[~idx])-1.0/angle[~idx])/np.sin(angle[~idx])
+        gg = np.zeros_like(angle)
+        idx = np.abs(angle) < 2.0e-4
+        gg[idx] = -1.0/3 - 7.0/90*angle[idx]*angle[idx] # Taylor approximation for small angles (maybe unnecessary)
+        gg[~idx] = (1.0/np.tan(angle[~idx])-1.0/angle[~idx])/np.sin(angle[~idx])
         return gg
-        
+
     def dexpinv(self, P1,V1,W2):
-        """ 
-        (d exp_P1)^-1_V1 (W2) 
+        """
+        (d exp_P1)^-1_V1 (W2)
         """
         angle = np.linalg.norm(V1)
-        s = np.inner(P1.conj(),W2).real # 
+        s = np.inner(P1.conj(),W2).real #
         return (W2-s*P1)/sinc(angle)+s*self.g(angle)*V1
-        
-        
+
+
 class CP_geometry(Sphere_geometry):
     def __init__(self):
         self.type = 'complex projective plane'
