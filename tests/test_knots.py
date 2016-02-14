@@ -45,9 +45,15 @@ class TestDoubleQuadSpline(unittest.TestCase):
         K = Knots(self.knots, degree=3)
         intervals = list(K.intervals())
         self.assertEqual(len(intervals), K.nb_curves)
+
 class TestBigKnot(unittest.TestCase):
     def setUp(self):
-        self.knots = Knots(np.array([1.,2.,3.,4.,5.,6.,7.]), degree=3)
+        self.values = np.array([1.,2.,3.,4.,5.,6.,7.])
+        self.knots = Knots(self.values, degree=3)
+
+    def test_get_item(self):
+        for i,v in enumerate(self.values):
+            self.assertEqual(self.knots[i], self.values[i])
 
     def test_left_knot(self):
         self.assertEqual(self.knots.left_knot(3.8), 2)
