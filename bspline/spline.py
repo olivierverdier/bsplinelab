@@ -27,32 +27,40 @@ class Spline(object):
 
         self.geometry = geometry
 
+    @property
+    def coeff_slice(self):
+        """
+        reshape the coefficients using data dimension and possible time shape
+        for vectorial data, this amounts to the slice (:, np.newaxis,...)
+        """
+        return (slice(None),) + (np.newaxis,)*self.data_dim + (Ellipsis,)
+
+    def iterate(self, t, pts, kns):
+        n = len(kns)//2
+        diffs = kns[n:] - kns[:-n] # (K,1)
+        # trick to handle cases of equal knots:
+        diffs[diffs==0.] = np.finfo(kns.dtype).eps
+        rcoeff = (t - kns[:-n])/diffs # (K,T)
+        pts = self.geometry.geodesic(pts[:-1], pts[1:], rcoeff[self.coeff_slice]) # (K, D, 1), (K, 1, T)
+        kns = kns[1:-1]
+        return pts, kns
+
     def __call__(self, t):
         t = np.array(t)
         kns = self.knots
         pts = self.control_points
-        data_dim = self.data_dim # data dim to use for broadcasting
 
         time_shape = (1,)*len(np.shape(t)) # time shape to add for broadcasting
         # we put the time on the last index
         kns = np.reshape(self.knots, self.knots.shape + time_shape) # (K, 1)
         pts = np.reshape(self.control_points, self.control_points.shape + time_shape) # (K, D, 1)
 
-        # reshape the coefficients using data dimension and possible time shape
-        # for vectorial data, this amounts to the slice (:, np.newaxis,...)
-        rcoeff_slice = (slice(None),) + (np.newaxis,)*data_dim + (Ellipsis,)
 
         degree = len(kns) - len(pts) + 1
         for i in range(degree):
-            n = len(kns)//2
-            diffs = kns[n:] - kns[:-n] # (K,1)
-            # trick to handle cases of equal knots:
-            diffs[diffs==0.] = np.finfo(kns.dtype).eps
-            rcoeff = (t - kns[:-n])/diffs # (K,T)
-            pts = self.geometry.geodesic(pts[:-1], pts[1:], rcoeff[rcoeff_slice]) # (K, D, 1), (K, 1, T)
-            kns = kns[1:-1]
+            pts, kns = self.iterate(t, pts, kns)
 
         result = pts[0] # (D, T)
         # put time first by permuting the indices; in the vector case, this is a standard permutation
-        permutation = len(np.shape(t))*(data_dim,) + tuple(range(data_dim))
+        permutation = len(np.shape(t))*(self.data_dim,) + tuple(range(self.data_dim))
         return result.transpose(permutation) # (T, D)
