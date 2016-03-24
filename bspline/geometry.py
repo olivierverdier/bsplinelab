@@ -122,6 +122,18 @@ class CP_geometry(Sphere_geometry):
             rotations = rotations[:, np.newaxis,...]
         return super(CP_geometry, self).geodesic(P1, np.exp(-1j*rotations)*P2, theta)
 
+    def exp(self, P1, V1):
+        V1hor = V1+1j*np.inner(P1.conj(), V1).imag*P1
+        return super(CP_geometry, self).exp(P1, V1hor)
+    
+    def log(self, P1, P2):
+        rotations = np.angle(np.inner(P1.conj(), P2))
+        return super(CP_geometry, self).log(P1, np.exp(-1j*rotations)*P2)
+        
+    def dexpinv(self, P1, V1, W2):
+        alpha = np.linalg.norm(V1)
+        Wt = W2 - 1j*np.inner(P1.conj(), W2).imag*(P1+sinc(alpha)/np.cos(alpha)*V1)
+        return super(CP_geometry, self).dexpinv(P1, V1, Wt) # Assumes V1 is horizontal over P1, and that W2 is a vector over exp(P1,V1)
 
 
 class SO3_geometry(Geometry):
