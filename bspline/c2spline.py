@@ -12,7 +12,7 @@ def c2spline(interpolation_points, initial_control_points, geometry = Geometry()
     # initialize the array for control points of the final spline.
     S=list(interpolation_points.shape)
     S[0]=3*S[0]-2
-    control_points=np.zeros(S)
+    control_points=np.zeros(S, dtype = interpolation_points.dtype)
     # Set up for main loop
     P = interpolation_points[0]
     prev_control_points = initial_control_points[0:2]
@@ -48,7 +48,7 @@ def implicitc2spline(interpolation_points, boundary_velocities, geometry=Geometr
     N = len(interpolation_points)
     S = list(interpolation_points.shape)
     S[0] = 3*N-2
-    control_points = np.zeros(S)
+    control_points = np.zeros(S, dtype = interpolation_points.dtype)
     control_points[::3] = interpolation_points
 
     velocities = np.zeros_like(interpolation_points)
