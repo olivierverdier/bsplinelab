@@ -14,26 +14,26 @@ from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 
 
-def cp2tobloch(u):
+def cp1tobloch(u): # mapping from CP_1 to Bloch sphere
     theta = 2*np.arccos(np.clip(np.abs(u[0]),-1,1))
     phi = np.angle(u[1])-np.angle(u[0])
-    if theta >np.pi:
-        phi = phi - np.pi
-        
     return np.array([np.sin(theta)*np.cos(phi), np.sin(theta)*np.sin(phi), np.cos(theta)])
 
 def bbloch(b, tt):
-    return cp2tobloch(b(tt))
+    return cp1tobloch(b(tt))
 
-N=3
-interpolation_points=np.array([[1,0], [np.sqrt(0.5),np.sqrt(0.5)*1j], [1,0]])
+d=2
+N=5
+interpolation_points =np.random.randn(N, d)+ 1j*np.random.randn(N,d)
+interpolation_points = interpolation_points/np.array([np.linalg.norm(interpolation_points, axis=1)]).T
+#interpolation_points=np.array([[1,0], [np.sqrt(0.5),np.sqrt(0.5)*1j], [1,0]])
 #initial and end velocities:
-init_vel = np.array([0.0j, 1])
-end_vel = np.array([0.0j,1])
+init_vel = np.zeros(d, dtype='complex128')
+end_vel = np.zeros(d, dtype='complex128')
 boundary_velocities=np.array([init_vel, end_vel])
 
 
-b= implicitc2spline(interpolation_points, boundary_velocities, geometry=geometry.CP_geometry())
+b= implicitc2spline(interpolation_points, boundary_velocities, geometry=geometry.CP_geometry(), Maxiter=10000)
 #h = np.power(10.0, range(-2,-6,-1))
 #print((b(t+1.5*h)-3*b(t+0.5*h)+3*b(t-0.5*h)-b(t-1.5*h))/(h*h).reshape(h.shape +(1,))) 
 #print("If C_2, these should approach zero.")
@@ -44,21 +44,30 @@ if False:
     splt.plot(b, with_control_points=False)
     fig1.suptitle('Spline on S^2, stereographically projected onto R^2')
     t=np.floor(N/2)    
-    hh=1e-5
+    
 
 
 # Plot second derivative
-if True:
+if False:
+    hh=1e-5
     ts = np.linspace(0.,N-1,(N-1)*100)[1:-1]
-    ddb = np.zeros((ts.shape[0],3))
+    ddb = np.zeros((ts.shape[0],d), dtype=interpolation_points.dtype)
     for (tt,ddbt) in zip(ts,ddb):
-        ddbt[:] = (bbloch(b,tt+hh)-2*bbloch(b,tt)+bbloch(b, tt-hh))/hh**2
+        pm1=b(tt-hh)
+        p0=b(tt)
+        p1=b(tt+hh)
+        am = np.inner(pm1.conj(), p0)
+        ap = np.inner(p1.conj(), p0)
+        ddbt[:] = (am/np.abs(am)*pm1+ap/np.abs(ap)*p1-2*p0) /hh**2
     fig2 = plt.figure(2)
-    plt.plot(ddb, linestyle='None', marker=',')
+    plt.plot(ts, np.angle(ddb), linestyle='None', marker=',')
     fig2.suptitle('Second derivative of spline')
+    
+
+
 
 # Plot on the embedded sphere
-if True:
+if d==2:
     fig3=plt.figure(3)
     ax = fig3.add_subplot(111, projection='3d')
     u = np.linspace(0, 2 * np.pi, 100)
@@ -70,11 +79,35 @@ if True:
     ts = np.linspace(0.,N-1,1000)
     bvals = np.zeros((ts.shape[0],3))
     for (tt,bval) in zip(ts,bvals):
-        bval[:] = cp2tobloch(b(tt))
+        bval[:] = cp1tobloch(b(tt))
     ax.plot(bvals[:,0],bvals[:,1],bvals[:,2],linewidth=2)
     fig3.suptitle('Spline on embedded sphere')
 
 
-#fig3=plt.figure(3)
-#plt.plot(ddb[(ts>t-0.1)*(ts<t+0.1),0], ddb[(ts>t-0.1)*(ts<t+0.1),1],linestyle='None', marker=',')
-#fig3.suptitle('Zoom-in of second derivative around t=%4.2f'%(t))
+if False:
+    
+    fig4 = plt.figure(4)
+    ts = np.linspace(0.,N-1,(N-1)*100)[1:-1]
+    bv = np.zeros((ts.shape[0],d), dtype = interpolation_points.dtype)
+    for (tt,bval) in zip(ts,bv):
+        bval[:] = b(tt)
+    logbv=np.log(bv)
+    plt.plot(ts, logbv.real)
+    fig5=plt.figure(5)
+    plt.plot(ts, logbv.imag)
+
+
+if True:
+    def bmat(t): return 1j*np.outer(b(t), b(t).conj())
+    ttest = np.floor(0.5*N)
+    H=np.power(2.0, range(-2,-20,-1))
+    dd = np.zeros_like(H)
+    dd=dd[:, np.newaxis]
+    for (hh,d) in zip(H,dd):
+        d[:] = np.linalg.norm((bmat(ttest+1.5*hh)-3*bmat(ttest+0.5*hh)+3*bmat(ttest-0.5*hh)-bmat(ttest-1.5*hh))/hh**2)
+        print(hh)
+        
+    dd=dd.flatten()
+        
+        
+    
