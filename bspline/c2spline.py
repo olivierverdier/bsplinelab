@@ -74,7 +74,7 @@ def implicitc2spline(interpolation_points, boundary_velocities, geometry=Geometr
         if err < tol:
             break
     else:
-        raise Exception("No convergence in {} steps".format(Niter))
+        raise Exception("No convergence in {} steps ".format(Niter)+" Error:"+str(err))
     print("#iterations: "+str(Niter))
     print("Error: "+str(err))
     ex = {
