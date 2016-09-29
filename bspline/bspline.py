@@ -29,11 +29,19 @@ class BSpline(object):
         return len(self._splines)
 
     def __call__(self, t):
+        t=np.asanyarray(t)
+        l=[]
+        a0 =self._splines[0].interval[0]    
+        bn = self._splines[-1].interval[1]
+        if (t<a0).any() or (t>bn).any():
+            raise ValueError("Outside interval")
         for s in self:
             a,b = s.interval
-            if a <= t <= b:
-                return s(t)
-        raise ValueError("Outside interval")
+            ts = t[(t>=a)*(t<b)]
+            l.append(s(ts))
+        ts=t[t==b]
+        l.append(s(ts))
+        return np.squeeze(np.concatenate(l))
 
     def __iter__(self):
         for spline in self._splines:
