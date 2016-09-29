@@ -273,3 +273,38 @@ class TestCP(unittest.TestCase):
         pts = self.bg(timesample)
         npt.assert_allclose(np.inner(self.control_points[0].conj(),self.bg(0))*self.bg(0), self.control_points[0]) # Test for complex colinearity
         npt.assert_allclose(np.linalg.norm(pts, axis=1), np.ones(timesample.shape))
+
+class TestHyper(unittest.TestCase):
+    def setUp(self):
+        self.control_points = np.array([
+            np.array([1,0,0]),
+            np.array([np.sqrt(2), 1,0]),
+            np.array([np.sqrt(2), 0, 1]),
+            np.array([np.sqrt(2), -1,0])
+            ])
+        self.b1 = Spline(self.control_points[0:], geometry=geometry.Hyperboloid_geometry())
+
+    def test_call(self):
+        self.b1(.5)
+
+    def test_geometry(self):
+        self.bg = Spline(self.control_points[0:], geometry=geometry.Hyperboloid_geometry())
+        v = self.bg(.85)
+        npt.assert_allclose(2*v[0]**2-np.inner(v,v), 1., atol=1e-15)
+        npt.assert_allclose(self.bg(0), self.control_points[0])
+
+    def test_geo_vectorize(self):
+        self.bg = Spline(self.control_points[0:], geometry=geometry.Hyperboloid_geometry())
+        timesample=np.linspace(0,0.5,10)
+        pts = self.bg(timesample)
+        npt.assert_allclose(pts[0], self.control_points[0])
+        npt.assert_allclose(2*pts[:,0]**2-np.einsum('ij,ij->i', pts,pts), np.ones(timesample.shape))
+
+    def test_trivial_bezier(self):
+        P = self.control_points[0]
+        control_points = [P]*3
+        geo = geometry.Hyperboloid_geometry()
+        b = Spline(control_points, geometry=geo)
+        npt.assert_allclose(b(.5), P)
+
+   
