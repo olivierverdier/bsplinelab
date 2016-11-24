@@ -325,6 +325,7 @@ class TestGrassMannian(unittest.TestCase):
         v = self.bg(.85)
         npt.assert_allclose(v.T.dot(v), np.eye(2), atol=1e-15)
         npt.assert_allclose(self.bg(0), self.control_points[0])
+
        def test_geo_vectorize(self):
         self.bg = Spline(self.control_points[0:], geometry=geometry.Grassmannian())
         timesample=np.linspace(0,0.5,10)
