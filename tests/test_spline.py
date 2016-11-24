@@ -307,4 +307,34 @@ class TestHyper(unittest.TestCase):
         b = Spline(control_points, geometry=geo)
         npt.assert_allclose(b(.5), P)
 
-   
+class TestGrassMannian(unittest.TestCase):
+    def setUp(self):
+        self.control_points = np.array([
+            np.array([[1.0,0],[0,1],[0,0]]),
+            np.array([[np.sqrt(0.5),0], [0,1], [np.sqrt(0.5),0]]),
+            np.array([[np.sqrt(0.5), np.sqrt(0.5)],[0,0],[np.sqrt(0.5),-np.sqrt(0.5)]]),
+            np.array([[0.,0],[1,0],[0,1]])
+            ])
+        self.b1 = Spline(self.control_points[0:], geometry=geometry.Grassmannian())
+
+    def test_call(self):
+        self.b1(.5)
+
+    def test_geometry(self):
+        self.bg = Spline(self.control_points[0:], geometry = geometry.Grassmannian())
+        v = self.bg(.85)
+        npt.assert_allclose(v.T.dot(v), np.eye(2), atol=1e-15)
+        npt.assert_allclose(self.bg(0), self.control_points[0])
+       def test_geo_vectorize(self):
+        self.bg = Spline(self.control_points[0:], geometry=geometry.Grassmannian())
+        timesample=np.linspace(0,0.5,10)
+        pts = self.bg(timesample)
+        npt.assert_allclose(pts[0], self.control_points[0])
+        npt.assert_allclose(np.einsum('...ij,...ik', pts,pts), np.tile(np.eye(2), (timesample.size,1,1)), atol=1e-15)
+
+    def test_trivial_bezier(self):
+        P = self.control_points[0]
+        control_points = [P]*3
+        geo = geometry.Grassmannian()
+        b = Spline(control_points, geometry=geo)
+        npt.assert_allclose(b(.5), P)
