@@ -44,7 +44,7 @@ def c2spline(interpolation_points, initial_control_points, geometry = Geometry()
     }
     return BSpline(geometry=geometry, **ex)
 
-def implicitc2spline(interpolation_points, boundary_velocities=np.array([]), geometry=Geometry(), Maxiter=500):
+def implicitc2spline(interpolation_points, boundary_velocities=np.array([]), geometry=Geometry(), Maxiter=500, tol = 1e-12):
     N = len(interpolation_points)
     S = list(interpolation_points.shape)
     S[0] = 3*N-2
@@ -60,7 +60,7 @@ def implicitc2spline(interpolation_points, boundary_velocities=np.array([]), geo
         control_points[3*i+1]=geometry.exp(interpolation_points[i], velocities[i])
         j = i+1
         control_points[3*j-1]=geometry.exp(interpolation_points[j], -velocities[j])
-    tol = 16*N*np.finfo(float).eps
+#    tol = 16*N*np.finfo(float).eps
     for Niter in range(Maxiter):
         old_velocities=np.copy(velocities)
         err = 0
@@ -70,7 +70,7 @@ def implicitc2spline(interpolation_points, boundary_velocities=np.array([]), geo
             fi = geometry.dexpinv(interpolation_points[i], old_velocities[i], wplus)\
                 -geometry.dexpinv(interpolation_points[i], -old_velocities[i], wminus)-2*old_velocities[i]
             err += np.linalg.norm(fi)
-            velocities[i] = old_velocities[i]+0.25*(fi)
+            velocities[i] = old_velocities[i]+0.25*(fi)       
         if flag_free_endpoints:
             velocities[0] = 0.5*geometry.log(interpolation_points[0], control_points[2])
             velocities[N-1] = -0.5*geometry.log(interpolation_points[N-1], control_points[3*(N-1)-2])
