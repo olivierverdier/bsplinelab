@@ -50,10 +50,10 @@ def implicitc2spline(interpolation_points, boundary_velocities=None, geometry=Ge
     S[0] = 3*N-2
     control_points = np.zeros(S, dtype = interpolation_points.dtype)
     control_points[::3] = interpolation_points
-    flag_free_endpoints = boundary_velocities is None
+    free_endpoints = boundary_velocities is None
 
     velocities = np.zeros_like(interpolation_points)
-    if flag_free_endpoints:
+    if free_endpoints:
         boundary_velocities = np.zeros(S[1:]), np.zeros(S[1:])
     for j in [0,-1]:
         velocities[j] = boundary_velocities[j]/3.0
@@ -72,14 +72,14 @@ def implicitc2spline(interpolation_points, boundary_velocities=None, geometry=Ge
                 -geometry.dexpinv(interpolation_points[i], -old_velocities[i], wminus)-2*old_velocities[i]
             err += np.linalg.norm(fi)
             velocities[i] = old_velocities[i]+0.25*(fi)       
-        if flag_free_endpoints:
+        if free_endpoints:
             velocities[0] = 0.5*geometry.log(interpolation_points[0], control_points[2])
             velocities[N-1] = -0.5*geometry.log(interpolation_points[N-1], control_points[3*(N-1)-2])
             err+=2*(np.linalg.norm(velocities[0]-old_velocities[0])+np.linalg.norm(velocities[N-1]-old_velocities[N-1]))
         for i in range(1,N-1):
             control_points[3*i+1] = geometry.exp(interpolation_points[i], velocities[i])
             control_points[3*i-1] = geometry.exp(interpolation_points[i], -velocities[i])
-        if flag_free_endpoints:
+        if free_endpoints:
             control_points[1] = geometry.exp(interpolation_points[0], velocities[0])
             control_points[3*(N-1)-1] = geometry.exp(interpolation_points[N-1], -velocities[N-1])
         if err < tol:
