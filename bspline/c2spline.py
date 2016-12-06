@@ -44,13 +44,13 @@ def c2spline(interpolation_points, initial_control_points, geometry = Geometry()
     }
     return BSpline(geometry=geometry, **ex)
 
-def implicitc2spline(interpolation_points, boundary_velocities=np.array([]), geometry=Geometry(), Maxiter=500, tol = 1e-12):
+def implicitc2spline(interpolation_points, boundary_velocities=None, geometry=Geometry(), Maxiter=500, tol = 1e-12):
     N = len(interpolation_points)
     S = list(interpolation_points.shape)
     S[0] = 3*N-2
     control_points = np.zeros(S, dtype = interpolation_points.dtype)
     control_points[::3] = interpolation_points
-    flag_free_endpoints = (boundary_velocities.size == 0)
+    flag_free_endpoints = boundary_velocities is None
 
     velocities = np.zeros_like(interpolation_points)
     if flag_free_endpoints:
