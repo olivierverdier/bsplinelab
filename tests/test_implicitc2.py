@@ -1,5 +1,5 @@
 import numpy.testing as npt
-import unittest
+import pytest
 
 import numpy as np
 
@@ -22,52 +22,57 @@ def gen_log10_errors(f, t):
         err = np.log10(np.max(np.abs(d)))
         yield k, err
 
-class HarnessImplicitC2(object):
-    def setUp(self):
-        N = 8
-        #interpolation_points = np.array([[1.,0,0], [0,0,1.], [0, np.sqrt(0.5), np.sqrt(0.5)], [0,1.,0]]) #spline interpolates these points
-        x = np.linspace(-1, 1, N)
-        y = np.sin(5*np.pi*x)
-        interpolation_points = np.array([x, y, np.ones(x.shape)]).T
-        interpolation_points = interpolation_points/np.array([np.linalg.norm(interpolation_points, axis=1)]).T
-        self.interpolation_points = interpolation_points
-        #initial and end velocities:
-        init_vel = np.array([-1.0,0.0,-1.0])
-        end_vel = np.array([-1.0,0.0,1.0])
-        boundary_velocities = np.array([init_vel, end_vel])
-        self.boundary_velocities = boundary_velocities
-        b = implicitc2spline(interpolation_points, boundary_velocities, geometry=self.get_geometry())
-        self.b = b
+def get_points(N=8, normed=False):
+    #interpolation_points = np.array([[1.,0,0], [0,0,1.], [0, np.sqrt(0.5), np.sqrt(0.5)], [0,1.,0]]) #spline interpolates these points
+    x = np.linspace(-1, 1, N)
+    y = np.sin(5*np.pi*x)
+    pts = np.array([x, y, np.ones(x.shape)]).T
+    if normed:
+        pts /= np.linalg.norm(pts, axis=1).reshape(-1,1)
+    return pts
 
-    def test_interpolate(self):
-        for i,P in enumerate(self.interpolation_points):
-            npt.assert_allclose(self.b(i), P)
+spline_data = [
+    {'geometry': geometry.Geometry(),
+     'points': get_points(),
+     'init_vel': np.array([-1.0,0.0,-1.0]),
+     'end_vel': np.array([-1.0,0.0,1.0]),
+    },
+    {'geometry': geometry.Sphere_geometry(),
+     'points': get_points(normed=True),
+     'init_vel': np.array([-1.0,0.0,-1.0]),
+     'end_vel': np.array([-1.0,0.0,1.0]),
+    },
+]
 
-    def test_maxiter(self):
-        with self.assertRaises(Exception):
-            b = implicitc2spline(self.interpolation_points, self.boundary_velocities, geometry=self.get_geometry(), Maxiter=2)
+@pytest.fixture(params=spline_data)
+def spline(request):
+    data = request.param
+    data['velocities'] = np.array([data['init_vel'], data['end_vel']])
+    print(data['geometry'])
+    data['spline'] = implicitc2spline(data['points'], data['velocities'], geometry=data['geometry'])
+    return data
 
-    def test_c2(self, margin=.5):
-        errs = np.array(list(gen_log10_errors(self.b, 1.5))).T
-        imax = np.argmin(errs[1])
-        emax = errs[0,imax] # maximum h exponent at a regular point
-        err = errs[1,imax] + margin # expected error
 
-        for t in range(1, len(self.interpolation_points)-1): # the joint times
-            errs = np.array(list(gen_log10_errors(self.b, t))).T
-            self.assertLessEqual(errs[1,imax], err)
+def test_interpolate(spline):
+    s = spline['spline']
+    for i,P in enumerate(spline['points']):
+        npt.assert_allclose(s(i), P)
 
-class TestImplicitC2Flat(HarnessImplicitC2, unittest.TestCase):
-    def get_geometry(self):
-        return geometry.Geometry()
+def test_maxiter(spline):
+    with pytest.raises(Exception):
+        b = implicitc2spline(spline['points'], spline['velocities'], geometry=spline['geometry'], Maxiter=2)
 
-class TestImplicitC2Sphere(HarnessImplicitC2, unittest.TestCase):
-    def get_geometry(self):
-        return geometry.Sphere_geometry()
+def test_c2(spline, margin=.5):
+    b = spline['spline']
+    errs = np.array(list(gen_log10_errors(b, 1.5))).T
+    imax = np.argmin(errs[1])
+    emax = errs[0,imax] # maximum h exponent at a regular point
+    err = errs[1,imax] + margin # expected error
 
-    def test_on_sphere(self, N=40):
-        max = len(self.interpolation_points) - 1
-        for t in max*np.random.rand(N):
-            npt.assert_allclose(np.sum(np.square(self.b(t))), 1.)
+    for t in range(1, len(spline['points'])-1): # the joint times
+        errs = np.array(list(gen_log10_errors(b, t))).T
+        assert errs[1,imax] <= err
 
+def test_on_manifold(spline):
+    pass
 
