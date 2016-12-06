@@ -11,7 +11,7 @@ def sinhc(x):
     x = np.asanyarray(x)
     y = where(x == 0, 1.0e-20, x)
     return np.sinh(y)/y
-    
+
 
 class Geometry(object):
     def __init__(self):
@@ -132,17 +132,17 @@ class CP_geometry(Sphere_geometry):
     def exp(self, P1, V1):
         V1hor = V1+1j*np.inner(P1.conj(), V1).imag*P1
         return super(CP_geometry, self).exp(P1, V1hor)
-    
+
     def log(self, P1, P2):
         rotations = np.angle(np.inner(P1.conj(), P2))
         return super(CP_geometry, self).log(P1, np.exp(-1j*rotations)*P2)
-        
+
     def dexpinv(self, P1, V1, W2):
         alpha = np.linalg.norm(V1)
         Wt = W2 - 1j*np.inner(P1.conj(), W2).imag*(P1+sinc(alpha)/np.cos(alpha)*V1)
         return super(CP_geometry, self).dexpinv(P1, V1, Wt) # Assumes V1 is horizontal over P1, and that W2 is a vector over exp(P1,V1)
 
-class Hyperboloid_geometry(Geometry):   
+class Hyperboloid_geometry(Geometry):
     def __init__(self):
         self.type = 'Hyperboloid'
     def geodesic(self, P1, P2, theta):
@@ -158,11 +158,11 @@ class Hyperboloid_geometry(Geometry):
         """
         arg =np.sqrt(np.linalg.norm(V1)**2-2*V1[0]**2)
         return np.cosh(arg)*P1+sinhc(arg)*V1
-    
+
     def log(self, P1, P2):
         arg = np.arccosh(2*P1[0]*P2[0]-np.inner(P1, P2))
         return (P2-np.cosh(arg)*P1)/sinhc(arg) #Warning: non-stable.
-        
+
     def g(self, arg):
         """
         function appearing in dexpinv: (cot(theta)-1/theta)/sin(theta)
@@ -177,8 +177,8 @@ class Hyperboloid_geometry(Geometry):
         arg = np.sqrt(np.linalg.norm(V1)**2-2*V1[0]**2)
         s = np.inner(P1,W2)-2*P1[0]*W2[0]
         return (W2+s*P1)/sinhc(arg)+s*self.g(arg)*V1
-        
-class SO3_geometry(Geometry):       
+
+class SO3_geometry(Geometry):
     def __init__(self):
          self.type = 'SO3'
     def geodesic(self, P1,P2,theta):
@@ -200,16 +200,16 @@ class SO3_geometry(Geometry):
         I.shape = I.shape + time_shape
         V = I + scalar1*yhat + scalar2*yhatsq
         return np.einsum('ijk...,ikl...->ijl...', P1, V)
-        
+
 class Grassmannian(Geometry):
-    
+
     def __init__(self):
         self.type = 'Grassmannian'
-        
+
     def geodesic(self,P1, P2, theta): #(K,N,M,T), (K,1,T)
         ntd = np.ndim(P1)-3
         ntt = np.ndim(theta)-2
-        
+
         P1 = P1.transpose(list(range(3, 3+ntd))+[0,1,2]) # (T,K,N,M)
         P2 = P2.transpose(list(range(3,3+ntd))+[0,1,2])
         if(ntd<ntt):
@@ -227,15 +227,15 @@ class Grassmannian(Geometry):
         if G2.shape[3] == 1:
             G2 = G2.squeeze(3)
         return G2
-        
+
     def exp(self,P1, Y):
-        U, s, V = np.linalg.svd(Y, full_matrices=False) 
+        U, s, V = np.linalg.svd(Y, full_matrices=False)
         G = np.einsum('...ij,...kj,...k->...ik', P1,V,np.cos(s)) + np.einsum('...ij,...j->...ij', U, np.sin(s))
         return np.einsum('...ij, ...jk', G, V)
-        
+
     def log(self,P1, P2):
         P12 = np.einsum('...ij,...ik->...jk', P1, P2)
-        U, s, V = np.linalg.svd(P12, full_matrices=False) 
+        U, s, V = np.linalg.svd(P12, full_matrices=False)
         alpha = np.arccos(np.clip(s, -1,1))
         VV = np.einsum('...ik,...jk', P2, V)-np.einsum('...ik,...kj,...j->...ij', P1,U,s)
         return  np.einsum('...ik,...k,...jk', VV, sinc(alpha)**(-1), U)
@@ -253,7 +253,7 @@ class Grassmannian(Geometry):
         ZZ1 = np.zeros((k,k))
         ZZ2 = np.zeros((n-k, n-k))
         YY = np.vstack((np.hstack((ZZ1, -Y1.T)), np.hstack((Y1, ZZ2)))) # [0 -Y.T ; Y 0]
-        WW = np.vstack((np.hstack((ZZ1, -W.T)), np.hstack((W, ZZ2)))) 
+        WW = np.vstack((np.hstack((ZZ1, -W.T)), np.hstack((W, ZZ2))))
         L, V = np.linalg.eigh(1j*YY)
         L = -1j*L
         L2 = np.outer(L, np.ones_like(L))- np.outer(np.ones_like(L), L)
@@ -261,5 +261,3 @@ class Grassmannian(Geometry):
         B = A/sinhc(L2)
         UU = (V.dot(B).dot(V.T.conj())).real
         return Q1.dot(UU[k:,:k])
-        
-        
