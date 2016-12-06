@@ -34,20 +34,17 @@ def get_points(N=8, normed=False):
 spline_data = [
     {'geometry': geometry.Geometry(),
      'points': get_points(),
-     'init_vel': np.array([-1.0,0.0,-1.0]),
-     'end_vel': np.array([-1.0,0.0,1.0]),
+     'velocities': (np.array([-1.0,0.0,-1.0]), np.array([-1.0,0.0,1.0])),
     },
     {'geometry': geometry.Sphere_geometry(),
      'points': get_points(normed=True),
-     'init_vel': np.array([-1.0,0.0,-1.0]),
-     'end_vel': np.array([-1.0,0.0,1.0]),
+     'velocities': (np.array([-1.0,0.0,-1.0]), np.array([-1.0,0.0,1.0])),
     },
 ]
 
 @pytest.fixture(params=spline_data)
 def spline(request):
     data = request.param
-    data['velocities'] = np.array([data['init_vel'], data['end_vel']])
     print(data['geometry'])
     data['spline'] = implicitc2spline(data['points'], data['velocities'], geometry=data['geometry'])
     return data

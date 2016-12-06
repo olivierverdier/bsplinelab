@@ -54,8 +54,9 @@ def implicitc2spline(interpolation_points, boundary_velocities=None, geometry=Ge
 
     velocities = np.zeros_like(interpolation_points)
     if flag_free_endpoints:
-        boundary_velocities = np.zeros([2]+S[1:])
-    velocities[[0,-1]] = boundary_velocities/3.0
+        boundary_velocities = np.zeros(S[1:]), np.zeros(S[1:])
+    for j in [0,-1]:
+        velocities[j] = boundary_velocities[j]/3.0
     for i in range(0,N-1):
         control_points[3*i+1]=geometry.exp(interpolation_points[i], velocities[i])
         j = i+1
