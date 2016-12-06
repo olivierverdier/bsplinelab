@@ -7,10 +7,6 @@ import unittest
 
 import numpy as np
 
-from bspline import BSpline
-from bspline.bspline import get_single_bspline
-from bspline.spline import Spline
-from bspline import plotting
 from bspline import geometry
 
 class TestSphere(unittest.TestCase):
