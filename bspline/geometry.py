@@ -51,9 +51,21 @@ class Geometry(object):
         """ (d exp_P1)^-1_V1 (W2) """
         return W2
 
+    @classmethod
+    def on_manifold(self, P):
+        """
+        Test if the given point is on the manifold.
+        Return two arrays that should be equal to one another.
+        """
+        return 0, 0
+
 class Sphere_geometry(Geometry):
     def __init__(self):
         self.type = 'sphere'
+
+    @classmethod
+    def on_manifold(self, P):
+        return np.sum(np.square(P), axis=1), 1
 
     def geodesic(self, P1, P2, theta):
         """

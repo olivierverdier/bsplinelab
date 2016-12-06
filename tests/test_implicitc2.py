@@ -73,6 +73,10 @@ def test_c2(spline, margin=.5):
         errs = np.array(list(gen_log10_errors(b, t))).T
         assert errs[1,imax] <= err
 
-def test_on_manifold(spline):
-    pass
+def test_on_manifold(spline, N=40):
+    max = len(spline['points']) - 1
+    ts = max*np.random.rand(N)
+    pts = spline['spline'](ts)
+    npt.assert_allclose(*spline['geometry'].on_manifold(pts))
+
 
