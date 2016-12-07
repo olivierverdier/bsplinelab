@@ -3,6 +3,8 @@
 # coding: UTF-8
 from __future__ import division
 
+import logging
+
 import numpy as np
 
 from .geometry import Geometry
@@ -86,8 +88,8 @@ def implicitc2spline(interpolation_points, boundary_velocities=None, geometry=Ge
             break
     else:
         raise Exception("No convergence in {} steps ".format(Niter)+" Error:"+str(err))
-    print("#iterations: "+str(Niter))
-    print("Error: "+str(err))
+    logging.info("#iterations: {}".format(Niter))
+    logging.info("Error: {}".format(err))
     ex = {
     'control_points': control_points,
     'knots' : np.array(range(interpolation_points.shape[0]), dtype=float).repeat(3)
