@@ -1,7 +1,7 @@
 import numpy as np
 from . import Geometry
 
-class SO3_geometry(Geometry):
+class SO3(Geometry):
     def __init__(self):
          self.type = 'SO3'
     def geodesic(self, P1,P2,theta):

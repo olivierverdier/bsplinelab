@@ -1,7 +1,7 @@
 import numpy as np
-from . import Sphere_geometry
+from . import Sphere
 
-class CP_geometry(Sphere_geometry):
+class Projective(Sphere):
     def __init__(self):
         self.type = 'complex projective plane'
     def geodesic(self,P1,P2,theta):
@@ -12,7 +12,7 @@ class CP_geometry(Sphere_geometry):
             innerprods = np.einsum('ij...,ij...->i...',P1.conj(), P2)
             rotations=np.angle(innerprods)
             rotations = rotations[:, np.newaxis,...]
-        return super(CP_geometry, self).geodesic(P1, np.exp(-1j*rotations)*P2, theta)
+        return super(Projective, self).geodesic(P1, np.exp(-1j*rotations)*P2, theta)
 
     def exp(self, P1, V1):
         V1hor = V1+1j*np.inner(P1.conj(), V1).imag*P1

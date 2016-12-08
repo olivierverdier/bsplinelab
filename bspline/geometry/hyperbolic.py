@@ -1,7 +1,7 @@
 import numpy as np
 from . import Geometry, sinhc
 
-class Hyperboloid_geometry(Geometry):
+class Hyperbolic(Geometry):
     def __init__(self):
         self.type = 'Hyperboloid'
     def geodesic(self, P1, P2, theta):

@@ -3,7 +3,7 @@ import numpy as np
 from . import Geometry, sinc
 
 
-class Sphere_geometry(Geometry):
+class Sphere(Geometry):
     def __init__(self):
         self.type = 'sphere'
 

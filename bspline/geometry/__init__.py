@@ -58,8 +58,8 @@ def sinhc(x):
     y = where(x == 0, 1.0e-20, x)
     return np.sinh(y)/y
 
-from .sphere import Sphere_geometry
-from .hyperbolic import Hyperboloid_geometry
+from .sphere import Sphere
+from .hyperbolic import Hyperbolic
 from .grassmannian import Grassmannian
-from .so3 import SO3_geometry
-from .projective import CP_geometry
+from .so3 import SO3
+from .projective import Projective

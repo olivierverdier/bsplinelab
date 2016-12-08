@@ -162,13 +162,13 @@ class TestMatrix(unittest.TestCase):
         self.b1(.5)
 
     def test_geometry(self):
-        self.bg = Spline(self.control_points[1:], geometry=geometry.SO3_geometry())
+        self.bg = Spline(self.control_points[1:], geometry=geometry.SO3())
         mat = self.bg(.5)
         npt.assert_allclose(np.dot(mat, mat.T), np.identity(3), atol=1e-15)
         npt.assert_allclose(self.bg(0), self.control_points[1])
 
     def test_geo_vectorize(self):
-        self.bg = Spline(self.control_points[1:], geometry=geometry.SO3_geometry())
+        self.bg = Spline(self.control_points[1:], geometry=geometry.SO3())
         mats = self.bg(np.linspace(0,.5,10))
         npt.assert_allclose(mats[0], self.control_points[1])
 
@@ -181,26 +181,26 @@ class TestSphere(unittest.TestCase):
             np.array([0, 1j]),
             np.array([0, 1])
             ])
-        self.b1 = Spline(self.control_points[0:], geometry=geometry.Sphere_geometry())
+        self.b1 = Spline(self.control_points[0:], geometry=geometry.Sphere())
 
     def test_call(self):
         self.b1(.5)
 
     def test_geometry(self):
-        self.bg = Spline(self.control_points[0:], geometry=geometry.Sphere_geometry())
+        self.bg = Spline(self.control_points[0:], geometry=geometry.Sphere())
         v = self.bg(.85)
         npt.assert_allclose(np.inner(v, v.conj()), 1., atol=1e-15)
         npt.assert_allclose(self.bg(0), self.control_points[0])
 
     def test_geo_vectorize(self):
-        self.bg = Spline(self.control_points[0:], geometry=geometry.Sphere_geometry())
+        self.bg = Spline(self.control_points[0:], geometry=geometry.Sphere())
         timesample=np.linspace(0,0.5,10)
         pts = self.bg(timesample)
         npt.assert_allclose(pts[0], self.control_points[0])
         npt.assert_allclose(np.linalg.norm(pts, axis=1), np.ones(timesample.shape))
 
     def test_stable_geodesic(self):
-        SG = geometry.Sphere_geometry()
+        SG = geometry.Sphere()
         P1 = self.control_points[0]
         P = SG.geodesic(P1, P1, .5)
         npt.assert_allclose(P1, P)
@@ -208,7 +208,7 @@ class TestSphere(unittest.TestCase):
     def test_trivial_bezier(self):
         P = self.control_points[0]
         control_points = [P]*3
-        geo = geometry.Sphere_geometry()
+        geo = geometry.Sphere()
         b = Spline(control_points, geometry=geo)
         npt.assert_allclose(b(.5), P)
 
@@ -229,7 +229,7 @@ class TestSphere(unittest.TestCase):
         Test for 1-sphere that fails.
         """
         P = np.array([1, (1+1j)*np.sqrt(0.5), 1j, -1])
-        b = Spline(P, geometry=geometry.Sphere_geometry())
+        b = Spline(P, geometry=geometry.Sphere())
         npt.assert_allclose(np.linalg.norm(b(.5)), 1.0)
 
     def test_sp1(self):
@@ -237,7 +237,7 @@ class TestSphere(unittest.TestCase):
         Test for 1-sphere that succeeds
         """
         P = np.array([[1], [(1+1j)*np.sqrt(0.5)], [1j], [-1]])
-        b = Spline(P, geometry=geometry.Sphere_geometry())
+        b = Spline(P, geometry=geometry.Sphere())
         npt.assert_allclose(np.linalg.norm(b(.5)), 1.0)
 
 
@@ -249,26 +249,26 @@ class TestCP(unittest.TestCase):
             np.array([1j, 0]),
             np.array([0, 1j])
             ])
-        self.b1 = Spline(self.control_points[0:], geometry=geometry.CP_geometry())
+        self.b1 = Spline(self.control_points[0:], geometry=geometry.Projective())
 
     def test_call(self):
         self.b1(.5)
 
     def test_stable_geodesic(self):
         P1 = self.control_points[0]
-        CG = geometry.CP_geometry()
+        CG = geometry.Projective()
         P = CG.geodesic(P1, P1, .5)
         npt.assert_allclose(np.inner(P1.conj(),P)*P,P1) # Test for complex colinearity
 
 
     def test_geometry(self):
-        self.bg = Spline(self.control_points[0:], geometry=geometry.CP_geometry())
+        self.bg = Spline(self.control_points[0:], geometry=geometry.Projective())
         v = self.bg(.5)
         npt.assert_allclose(np.linalg.norm(v), 1., atol=1e-15)
         npt.assert_allclose(np.inner(self.control_points[0].conj(),self.bg(0))*self.bg(0), self.control_points[0]) # Test for complex colinearity
 
     def test_geo_vectorize(self):
-        self.bg = Spline(self.control_points[0:], geometry=geometry.CP_geometry())
+        self.bg = Spline(self.control_points[0:], geometry=geometry.Projective())
         timesample=np.linspace(0,0.5,10)
         pts = self.bg(timesample)
         npt.assert_allclose(np.inner(self.control_points[0].conj(),self.bg(0))*self.bg(0), self.control_points[0]) # Test for complex colinearity
@@ -282,19 +282,19 @@ class TestHyper(unittest.TestCase):
             np.array([np.sqrt(2), 0, 1]),
             np.array([np.sqrt(2), -1,0])
             ])
-        self.b1 = Spline(self.control_points[0:], geometry=geometry.Hyperboloid_geometry())
+        self.b1 = Spline(self.control_points[0:], geometry=geometry.Hyperbolic())
 
     def test_call(self):
         self.b1(.5)
 
     def test_geometry(self):
-        self.bg = Spline(self.control_points[0:], geometry=geometry.Hyperboloid_geometry())
+        self.bg = Spline(self.control_points[0:], geometry=geometry.Hyperbolic())
         v = self.bg(.85)
         npt.assert_allclose(2*v[0]**2-np.inner(v,v), 1., atol=1e-15)
         npt.assert_allclose(self.bg(0), self.control_points[0])
 
     def test_geo_vectorize(self):
-        self.bg = Spline(self.control_points[0:], geometry=geometry.Hyperboloid_geometry())
+        self.bg = Spline(self.control_points[0:], geometry=geometry.Hyperbolic())
         timesample=np.linspace(0,0.5,10)
         pts = self.bg(timesample)
         npt.assert_allclose(pts[0], self.control_points[0])
@@ -303,7 +303,7 @@ class TestHyper(unittest.TestCase):
     def test_trivial_bezier(self):
         P = self.control_points[0]
         control_points = [P]*3
-        geo = geometry.Hyperboloid_geometry()
+        geo = geometry.Hyperbolic()
         b = Spline(control_points, geometry=geo)
         npt.assert_allclose(b(.5), P)
 

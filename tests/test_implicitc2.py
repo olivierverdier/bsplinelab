@@ -40,7 +40,7 @@ spline_data = [
      'points': get_points(),
      'velocities': None,
     },
-    {'geometry': geometry.Sphere_geometry(),
+    {'geometry': geometry.Sphere(),
      'points': get_points(normed=True),
      'velocities': (np.array([-1.0,0.0,-1.0]), np.array([-1.0,0.0,1.0])),
     },
