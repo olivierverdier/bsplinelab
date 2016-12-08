@@ -49,7 +49,6 @@ spline_data = [
 @pytest.fixture(params=spline_data)
 def spline(request):
     data = request.param
-    print(data['geometry'])
     data['spline'] = implicitc2spline(data['points'], data['velocities'], geometry=data['geometry'])
     return data
 
