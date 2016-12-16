@@ -18,7 +18,7 @@ class Interpolator():
 
     def __init__(self, interpolation_points, boundary_velocities, geometry):
         self.interpolation_points = interpolation_points
-        self.boundary_deformations = [geometry.connection(self.interpolation_points[j], boundary_velocities[i]) for i,j in ((0,0), (1,-1))]
+        self.boundary_deformations = [1/3*geometry.connection(self.interpolation_points[j], boundary_velocities[i]) for i,j in ((0,0), (1,-1))]
         self.geometry = geometry
         self.size = len(self.interpolation_points)
 
