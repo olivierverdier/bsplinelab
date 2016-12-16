@@ -4,17 +4,39 @@ import numpy as np
 from .geometry import Flat
 from . import BSpline
 
+class BoundaryCondition():
+    def initialize(self, interpolator):
+        self.interpolator = interpolator
+
+class Free(BoundaryCondition):
+    def get_boundary_deformations(self, deformations):
+        g = self.interpolator.geometry
+        defs = [s*.5*g.redlog(self.interpolator.interpolation_points[j], g.exp_action(self.interpolator.interpolation_points[i], -s*deformations[i])) for j,i,s in ((0,1,1),(-1,-2,-1))]
+        return defs
+
+class Clamped(BoundaryCondition):
+    def __init__(self, boundary_velocities):
+        self.boundary_velocities = boundary_velocities
+
+    def initialize(self, interpolator):
+        super(Clamped, self).initialize(interpolator)
+        g = interpolator.geometry
+        self.boundary_deformations = [1/3*g.connection(interpolator.interpolation_points[j], self.boundary_velocities[i]) for i,j in ((0,0), (1,-1))]
+
+    def get_boundary_deformations(self, deformations):
+        return self.boundary_deformations
 
 class Interpolator():
     max_iter = 500
     tolerance = 1e-12
     geometry = Flat()
 
-    def __init__(self, interpolation_points, boundary_velocities, geometry):
+    def __init__(self, interpolation_points, boundary, geometry):
         self.interpolation_points = interpolation_points
-        self.boundary_deformations = [1/3*geometry.connection(self.interpolation_points[j], boundary_velocities[i]) for i,j in ((0,0), (1,-1))]
+        self.boundary = boundary
         self.geometry = geometry
         self.size = len(self.interpolation_points)
+        self.boundary.initialize(self)
 
     def compute_spline(self):
         """
@@ -33,8 +55,6 @@ class Interpolator():
         for pos, deformation in zip([0,-1], boundary_deformations):
             deformations[pos] = deformation
 
-    def apply_boundary_condition(self, deformations):
-        self.enforce(deformations, self.boundary_deformations)
 
     def compute_deformations(self):
         """
@@ -45,7 +65,7 @@ class Interpolator():
             interior = self.interior_deformations(deformations)
             error = deformations[1:-1] - interior
             deformations[1:-1] = interior
-            self.apply_boundary_condition(deformations)
+            self.enforce(deformations, self.boundary.get_boundary_deformations(deformations))
             if np.max(np.abs(error)) < self.tolerance:
                 break
         else:
