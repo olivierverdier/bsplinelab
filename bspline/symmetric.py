@@ -29,6 +29,10 @@ class Interpolator():
                        geometry=self.geometry)
 
 
+    def apply_boundary_condition(self, deformations):
+        for i,j in ((0,0), (1,-1)):
+            deformations[j] = self.boundary_deformations[i]
+
     def compute_deformations(self):
         """
         Compute the control points giving a C2 de Casteljau spline.
@@ -38,8 +42,7 @@ class Interpolator():
             interior = self.interior_deformations(deformations)
             error = deformations[1:-1] - interior
             deformations[1:-1] = interior
-            for i,j in ((0,0), (1,-1)):
-                deformations[j] = self.boundary_deformations[i]
+            self.apply_boundary_condition(deformations)
             if np.max(np.abs(error)) < self.tolerance:
                 break
         else:
