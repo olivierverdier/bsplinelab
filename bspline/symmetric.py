@@ -39,14 +39,14 @@ class Interpolator():
             raise Exception("No convergence in {} steps; error :{} ".format(i, error))
         return deformations
 
-    def control_points(self, deformations):
+    def control_points(self, deformations, shift=1):
         """
         Compute the interior control points, from the given deformations.
         """
         N = self.size
         all_range = range(N)
-        left_range = all_range[2:]
-        right_range = all_range[:-2]
+        left_range = all_range[shift:]
+        right_range = all_range[:-shift]
         g = self.geometry
         for l,r in zip(left_range, right_range):
             # left control point at i+1
@@ -70,7 +70,7 @@ class Interpolator():
         for i, (P, d, (left, right)) in enumerate(zip(
                 self.interpolation_points[1:-1],
                 interior_deformations,
-                self.control_points(deformations))):
+                self.control_points(deformations, shift=2))):
             pt_left = g.action(exponential(-d), left)
             sig_right[i] = g.redlog(P, pt_left)
             pt_right = g.action(exponential(d), right)
