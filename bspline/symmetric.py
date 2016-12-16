@@ -71,7 +71,7 @@ class Interpolator():
             pt_left = g.action(exponential(-d), left)
             sig_right[i] = g.redlog(P, pt_left)
             pt_right = g.action(exponential(d), right)
-            sig_left[i] = -g.redlog(P, pt_right)
+            sig_left[i] = g.redlog(P, pt_right)
 
-        return (sig_left + sig_right + 2*interior_deformations)/4
+        return (sig_right - sig_left + 2*interior_deformations)/4
 
