@@ -71,6 +71,11 @@ class Geometry(object):
         """
         return np.dot(M, P)
 
+    def projection(self, P1):
+        """
+        Projection onto unique coordinate space.
+        """
+        return P1
 
 
 import numpy as np

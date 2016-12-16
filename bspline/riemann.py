@@ -23,5 +23,5 @@ class Riemann(Interpolator):
         )
         delta = np.zeros_like(velocities[1:-1])
         for i, (P, V, wR, wL) in enumerate(gen):
-            delta[i] = self.geometry.dexpinv(P, V, wR) - self.geometry.dexpinv(P, -V, wL) - 2*V
+            delta[i] = self.geometry.Adexpinv(P, V, wR) - self.geometry.Adexpinv(P, -V, wL) - 2*V
         return qRs, qLs, delta/4

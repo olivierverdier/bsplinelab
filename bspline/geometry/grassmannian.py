@@ -72,3 +72,26 @@ class Grassmannian(Geometry):
             v = np.random.randn(i,j)/(100*np.sqrt(i))
             v = v-p.dot(p.T).dot(v) # norm(v)> pi might cause problems.
         return p, v
+
+    def projection(self, P1):
+        return np.einsum('...ij,...kj',P1,P1)
+
+    def Adexpinv(self, P1, V1, W2):
+        U, s, V = np.linalg.svd(V1, full_matrices = False)
+        PVt = np.einsum('...ij,...kj',P1, V)
+        UtW2 = np.einsum('...ji,...jk', U, W2)
+        VPtW2 = np.einsum('...ji,...jk', PVt, W2)
+        Z1=np.einsum('...i,...ij->...ij', np.cos(s)-1, VPtW2)+ np.einsum('...i,...ij->...ij', np.sin(s), UtW2)
+        Z2 = -np.einsum('...i,...ij->...ij', np.sin(s), VPtW2) + np.einsum('...i,...ij->...ij', np.cos(s)-1, UtW2)
+        return W2+ np.einsum('...ij,...jk',PVt,Z1)+ np.einsum('...ij,...jk',U,Z2)
+
+    def on_manifold(self, Ps):
+        """
+        Actually test that the points Ps are on a Stiefel manifold.
+        """
+        shape = Ps.shape
+        expected = np.array([np.identity(shape[2])]*shape[0])
+        # T_ikk' = ∑_j P_ikj P_ijkk'
+        computed = np.einsum('ijk,ijl->ikl', Ps, Ps)
+        # return np.tensordot(Ps.transpose((0,2,1)), Ps, (2,1)), expected
+        return computed, expected

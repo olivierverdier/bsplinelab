@@ -84,3 +84,27 @@ class Sphere(Geometry):
         v = v-np.inner(p,v)*p
         v= v/(2*np.linalg.norm(v))
         return p,v
+
+    def h(self, angle):
+        """
+        (cos(angle)-1)/angle^2
+        """
+        # hh = np.zeros_like(angle)
+        idx = np.abs(angle) < 6.0e-4
+        # hh[idx]=-0.5+ 1.0/24*angle[idx]*angle[idx]
+        # hh[~idx] = (np.cos(angle)-1)*angle**(-2)
+        if idx:
+            hh = -0.5+ 1.0/24*angle*angle
+        else:
+            hh = (np.cos(angle)-1)*angle**(-2)
+        return hh
+
+    def Adexpinv(self, P1, V1, W2):
+        """
+        Symmetric space function (pi_{P1})^{-1} Ad(exp(-V1))(pi W2)
+        where pi is the connection.
+        """
+        angle = np.linalg.norm(V1)
+        vw = np.inner(V1, W2)
+        pw = np.inner(P1, W2)
+        return W2 + P1*((np.cos(angle)-1)*pw+sinc(angle)*vw) + V1*(self.h(angle)* vw-sinc(angle)*pw)

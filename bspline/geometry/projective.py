@@ -26,3 +26,9 @@ class Projective(Sphere):
         alpha = np.linalg.norm(V1)
         Wt = W2 - 1j*np.inner(P1.conj(), W2).imag*(P1+sinc(alpha)/np.cos(alpha)*V1)
         return super(Projective, self).dexpinv(P1, V1, Wt) # Assumes V1 is horizontal over P1, and that W2 is a vector over exp(P1,V1)
+
+    def projection(self, P1):
+        """
+        Projection onto unique coordinate space.
+        """
+        return 1j*np.einsum('...i,...j->...ij', P1, P1)

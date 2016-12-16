@@ -61,3 +61,10 @@ class Flat(Geometry):
         Not the simple matrix multiplication due to how we store the points.
         """
         return np.dot(M[:-1,:-1], P) + M[:-1,-1]
+
+    def Adexpinv(self, P1, V1, W2):
+        """ 
+        Symmetric space function (pi_{P1})^{-1} Ad(exp(-V1))(pi W2)
+        where pi is the connection.
+        """
+        return W2
