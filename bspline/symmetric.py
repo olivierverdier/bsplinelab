@@ -1,14 +1,14 @@
 
 import numpy as np
 
-from .geometry import Geometry
+from .geometry import Flat
 from . import BSpline
 
 
 class Interpolator():
     max_iter = 500
     tolerance = 1e-12
-    geometry = Geometry()
+    geometry = Flat()
 
     def __init__(self, interpolation_points, boundary_velocities, geometry):
         self.interpolation_points = interpolation_points

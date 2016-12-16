@@ -7,10 +7,10 @@ import logging
 
 import numpy as np
 
-from .geometry import Geometry
+from .geometry import Flat
 from . import BSpline
 
-def c2spline(interpolation_points, initial_control_points, geometry = Geometry()):
+def c2spline(interpolation_points, initial_control_points, geometry = Flat()):
     # initialize the array for control points of the final spline.
     S=list(interpolation_points.shape)
     S[0]=3*S[0]-2
@@ -46,7 +46,7 @@ def c2spline(interpolation_points, initial_control_points, geometry = Geometry()
     }
     return BSpline(geometry=geometry, **ex)
 
-def implicitc2spline(interpolation_points, boundary_velocities=None, geometry=Geometry(), Maxiter=500, tol = 1e-12):
+def implicitc2spline(interpolation_points, boundary_velocities=None, geometry=Flat(), Maxiter=500, tol = 1e-12):
     N = len(interpolation_points)
     S = list(interpolation_points.shape)
     S[0] = 3*N-2
@@ -95,3 +95,4 @@ def implicitc2spline(interpolation_points, boundary_velocities=None, geometry=Ge
     'knots' : np.array(range(interpolation_points.shape[0]), dtype=float).repeat(3)
     }
     return BSpline(geometry=geometry, **ex)
+

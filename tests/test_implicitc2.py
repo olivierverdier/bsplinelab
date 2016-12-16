@@ -32,11 +32,11 @@ def get_points(N=8, normed=False):
     return pts
 
 spline_data = [
-    {'geometry': geometry.Geometry(),
+    {'geometry': geometry.Flat(),
      'points': get_points(),
      'velocities': (np.array([-1.0,0.0,-1.0]), np.array([-1.0,0.0,1.0])),
     },
-    {'geometry': geometry.Geometry(),
+    {'geometry': geometry.Flat(),
      'points': get_points(),
      'velocities': None,
     },

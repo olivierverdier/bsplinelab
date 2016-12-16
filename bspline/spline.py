@@ -3,7 +3,7 @@
 from __future__ import division
 
 import numpy as np
-from .geometry import Geometry
+from .geometry import Flat
 
 def max_degree(nb_points):
     return nb_points - 1
@@ -14,7 +14,7 @@ def get_bezier_knots(degree):
     return knots
 
 class Spline(object):
-    def __init__(self, control_points, knots=None, geometry=Geometry()):
+    def __init__(self, control_points, knots=None, geometry=Flat()):
         self.control_points = np.array(control_points)
         self.degree = max_degree(len(self.control_points))
         self.data_dim = np.ndim(self.control_points[0])

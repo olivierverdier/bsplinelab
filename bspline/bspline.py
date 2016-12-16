@@ -4,11 +4,11 @@ from __future__ import division
 
 import numpy as np
 
-from .geometry import Geometry
+from .geometry import Flat
 from .spline import Spline, max_degree, get_bezier_knots
 
 class BSpline(object):
-    def __init__(self, control_points, knots=None, geometry=Geometry()):
+    def __init__(self, control_points, knots=None, geometry=Flat()):
         if knots is None:
             self.degree = max_degree(len(control_points))
             self.knots = get_bezier_knots(self.degree)
