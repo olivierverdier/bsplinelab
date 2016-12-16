@@ -65,10 +65,12 @@ class Interpolator():
             error = deformations[1:-1] - interior
             deformations[1:-1] = interior
             self.enforce(deformations, self.boundary.get_boundary_deformations(deformations))
-            if np.max(np.abs(error)) < self.tolerance:
+            max_error = np.max(np.abs(error))
+            if max_error < self.tolerance:
                 break
         else:
             raise Exception("No convergence in {} steps; error :{} ".format(i, error))
+        self.postmortem = {'error': max_error, 'iterations': i}
         return deformations
 
     def control_points(self, deformations, shift=1):
