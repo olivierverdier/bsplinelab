@@ -20,6 +20,7 @@ class Interpolator():
         self.interpolation_points = interpolation_points
         self.boundary_deformations = [geometry.connection(self.interpolation_points[j], boundary_velocities[i]) for i,j in ((0,0), (1,-1))]
         self.geometry = geometry
+        self.size = len(self.interpolation_points)
 
     def compute_deformations(self):
         """
@@ -48,7 +49,7 @@ class Interpolator():
         """
         Compute new deformations at interior points from old deformations.
         """
-        N = len(deformations)
+        N = self.size
 
         g = self.geometry
 
