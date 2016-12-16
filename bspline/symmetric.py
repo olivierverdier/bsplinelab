@@ -26,6 +26,10 @@ class Clamped(BoundaryCondition):
     def get_boundary_deformations(self, deformations):
         return self.boundary_deformations
 
+def cubic_spline(interpolation_points, boundary=Free(), geometry=Flat()):
+    I = Interpolator(interpolation_points, boundary, geometry)
+    return I.compute_spline()
+
 class Interpolator():
     max_iter = 500
     tolerance = 1e-12
