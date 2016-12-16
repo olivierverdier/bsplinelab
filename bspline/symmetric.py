@@ -78,3 +78,15 @@ class Interpolator():
 
         return (sig_right - sig_left + 2*interior_deformations)/4
 
+    def compute_spline_control_points(self, control_points):
+        """
+        Produces a spline control points from the given control points
+        in an array.
+        """
+        geo_shape = np.shape(self.interpolation_points[0])
+        new_shape = (3*self.size-2,) + geo_shape
+        all_points = np.zeros(new_shape)
+        all_points[::3] = self.interpolation_points
+        all_points[1::3] = control_points[:,0]
+        all_points[2::3] = control_points[:,1]
+        return all_points
