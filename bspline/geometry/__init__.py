@@ -44,6 +44,35 @@ class Geometry(object):
         """
         return 0, 0
 
+    def redlog(self, P1, P2):
+        result = self.connection(P1, self.log(P1, P2))
+        return result
+
+    @classmethod
+    def connection(self, P, V):
+        """
+        Map a velocity at point P to a deformation
+        """
+        n = len(V)
+        mat = np.zeros((n+1,n+1))
+        mat[:-1,-1] = V
+        mat[-1,-1] = 0.
+        return mat
+
+    def action(self, M, P):
+        """
+        Not the simple matrix multiplication due to how we store the points.
+        """
+        return np.dot(M[:-1,:-1], P) + M[:-1,-1]
+
+    @classmethod
+    def zero_deformations(self, points):
+        """
+        Auxiliary method to produce zero deformations
+        """
+        return np.array([self.connection(P,np.zeros_like(P)) for P in points])
+
+
 import numpy as np
 
 def sinc(x):
