@@ -44,12 +44,15 @@ class Interpolator():
         Compute the interior control points, from the given deformations.
         """
         N = self.size
+        all_range = range(N)
+        left_range = all_range[2:]
+        right_range = all_range[:-2]
         g = self.geometry
-        for i in range(1,N-1):
+        for l,r in zip(left_range, right_range):
             # left control point at i+1
-            left = g.action(exponential(-deformations[i+1]), self.interpolation_points[i+1])
+            left = g.action(exponential(-deformations[l]), self.interpolation_points[l])
             # right control point at i-1
-            right = g.action(exponential(deformations[i-1]), self.interpolation_points[i-1])
+            right = g.action(exponential(deformations[r]), self.interpolation_points[r])
             yield left, right
 
     def interior_deformations(self, deformations):
