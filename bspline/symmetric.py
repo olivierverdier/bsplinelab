@@ -63,7 +63,7 @@ class Interpolator():
 
             right = g.action(exponential(deformations[i-1]), self.interpolation_points[i-1]) # right control point at i-1
             pt_right = g.action(exponential(deformations[i]), right)
-            sig_left[i-1] = g.redlog(self.interpolation_points[i], pt_right)
+            sig_left[i-1] = -g.redlog(self.interpolation_points[i], pt_right)
 
         return (sig_left + sig_right + 2*interior_deformations)/4
 
