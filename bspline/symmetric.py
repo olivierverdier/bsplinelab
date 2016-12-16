@@ -4,12 +4,6 @@ import numpy as np
 from .geometry import Geometry
 from . import BSpline
 
-from padexp import Exponential
-
-Exp = Exponential(order=16)
-
-def exponential(xi):
-    return Exp(xi)[0]
 
 class Interpolator():
     max_iter = 500
@@ -63,9 +57,9 @@ class Interpolator():
         g = self.geometry
         for l,r in zip(left_range, right_range):
             # left control point at i+1
-            left = g.action(exponential(-deformations[l]), self.interpolation_points[l])
+            left = g.exp_action(self.interpolation_points[l], -deformations[l])
             # right control point at i-1
-            right = g.action(exponential(deformations[r]), self.interpolation_points[r])
+            right = g.exp_action(self.interpolation_points[r], deformations[r])
             yield right, left
 
     def interior_deformations(self, deformations):
@@ -84,9 +78,9 @@ class Interpolator():
                 self.interpolation_points[1:-1],
                 interior_deformations,
                 self.control_points(deformations, shift=2))):
-            pt_left = g.action(exponential(-d), left)
+            pt_left = g.exp_action(left, -d)
             sig_right[i] = g.redlog(P, pt_left)
-            pt_right = g.action(exponential(d), right)
+            pt_right = g.exp_action(right, d)
             sig_left[i] = g.redlog(P, pt_right)
 
         return (sig_right - sig_left + 2*interior_deformations)/4

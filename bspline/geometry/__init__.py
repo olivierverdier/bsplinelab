@@ -1,3 +1,10 @@
+from padexp import Exponential
+
+Exp = Exponential(order=16)
+
+def exponential(xi):
+    return Exp(xi)[0]
+
 class Geometry(object):
     def __init__(self):
         self.type ='flat'
@@ -58,6 +65,12 @@ class Geometry(object):
         mat[:-1,-1] = V
         mat[-1,-1] = 0.
         return mat
+
+    def exp_action(self, P, D):
+        """
+        Action of exp(D) on P.
+        """
+        return self.action(exponential(D), P)
 
     def action(self, M, P):
         """
