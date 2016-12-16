@@ -29,9 +29,12 @@ class Interpolator():
                        geometry=self.geometry)
 
 
+    def enforce(self, deformations, boundary_deformations):
+        for pos, deformation in zip([0,-1], boundary_deformations):
+            deformations[pos] = deformation
+
     def apply_boundary_condition(self, deformations):
-        for i,j in ((0,0), (1,-1)):
-            deformations[j] = self.boundary_deformations[i]
+        self.enforce(deformations, self.boundary_deformations)
 
     def compute_deformations(self):
         """
