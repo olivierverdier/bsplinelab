@@ -64,11 +64,14 @@ class Interpolator():
         sig_left = np.zeros_like(interior_deformations)
         sig_right = np.zeros_like(interior_deformations)
 
-        for i, (left, right) in zip(range(1,N-1), self.control_points(deformations)):
-            pt_left = g.action(exponential(-deformations[i]), left)
-            sig_right[i-1] = g.redlog(self.interpolation_points[i], pt_left)
-            pt_right = g.action(exponential(deformations[i]), right)
-            sig_left[i-1] = -g.redlog(self.interpolation_points[i], pt_right)
+        for i, (P, d, (left, right)) in enumerate(zip(
+                self.interpolation_points[1:-1],
+                interior_deformations,
+                self.control_points(deformations))):
+            pt_left = g.action(exponential(-d), left)
+            sig_right[i] = g.redlog(P, pt_left)
+            pt_right = g.action(exponential(d), right)
+            sig_left[i] = -g.redlog(P, pt_right)
 
         return (sig_left + sig_right + 2*interior_deformations)/4
 
