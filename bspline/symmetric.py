@@ -53,7 +53,7 @@ class Interpolator():
             left = g.action(exponential(-deformations[l]), self.interpolation_points[l])
             # right control point at i-1
             right = g.action(exponential(deformations[r]), self.interpolation_points[r])
-            yield left, right
+            yield right, left
 
     def interior_deformations(self, deformations):
         """
@@ -67,7 +67,7 @@ class Interpolator():
         sig_left = np.zeros_like(interior_deformations)
         sig_right = np.zeros_like(interior_deformations)
 
-        for i, (P, d, (left, right)) in enumerate(zip(
+        for i, (P, d, (right, left)) in enumerate(zip(
                 self.interpolation_points[1:-1],
                 interior_deformations,
                 self.control_points(deformations, shift=2))):
