@@ -29,9 +29,8 @@ class Clamped(BoundaryCondition):
 class Interpolator():
     max_iter = 500
     tolerance = 1e-12
-    geometry = Flat()
 
-    def __init__(self, interpolation_points, boundary, geometry):
+    def __init__(self, interpolation_points, boundary=Free(), geometry=Flat()):
         self.interpolation_points = interpolation_points
         self.boundary = boundary
         self.geometry = geometry
