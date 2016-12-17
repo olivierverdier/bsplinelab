@@ -30,7 +30,7 @@ install:
 
 # Run test
 script:
-  - py.test --cov=bspline --cov-report=term-missing --cov-config=.coveragerc
+  - py.test --cov=bspline --cov-report=term-missing --cov-config=.coveragerc tests
 
 # Calculate coverage
 after_success:
