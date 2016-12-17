@@ -48,7 +48,7 @@ class Interpolator():
         deformations = self.compute_deformations()
         control_points = np.array(list(self.control_points(deformations)))
         spline_control_points = self.compute_spline_control_points(control_points)
-        knots = np.arange(len(self.interpolation_points[0]), dtype='f').repeat(3)
+        knots = np.arange(len(self.interpolation_points), dtype='f').repeat(3)
         return BSpline(control_points=spline_control_points,
                        knots=knots,
                        geometry=self.geometry)
