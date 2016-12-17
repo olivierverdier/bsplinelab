@@ -307,7 +307,7 @@ class TestHyper(unittest.TestCase):
         b = Spline(control_points, geometry=geo)
         npt.assert_allclose(b(.5), P)
 
-class TestGrassMannian(unittest.TestCase):
+class TestGrassmannian(unittest.TestCase):
     def setUp(self):
         self.control_points = np.array([
             np.array([[1.0,0],[0,1],[0,0]]),
