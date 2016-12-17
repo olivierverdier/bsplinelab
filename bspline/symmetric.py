@@ -97,8 +97,6 @@ class Interpolator():
         """
         Compute new deformations at interior points from old deformations.
         """
-        N = self.size
-
         g = self.geometry
 
         interior_deformations = deformations[1:-1]
