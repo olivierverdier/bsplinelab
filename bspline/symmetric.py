@@ -4,7 +4,7 @@ import numpy as np
 from .geometry import Flat
 from . import BSpline
 
-class BoundaryCondition():
+class BoundaryCondition(object):
     def initialize(self, interpolator):
         self.interpolator = interpolator
 
