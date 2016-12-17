@@ -82,8 +82,7 @@ class Interpolator():
         """
         Compute the interior control points, from the given deformations.
         """
-        N = self.size
-        all_range = range(N)
+        all_range = range(self.size)
         left_range = all_range[shift:]
         right_range = all_range[:-shift]
         geo = self.geometry
