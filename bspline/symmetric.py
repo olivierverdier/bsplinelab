@@ -10,8 +10,8 @@ class BoundaryCondition(object):
 
 class Free(BoundaryCondition):
     def get_boundary_deformations(self, deformations):
-        g = self.interpolator.geometry
-        defs = [s*.5*g.redlog(self.interpolator.interpolation_points[j], g.exp_action(self.interpolator.interpolation_points[i], -s*deformations[i])) for j,i,s in ((0,1,1),(-1,-2,-1))]
+        geo = self.interpolator.geometry
+        defs = [s*.5*geo.redlog(self.interpolator.interpolation_points[j], geo.exp_action(self.interpolator.interpolation_points[i], -s*deformations[i])) for j,i,s in ((0,1,1),(-1,-2,-1))]
         return defs
 
 class Clamped(BoundaryCondition):
@@ -20,8 +20,8 @@ class Clamped(BoundaryCondition):
 
     def initialize(self, interpolator):
         super(Clamped, self).initialize(interpolator)
-        g = interpolator.geometry
-        self.boundary_deformations = [1/3*g.connection(interpolator.interpolation_points[j], self.boundary_velocities[i]) for i,j in ((0,0), (1,-1))]
+        geo = interpolator.geometry
+        self.boundary_deformations = [1/3*geo.connection(interpolator.interpolation_points[j], self.boundary_velocities[i]) for i,j in ((0,0), (1,-1))]
 
     def get_boundary_deformations(self, deformations):
         return self.boundary_deformations
@@ -54,6 +54,7 @@ class Interpolator():
                        geometry=self.geometry)
 
 
+    @classmethod
     def enforce(self, deformations, boundary_deformations):
         for pos, deformation in zip([0,-1], boundary_deformations):
             deformations[pos] = deformation
@@ -85,19 +86,19 @@ class Interpolator():
         all_range = range(N)
         left_range = all_range[shift:]
         right_range = all_range[:-shift]
-        g = self.geometry
+        geo = self.geometry
         for l,r in zip(left_range, right_range):
             # left control point at i+1
-            left = g.exp_action(self.interpolation_points[l], -deformations[l])
+            left = geo.exp_action(self.interpolation_points[l], -deformations[l])
             # right control point at i-1
-            right = g.exp_action(self.interpolation_points[r], deformations[r])
+            right = geo.exp_action(self.interpolation_points[r], deformations[r])
             yield right, left
 
     def interior_deformations(self, deformations):
         """
         Compute new deformations at interior points from old deformations.
         """
-        g = self.geometry
+        geo = self.geometry
 
         interior_deformations = deformations[1:-1]
         sig_left = np.zeros_like(interior_deformations)
@@ -107,10 +108,10 @@ class Interpolator():
                 self.interpolation_points[1:-1],
                 interior_deformations,
                 self.control_points(deformations, shift=2))):
-            pt_left = g.exp_action(left, -d)
-            sig_right[i] = g.redlog(P, pt_left)
-            pt_right = g.exp_action(right, d)
-            sig_left[i] = g.redlog(P, pt_right)
+            pt_left = geo.exp_action(left, -d)
+            sig_right[i] = geo.redlog(P, pt_left)
+            pt_right = geo.exp_action(right, d)
+            sig_left[i] = geo.redlog(P, pt_right)
 
         return (sig_right - sig_left + 2*interior_deformations)/4
 
