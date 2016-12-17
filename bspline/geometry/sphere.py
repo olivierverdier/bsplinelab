@@ -71,3 +71,9 @@ class Sphere(Geometry):
         s = np.inner(P1.conj(),W2).real #
         return (W2-s*P1)/sinc(angle)+s*self.g(angle)*V1
 
+
+    @classmethod
+    def connection(self, P, V):
+        cross = V.reshape(-1,1)*P
+        return cross - cross.T
+
