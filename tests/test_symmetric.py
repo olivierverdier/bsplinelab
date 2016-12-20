@@ -55,6 +55,7 @@ def interpolator(request):
     data = request.param
     data['object'] = Interpolator(data['points'], data['boundary'], geometry=data['geometry'])
     data['spline'] = data['object'].compute_spline()
+    print(data['object'].postmortem)
     return data
 
 
