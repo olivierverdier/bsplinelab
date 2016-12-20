@@ -62,7 +62,7 @@ class Interpolator():
 
     def compute_deformations(self):
         """
-        Compute the control points giving a C2 de Casteljau spline.
+        Compute the deformations leading to a C2 de Casteljau spline.
         """
         deformations = self.geometry.zero_deformations(self.interpolation_points)
         for i in range(self.max_iter):
