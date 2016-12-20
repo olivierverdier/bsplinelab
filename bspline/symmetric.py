@@ -40,6 +40,7 @@ class Interpolator():
         self.geometry = geometry
         self.size = len(self.interpolation_points)
         self.boundary.initialize(self)
+        self.postmortem = {}
 
     def compute_spline(self):
         """
