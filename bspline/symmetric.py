@@ -57,7 +57,10 @@ class Interpolator():
 
     @classmethod
     def enforce(self, deformations, boundary_deformations):
-        for pos, deformation in zip([0,-1], boundary_deformations):
+        """
+        Enforce boundary condition in place.
+        """
+        for pos, deformation in zip([0, -1], boundary_deformations):
             deformations[pos] = deformation
 
 
@@ -66,7 +69,7 @@ class Interpolator():
         Compute the deformations leading to a C2 de Casteljau spline.
         """
         deformations = self.geometry.zero_deformations(self.interpolation_points)
-        for i in range(self.max_iter):
+        for iter in range(self.max_iter):
             interior = self.interior_deformations(deformations)
             error = deformations[1:-1] - interior
             deformations[1:-1] = interior
@@ -76,7 +79,7 @@ class Interpolator():
                 break
         else:
             raise Exception("No convergence in {} steps; error :{} ".format(i, error))
-        self.postmortem = {'error': max_error, 'iterations': i}
+        self.postmortem = {'error': max_error, 'iterations': iter}
         return deformations
 
     def control_points(self, deformations, shift=1):
