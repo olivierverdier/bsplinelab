@@ -51,9 +51,11 @@ class Geometry(object):
         """
         raise NotImplementedError()
 
-    def redlog(self, P1, P2):
-        result = self.connection(P1, self.log(P1, P2))
-        return result
+    def redexp(self, P, V):
+        """
+        Default implementation of reduced exponential.
+        """
+        return exponential(self.connection(P, V))
 
     @classmethod
     def connection(self, P, V):
@@ -62,12 +64,6 @@ class Geometry(object):
         """
         raise NotImplementedError()
 
-    def exp_action(self, P, D):
-        """
-        Action of exp(D) on P.
-        """
-        return self.action(exponential(D), P)
-
     def action(self, M, P):
         """
         Action of group element M on point P.
@@ -75,12 +71,6 @@ class Geometry(object):
         """
         return np.dot(M, P)
 
-    @classmethod
-    def zero_deformations(self, points):
-        """
-        Auxiliary method to produce zero deformations.
-        """
-        return np.array([self.connection(P,np.zeros_like(P)) for P in points])
 
 
 import numpy as np
