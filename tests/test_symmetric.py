@@ -4,8 +4,7 @@ import pytest
 import numpy as np
 
 from bspline import geometry
-from bspline.symmetric import Interpolator, make_boundaries
-from bspline.c2spline import implicitc2spline
+from bspline.symmetric import Interpolator, Riemann, make_boundaries
 
 
 spline_data = [
@@ -32,38 +31,33 @@ spline_data = [
     },
 ]
 
-def get_riemann_boundary(boundaries):
-    if (boundaries[0] is None) and (boundaries[1] is None):
-        return None
-    else:
-        return boundaries
 
 @pytest.fixture(params=spline_data)
 def interpolator(request):
     data = request.param
-    data['object'] = Interpolator(data['points'], make_boundaries(*data['boundary']), geometry=data['geometry'])
-    data['spline'] = data['object'].compute_spline()
-    data['Rspline'] = implicitc2spline(data['points'], get_riemann_boundary(data['boundary']), geometry=data['geometry'])
-    print(data['object'].postmortem)
+    data['symmetric'] = Interpolator(data['points'], make_boundaries(*data['boundary']), geometry=data['geometry'])
+    data['riemann'] = Riemann(data['points'], make_boundaries(*data['boundary']), geometry=data['geometry'])
+    data['Sspline'] = data['symmetric'].compute_spline()
+    data['Rspline'] = data['riemann'].compute_spline()
+    print(data['symmetric'].postmortem, data['riemann'].postmortem)
     return data
-
 
 def test_control_points(interpolator):
     """
     Test that the spline control points are the same as the Riemann implementation.
     """
     Rspline = interpolator['Rspline']
-    Sspline = interpolator['spline']
+    Sspline = interpolator['Sspline']
     npt.assert_almost_equal(Rspline.control_points, Sspline.control_points)
 
 
 def test_interpolate(interpolator):
-    s = interpolator['spline']
+    s = interpolator['Sspline']
     for i,P in enumerate(interpolator['points']):
         npt.assert_allclose(s(i), P)
 
 def test_maxiter(interpolator):
-    I = interpolator['object']
+    I = interpolator['symmetric']
     with pytest.raises(Exception):
         I.max_iter = 0
         I.compute_spline()
@@ -88,7 +82,7 @@ def test_c2(interpolator, margin=.5):
     """
     Test that the resulting spline i C2.
     """
-    b = interpolator['spline']
+    b = interpolator['Sspline']
     errs = np.array(list(gen_log10_errors(b, 1.5))).T
     imax = np.argmin(errs[1])
     emax = errs[0,imax] # maximum h exponent at a regular point
@@ -101,7 +95,7 @@ def test_c2(interpolator, margin=.5):
 def test_on_manifold(interpolator, N=40):
     max = len(interpolator['points']) - 1
     ts = max*np.random.rand(N)
-    pts = interpolator['spline'](ts)
+    pts = interpolator['Sspline'](ts)
     npt.assert_allclose(*interpolator['geometry'].on_manifold(pts))
 
 
