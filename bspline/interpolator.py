@@ -63,3 +63,6 @@ class Interpolator():
         return BSpline(control_points=spline_control_points,
                        knots=self.get_knots(),
                        geometry=self.geometry)
+
+    def increment(self, velocities):
+        raise NotImplementedError()
