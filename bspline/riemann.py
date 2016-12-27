@@ -10,7 +10,7 @@ class Riemann(Interpolator):
         for q1, q2 in zip (q1s, q2s):
             yield self.geometry.log(q1, q2)
 
-    def iterate(self, velocities):
+    def increment(self, velocities):
         qRs = list(self.generate_controls(self.interpolation_points[:-1], velocities[:-1]))
         qLs = list(self.generate_controls(self.interpolation_points[1:], -velocities[1:]))
         wRs = self.generate_logs(qRs[1:], qLs[1:])

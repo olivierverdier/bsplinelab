@@ -11,7 +11,7 @@ class Symmetric(Interpolator):
             control = self.geometry.action(g, p)
             yield g, control
 
-    def iterate(self, velocities):
+    def increment(self, velocities):
         gRs, qRs = list(zip(*self.generate_controls(self.interpolation_points[:-1], velocities[:-1])))
         gLs, qLs = list(zip(*self.generate_controls(self.interpolation_points[1:], -velocities[1:])))
         delta = np.zeros_like(velocities[1:-1])

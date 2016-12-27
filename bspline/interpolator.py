@@ -28,7 +28,7 @@ class Interpolator():
         velocities = np.zeros_like(self.interpolation_points)
         for iter in range(self.max_iter):
             [boundary.enforce(velocities) for boundary in self.boundaries]
-            qRs, qLs, delta = self.iterate(velocities)
+            qRs, qLs, delta = self.increment(velocities)
             velocities[1:-1] += delta
             error = np.max(np.abs(delta))
             if error < self.tolerance:
