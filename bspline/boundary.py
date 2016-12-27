@@ -11,12 +11,13 @@ class BoundaryCondition(object):
 
 class Free(BoundaryCondition):
     def get_boundary_velocity(self, velocities):
-        neighbour = self.position + self.direction
+        neighbour_index = self.position + self.direction
+        neighbour = self.interpolator.interpolation_points[neighbour_index]
         geo = self.interpolator.geometry
-        g = geo.redexp(self.interpolator.interpolation_points[neighbour], -self.direction*velocities[neighbour])
+        g = geo.redexp(neighbour, -self.direction*velocities[neighbour_index])
         vel = self.direction*.5*geo.log(
             self.interpolator.interpolation_points[self.position],
-            geo.action(g, self.interpolator.interpolation_points[neighbour])
+            geo.action(g, neighbour)
         )
         return vel
 
