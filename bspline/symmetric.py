@@ -31,6 +31,22 @@ class Interpolator():
             control = self.geometry.action(g, p)
             yield g, control
 
+    def iterate(self, velocities):
+        gRs, qRs = list(zip(*self.generate_controls(self.interpolation_points[:-1], velocities[:-1])))
+        gLs, qLs = list(zip(*self.generate_controls(self.interpolation_points[1:], -velocities[1:])))
+        delta = np.zeros_like(velocities[1:-1])
+        gen = zip(
+            self.interpolation_points[1:-1],
+            velocities[1:-1],
+            gLs[:-1],
+            qLs[1:],
+            gRs[1:],
+            qRs[:-1],
+        )
+        for i, (p, v, gL, qL, gR, qR) in enumerate(gen):
+            delta[i] = self.geometry.log(p, self.geometry.action(gL, qL)) - self.geometry.log(p, self.geometry.action(gR, qR)) - 2*v
+        return qRs, qLs, delta/4
+
     def compute_controls(self):
         """
         Main fixed point algorithm.
@@ -38,20 +54,8 @@ class Interpolator():
         velocities = np.zeros_like(self.interpolation_points)
         for iter in range(self.max_iter):
             [boundary.enforce(velocities) for boundary in self.boundaries]
-            gRs, qRs = list(zip(*self.generate_controls(self.interpolation_points[:-1], velocities[:-1])))
-            gLs, qLs = list(zip(*self.generate_controls(self.interpolation_points[1:], -velocities[1:])))
-            delta = np.zeros_like(velocities[1:-1])
-            gen = zip(
-                self.interpolation_points[1:-1],
-                velocities[1:-1],
-                gLs[:-1],
-                qLs[1:],
-                gRs[1:],
-                qRs[:-1],
-            )
-            for i, (p, v, gL, qL, gR, qR) in enumerate(gen):
-                delta[i] = self.geometry.log(p, self.geometry.action(gL, qL)) - self.geometry.log(p, self.geometry.action(gR, qR)) - 2*v
-            velocities[1:-1] += delta/4
+            qRs, qLs, delta = self.iterate(velocities)
+            velocities[1:-1] += delta
             error = np.max(np.abs(delta))
             if error < self.tolerance:
                 break
