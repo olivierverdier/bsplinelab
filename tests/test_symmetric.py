@@ -4,7 +4,9 @@ import pytest
 import numpy as np
 
 from bspline import geometry
-from bspline.symmetric import Symmetric, Riemann, make_boundaries
+from bspline.symmetric import Symmetric
+from bspline.riemann import Riemann
+from bspline.boundary import make_boundaries
 
 
 spline_data = [
