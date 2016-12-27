@@ -6,8 +6,8 @@ from . import BSpline
 from .boundary import make_boundaries
 
 
-def cubic_spline(interpolation_points, boundaries=(None, None), geometry=Flat()):
-    I = Interpolator(interpolation_points, make_boundaries(*boundaries), geometry)
+def cubic_spline(InterpolationClass, interpolation_points, boundaries=(None, None), geometry=Flat()):
+    I = InterpolationClass(interpolation_points, make_boundaries(*boundaries), geometry)
     return I.compute_spline()
 
 class Interpolator():
@@ -65,6 +65,7 @@ class Interpolator():
                        knots=self.get_knots(),
                        geometry=self.geometry)
 
+class Symmetric(Interpolator):
     def generate_controls(self, points, velocities):
         """
         Generate movements and control points.

@@ -4,7 +4,7 @@ import pytest
 import numpy as np
 
 from bspline import geometry
-from bspline.symmetric import Interpolator, Riemann, make_boundaries
+from bspline.symmetric import Symmetric, Riemann, make_boundaries
 
 
 spline_data = [
@@ -35,7 +35,7 @@ spline_data = [
 @pytest.fixture(params=spline_data)
 def interpolator(request):
     data = request.param
-    data['symmetric'] = Interpolator(data['points'], make_boundaries(*data['boundary']), geometry=data['geometry'])
+    data['symmetric'] = Symmetric(data['points'], make_boundaries(*data['boundary']), geometry=data['geometry'])
     data['riemann'] = Riemann(data['points'], make_boundaries(*data['boundary']), geometry=data['geometry'])
     data['Sspline'] = data['symmetric'].compute_spline()
     data['Rspline'] = data['riemann'].compute_spline()
