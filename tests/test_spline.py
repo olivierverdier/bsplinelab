@@ -4,6 +4,7 @@ from __future__ import division
 
 import numpy.testing as npt
 import unittest
+import pytest
 
 import numpy as np
 
@@ -33,7 +34,7 @@ def get_basis(n):
     return spline
 
 class TestGeodesic(unittest.TestCase):
-    @unittest.skip("This will not work with current implementation of geodesic")
+    @pytest.mark.skip("This will not work with current implementation of geodesic")
     def test_single_geodesic(self):
         G = geometry.Geometry()
         P1 = np.array([0.,0])
@@ -91,14 +92,14 @@ class Test_BSpline(unittest.TestCase):
         }
         self.b = BSpline(**ex2)
 
-    @unittest.skip("Obselete test")
+    @pytest.mark.skip("Obselete test")
     def test_wrong_knot(self):
         with self.assertRaises(ValueError):
             self.b(3.5, lknot=1)
         with self.assertRaises(ValueError):
             self.b(3.5, lknot=4)
 
-    @unittest.skip("fix later")
+    @pytest.mark.skip("fix later")
     def test_vectorize(self):
         control_points = np.array([0.,1.]*2)
         knots = np.arange(5)
@@ -134,7 +135,7 @@ class Test_BSpline3(unittest.TestCase):
 import os
 
 class TestDemo(unittest.TestCase):
-    @unittest.skip("Testing the demo notebook")
+    @pytest.mark.skip("Testing the demo notebook")
     def test_demo(self):
         import nbformat
         from nbconvert.preprocessors.execute import ExecutePreprocessor
@@ -212,7 +213,7 @@ class TestSphere(unittest.TestCase):
         b = Spline(control_points, geometry=geo)
         npt.assert_allclose(b(.5), P)
 
-    @unittest.skip("Wasn't able to make this work with new structure")
+    @pytest.mark.skip("Wasn't able to make this work with new structure")
     def test_geodesic(self):
         """
         This test is not optimal, ideally, it would compare the two geodesic functions directly, without computing any splines.
