@@ -28,14 +28,12 @@ class TestBezierKnots(unittest.TestCase):
         self.assertEqual(self.knots.left_knot(.2), 1)
         self.assertEqual(self.knots.left_knot(.8), 1)
 
-class TestDoubleQuadKnots(unittest.TestCase):
-    def setUp(self):
-        self.knots = Knots([0,0,.5,1,1], degree=2)
 
-    def test_info(self):
-        self.assertEqual(self.knots.degree, 2)
-        self.assertEqual(self.knots.nb_curves,2)
-        self.assertEqual(len(self.knots.knot_range()), self.knots.nb_curves)
+def test_info():
+    knots = Knots([0,0,.5,1,1], degree=2)
+    assert knots.degree == 2
+    assert knots.nb_curves == 2
+    assert len(knots.knot_range()) == knots.nb_curves
 
 class TestDoubleQuadSpline(unittest.TestCase):
     def setUp(self):
