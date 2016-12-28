@@ -4,29 +4,23 @@ from __future__ import division
 
 import numpy.testing as npt
 import unittest
+import pytest
 
 import numpy as np
 
 from bspline.knots import Knots, get_basis_knots
 
-def get_canonical_knots(n):
-    knots = np.arange(3*n) - (3*n-1)/2
-    knots[:n-1] = knots[n-1]
-    knots[-(n-1):] = knots[-n]
-    return Knots(knots, degree=n)
+@pytest.fixture
+def knots():
+    return Knots(np.array([0.,0,1,1]), degree=2)
 
+def test_intervals(knots):
+    intervals = list(knots.intervals())
+    assert len(intervals) == knots.nb_curves
 
-class TestBezierKnots(unittest.TestCase):
-    def setUp(self):
-        self.knots = Knots(np.array([0.,0,1,1]), degree=2)
-
-    def test_intervals(self):
-        intervals = list(self.knots.intervals())
-        self.assertEqual(len(intervals), self.knots.nb_curves)
-
-    def test_left_knot(self):
-        self.assertEqual(self.knots.left_knot(.2), 1)
-        self.assertEqual(self.knots.left_knot(.8), 1)
+def test_left_knot(knots):
+    assert knots.left_knot(.2) == 1
+    assert knots.left_knot(.8) == 1
 
 
 def test_info():
@@ -102,6 +96,12 @@ def test_sum_to_one():
         vals.append(vals_b)
     avals = np.array(vals)
     npt.assert_allclose(np.sum(avals[:,:,:,1], axis=0), 1.)
+
+def get_canonical_knots(n):
+    knots = np.arange(3*n) - (3*n-1)/2
+    knots[:n-1] = knots[n-1]
+    knots[-(n-1):] = knots[-n]
+    return Knots(knots, degree=n)
 
 ## def test_canonical(self):
 ##      ck = get_canonical_knots(5)
