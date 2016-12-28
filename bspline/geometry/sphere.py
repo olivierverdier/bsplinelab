@@ -77,3 +77,10 @@ class Sphere(Geometry):
         cross = V.reshape(-1,1)*P
         return cross - cross.T
 
+    def random_direction(self, size):
+        p = np.random.rand(size)
+        p =p/np.linalg.norm(p)
+        v = np.random.rand(size)
+        v = v-np.inner(p,v)*p
+        v= v/(2*np.linalg.norm(v))
+        return p,v

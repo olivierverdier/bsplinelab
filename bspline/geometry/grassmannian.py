@@ -62,3 +62,13 @@ class Grassmannian(Geometry):
         B = A/sinhc(L2)
         UU = (V.dot(B).dot(V.T.conj())).real
         return Q1.dot(UU[k:,:k])
+
+    def random_direction(self, size):
+        i,j = size
+        p = np.random.randn(i,j)
+        p = np.linalg.qr(p)[0]
+        v = np.array([4])
+        while np.linalg.norm(v, 2)>=0.5* np.pi:
+            v = np.random.randn(i,j)/(100*np.sqrt(i))
+            v = v-p.dot(p.T).dot(v) # norm(v)> pi might cause problems.
+        return p, v
