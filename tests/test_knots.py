@@ -66,14 +66,13 @@ class TestBigKnot(unittest.TestCase):
         k = Knots(np.arange(10))
         self.assertEqual(len(k.knot_range()), 0)
 
-class TestAbscissae(unittest.TestCase):
-    def test_abscissae(self):
-        pts = np.random.random_sample([7,2])
-        knots = [0,0,0,2,3,4,5,5,5]
-        K = Knots(knots, degree=3)
-        computed = K.abscissae()
-        expected = np.array([0, 2/3, 5/3, 3, 4, 14/3, 5]) # values from Sederberg §6.14
-        npt.assert_allclose(computed, expected)
+def test_abscissae():
+    pts = np.random.random_sample([7,2])
+    knots = [0,0,0,2,3,4,5,5,5]
+    K = Knots(knots, degree=3)
+    computed = K.abscissae()
+    expected = np.array([0, 2/3, 5/3, 3, 4, 14/3, 5]) # values from Sederberg §6.14
+    npt.assert_allclose(computed, expected)
 
 def test_nonuniform():
     a,b,c = 0., 2.5, 8
