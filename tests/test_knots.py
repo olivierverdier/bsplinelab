@@ -3,7 +3,6 @@
 from __future__ import division
 
 import numpy.testing as npt
-import unittest
 import pytest
 
 import numpy as np
@@ -36,29 +35,33 @@ def test_intervals():
     intervals = list(K.intervals())
     assert len(intervals) == K.nb_curves
 
-class TestBigKnot(unittest.TestCase):
-    def setUp(self):
-        self.values = np.array([1.,2.,3.,4.,5.,6.,7.])
-        self.knots = Knots(self.values, degree=3)
+@pytest.fixture
+def long_knots():
+    values = np.array([1.,2.,3.,4.,5.,6.,7.])
+    knots = Knots(values, degree=3)
+    return knots
 
-    def test_get_item(self):
-        for i,v in enumerate(self.values):
-            self.assertEqual(self.knots[i], self.values[i])
+def test_get_item(long_knots):
+    values = long_knots.knots
+    for i,v in enumerate(values):
+        assert long_knots[i] == values[i]
 
-    def test_left_knot(self):
-        self.assertEqual(self.knots.left_knot(3.8), 2)
-        self.assertEqual(self.knots.left_knot(3.2), 2)
-        self.assertEqual(self.knots.left_knot(4.8), 3)
-        self.assertEqual(self.knots.left_knot(4.0), 3)
-        self.assertEqual(self.knots.left_knot(4.0-1e-14), 3)
-        with self.assertRaises(ValueError):
-            self.knots.left_knot(2.5)
-        with self.assertRaises(ValueError):
-            self.knots.left_knot(5.5)
+def test_left_knot(long_knots):
+    knots = long_knots
+    assert knots.left_knot(3.8) == 2
+    assert knots.left_knot(3.2) == 2
+    assert knots.left_knot(4.8) == 3
+    assert knots.left_knot(4.0) == 3
+    assert knots.left_knot(4.0-1e-14) == 3
+    with pytest.raises(ValueError):
+        knots.left_knot(2.5)
+    with pytest.raises(ValueError):
+        knots.left_knot(5.5)
 
-    def test_knot_range(self):
-        k = Knots(np.arange(10))
-        self.assertEqual(len(k.knot_range()), 0)
+def test_knot_range(long_knots):
+    knots = long_knots
+    k = Knots(np.arange(10))
+    assert len(k.knot_range()) == 0
 
 def test_abscissae():
     pts = np.random.random_sample([7,2])
