@@ -75,40 +75,39 @@ class TestAbscissae(unittest.TestCase):
         expected = np.array([0, 2/3, 5/3, 3, 4, 14/3, 5]) # values from Sederberg §6.14
         npt.assert_allclose(computed, expected)
 
-class TestBasis(unittest.TestCase):
-    def test_nonuniform(self):
-        a,b,c = 0., 2.5, 8
-        ck = get_basis_knots([a,b,c]).get_basis()
-        npt.assert_allclose(ck(a)[1], 0)
-        npt.assert_allclose(ck(b)[1], 1.)
-        npt.assert_allclose(ck(c)[1], 0.)
+def test_nonuniform():
+    a,b,c = 0., 2.5, 8
+    ck = get_basis_knots([a,b,c]).get_basis()
+    npt.assert_allclose(ck(a)[1], 0)
+    npt.assert_allclose(ck(b)[1], 1.)
+    npt.assert_allclose(ck(c)[1], 0.)
 
-    def test_constant_abscissae(self):
-        k = get_basis_knots(np.arange(2))
-        k.abscissae()
+def test_constant_abscissae():
+    k = get_basis_knots(np.arange(2))
+    k.abscissae()
 
-    def test_sum_to_one(self):
-        """
-        Check that the basis functions sum up to one.
-        """
-        w = [ 0, 0, 0, 1/3, 2/3, 1, 1, 1]
-        wk = Knots(w, degree=3)
-        basis = [wk.get_basis(i) for i in range(6)]
-        vals = []
-        for b in basis:
-            vals_b = []
-            for s in b:
-                l,r = s.interval
-                ts = np.linspace(l,r)
-                vals_b.append(s(ts))
-            vals.append(vals_b)
-        avals = np.array(vals)
-        npt.assert_allclose(np.sum(avals[:,:,:,1], axis=0), 1.)
+def test_sum_to_one():
+    """
+    Check that the basis functions sum up to one.
+    """
+    w = [ 0, 0, 0, 1/3, 2/3, 1, 1, 1]
+    wk = Knots(w, degree=3)
+    basis = [wk.get_basis(i) for i in range(6)]
+    vals = []
+    for b in basis:
+        vals_b = []
+        for s in b:
+            l,r = s.interval
+            ts = np.linspace(l,r)
+            vals_b.append(s(ts))
+        vals.append(vals_b)
+    avals = np.array(vals)
+    npt.assert_allclose(np.sum(avals[:,:,:,1], axis=0), 1.)
 
-    ## def test_canonical(self):
-    ##      ck = get_canonical_knots(5)
-    ##      cb = ck.get_basis()
-    ##      k = get_basis_knots(np.arange(5) - 2)
-    ##      kb = k.get_basis()
-    ##      b = get_basis(5)
-    ##      npt.assert_allclose(cb(0.), b(0.))
+## def test_canonical(self):
+##      ck = get_canonical_knots(5)
+##      cb = ck.get_basis()
+##      k = get_basis_knots(np.arange(5) - 2)
+##      kb = k.get_basis()
+##      b = get_basis(5)
+##      npt.assert_allclose(cb(0.), b(0.))
