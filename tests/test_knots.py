@@ -100,16 +100,3 @@ def test_sum_to_one():
     avals = np.array(vals)
     npt.assert_allclose(np.sum(avals[:,:,:,1], axis=0), 1.)
 
-def get_canonical_knots(n):
-    knots = np.arange(3*n) - (3*n-1)/2
-    knots[:n-1] = knots[n-1]
-    knots[-(n-1):] = knots[-n]
-    return Knots(knots, degree=n)
-
-## def test_canonical(self):
-##      ck = get_canonical_knots(5)
-##      cb = ck.get_basis()
-##      k = get_basis_knots(np.arange(5) - 2)
-##      kb = k.get_basis()
-##      b = get_basis(5)
-##      npt.assert_allclose(cb(0.), b(0.))
