@@ -35,14 +35,12 @@ def test_info():
     assert knots.nb_curves == 2
     assert len(knots.knot_range()) == knots.nb_curves
 
-class TestDoubleQuadSpline(unittest.TestCase):
-    def setUp(self):
-        self.knots = np.array([0,0,.5,1,1])
 
-    def test_intervals(self):
-        K = Knots(self.knots, degree=3)
-        intervals = list(K.intervals())
-        self.assertEqual(len(intervals), K.nb_curves)
+def test_intervals():
+    knots = np.array([0,0,.5,1,1])
+    K = Knots(knots, degree=3)
+    intervals = list(K.intervals())
+    assert len(intervals) == K.nb_curves
 
 class TestBigKnot(unittest.TestCase):
     def setUp(self):
