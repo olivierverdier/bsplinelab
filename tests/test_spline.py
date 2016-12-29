@@ -3,7 +3,6 @@
 from __future__ import division
 
 import numpy.testing as npt
-import unittest
 import pytest
 
 import numpy as np
@@ -33,18 +32,17 @@ def get_basis(n):
     spline = BSpline(knots, control_points)
     return spline
 
-class TestGeodesic(unittest.TestCase):
-    @pytest.mark.skip("This will not work with current implementation of geodesic")
-    def test_single_geodesic(self):
-        G = geometry.Geometry()
-        P1 = np.array([0.,0])
-        P2 = np.array([1.,1])
-        theta = np.linspace(0,1)
-        return G.geodesic(P1,P2,theta)
+@pytest.mark.skip("This will not work with current implementation of geodesic")
+def test_single_geodesic():
+    G = geometry.Geometry()
+    P1 = np.array([0.,0])
+    P2 = np.array([1.,1])
+    theta = np.linspace(0,1)
+    return G.geodesic(P1,P2,theta)
 
 
-class TestBezier(unittest.TestCase):
-    def setUp(self):
+class TestBezier():
+    def setup_method(self, method):
         self.controls = np.array([[1.,1],[0,-1],[-1,1]])
         self.b = Spline(self.controls)
 
@@ -67,8 +65,8 @@ class TestBezier(unittest.TestCase):
         b_ = BSpline(self.controls)
 
 
-class TestDoubleQuadSpline(unittest.TestCase):
-    def setUp(self):
+class TestDoubleQuadSpline():
+    def setup_method(self, method):
         controls = np.array([[-1,1],[0,-1],[2.,3],[3,1]])
         self.knots = np.array([0,0,.5,1,1])
         self.spline = BSpline(knots=self.knots, control_points=controls)
@@ -79,13 +77,13 @@ class TestDoubleQuadSpline(unittest.TestCase):
         npt.assert_array_almost_equal(-(a1[:,0]-2)**2, a1[:,1]-2)
 
     def test_outside_interval(self):
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             self.spline(10.)
 
 
 
-class Test_BSpline(unittest.TestCase):
-    def setUp(self):
+class Test_BSpline():
+    def setup_method(self, method):
         ex2 = {
         'control_points': np.array([[1.,2], [2,3], [2,5], [1,6], [1,9]]),
         'knots': np.array([1.,2.,3.,4.,5.,6.,7.])
@@ -117,8 +115,8 @@ class Test_BSpline(unittest.TestCase):
 
 
 
-class Test_BSpline3(unittest.TestCase):
-    def setUp(self):
+class Test_BSpline3():
+    def setup_method(self, method):
         ex2 = {
         'control_points': np.array([[1.,2,0], [2,3,1], [2,5,3], [1,6,3], [1,9,2]]),
         'knots': np.array([1.,2.,3.,4.,5.,6.,7.])
@@ -129,49 +127,22 @@ class Test_BSpline3(unittest.TestCase):
         self.b(3.5)
 
     def test_scalar_shape(self):
-        self.assertEqual(np.shape(self.b(3.5)), (3,))
+        assert np.shape(self.b(3.5)) == (3,)
 
 
 import os
 
-class TestDemo(unittest.TestCase):
-    @pytest.mark.skip("Testing the demo notebook")
-    def test_demo(self):
-        import nbformat
-        from nbconvert.preprocessors.execute import ExecutePreprocessor
-        here = os.path.dirname(__file__)
-        demo = os.path.join(here,'Demo.ipynb')
-        nb = nbformat.read(demo, as_version=4)
-        pp = ExecutePreprocessor()
-        pp.allow_errors = False
-        pp.preprocess(nb, resources={})
+@pytest.mark.skip("Testing the demo notebook")
+def test_demo():
+    import nbformat
+    from nbconvert.preprocessors.execute import ExecutePreprocessor
+    here = os.path.dirname(__file__)
+    demo = os.path.join(here,'Demo.ipynb')
+    nb = nbformat.read(demo, as_version=4)
+    pp = ExecutePreprocessor()
+    pp.allow_errors = False
+    pp.preprocess(nb, resources={})
 
-class TestMatrix(unittest.TestCase):
-    def setUp(self):
-        self.control_points = np.array([
-            np.identity(3),
-            np.array([[0.0,1,0],
-                      [-1,0,0],
-                      [0,0,1]]),
-            np.array([[1.0,0,0],
-                      [0, 0, -1],
-                      [0,1,0]]),
-            np.identity(3)])
-        self.b1 = Spline(self.control_points)
-
-    def test_call(self):
-        self.b1(.5)
-
-    def test_geometry(self):
-        self.bg = Spline(self.control_points[1:], geometry=geometry.SO3())
-        mat = self.bg(.5)
-        npt.assert_allclose(np.dot(mat, mat.T), np.identity(3), atol=1e-15)
-        npt.assert_allclose(self.bg(0), self.control_points[1])
-
-    def test_geo_vectorize(self):
-        self.bg = Spline(self.control_points[1:], geometry=geometry.SO3())
-        mats = self.bg(np.linspace(0,.5,10))
-        npt.assert_allclose(mats[0], self.control_points[1])
 
 spline_data = [
     {
@@ -181,6 +152,19 @@ spline_data = [
             [0,1,0],
             [0,0,0],
         ]),
+    },
+    {
+        'geometry': geometry.SO3(),
+        'controls': np.array([
+            np.identity(3),
+            np.array([[0.0,1,0],
+                      [-1,0,0],
+                      [0,0,1]]),
+            np.array([[1.0,0,0],
+                      [0, 0, -1],
+                      [0,1,0]]),
+            np.identity(3)
+            ]),
     },
     {
         'geometry': geometry.Sphere(),
@@ -244,12 +228,16 @@ def test_geo_vectorize(spline):
     npt.assert_allclose(pts[0], spline['controls'][0])
 
 def test_stable_geodesic(spline):
+    if isinstance(spline['geometry'], geometry.SO3):
+        pytest.xfail("no trivial geodesics")
     SG = spline['geometry']
     P1 = spline['controls'][0]
     P = SG.geodesic(np.array([P1]), np.array([P1]), np.array([[[.5]]]))
     npt.assert_allclose(P1, P.squeeze())
 
 def test_trivial_bezier(spline):
+    if isinstance(spline['geometry'], geometry.SO3):
+        pytest.xfail("no trivial geodesics")
     P = spline['controls'][0]
     control_points = [P]*3
     geo = spline['geometry']
