@@ -4,10 +4,8 @@ import pytest
 import numpy as np
 
 from bspline import geometry
-from bspline.exponential import Exponential
-from bspline.riemann import Riemann
-from bspline.symmetric import Symmetric
-from bspline.boundary import make_boundaries
+from bspline.interpolation import Riemann, Exponential, Symmetric
+from bspline.interpolation.boundary import make_boundaries
 
 def get_points_matrix(N=8, n=3, k=2):
     P1 = np.vstack((np.eye(k), np.zeros((n-k,k))))

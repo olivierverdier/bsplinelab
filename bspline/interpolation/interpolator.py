@@ -1,7 +1,7 @@
 import numpy as np
 
-from .geometry import Flat
-from . import BSpline
+from ..geometry import Flat
+from .. import BSpline
 from .boundary import make_boundaries
 
 
