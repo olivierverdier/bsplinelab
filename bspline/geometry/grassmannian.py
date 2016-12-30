@@ -91,7 +91,5 @@ class Grassmannian(Geometry):
         """
         shape = Ps.shape
         expected = np.array([np.identity(shape[2])]*shape[0])
-        # T_ikk' = ∑_j P_ikj P_ijkk'
         computed = np.einsum('ijk,ijl->ikl', Ps, Ps)
-        # return np.tensordot(Ps.transpose((0,2,1)), Ps, (2,1)), expected
         return computed, expected
