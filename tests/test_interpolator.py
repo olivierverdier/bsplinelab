@@ -72,7 +72,7 @@ def test_interpolate(interpolator):
     s = interpolator['Rspline']
     g = interpolator['geometry']
     for i,P in enumerate(interpolator['points']):
-        npt.assert_allclose(g.projection(s(i)), g.projection(P))
+        npt.assert_allclose(g.projection(s(i)), g.projection(P), atol=1e-13)
 
 def test_maxiter(interpolator):
     I = interpolator['riemann']
