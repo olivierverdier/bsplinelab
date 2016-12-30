@@ -4,7 +4,7 @@ import pytest
 import numpy as np
 
 from bspline import geometry
-from bspline.symmetric import Symmetric
+from bspline.exponential import Exponential
 from bspline.riemann import Riemann
 from bspline.boundary import make_boundaries
 
@@ -61,8 +61,8 @@ def test_control_points(interpolator):
     Test that the spline control points are the same as the Riemann implementation.
     """
     if isinstance(interpolator['geometry'], geometry.Grassmannian):
-        pytest.xfail("Symmetric algorithm for Grassmannian not implemented")
-    I = Symmetric(interpolator['points'], make_boundaries(*interpolator['boundary']), geometry=interpolator['geometry'])
+        pytest.xfail("Exponential algorithm for Grassmannian not implemented")
+    I = Exponential(interpolator['points'], make_boundaries(*interpolator['boundary']), geometry=interpolator['geometry'])
     Sspline = I.compute_spline()
     Rspline = interpolator['Rspline']
     npt.assert_almost_equal(Rspline.control_points, Sspline.control_points)

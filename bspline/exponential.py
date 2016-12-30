@@ -1,7 +1,7 @@
 import numpy as np
 from .interpolator import Interpolator
 
-class Symmetric(Interpolator):
+class Exponential(Interpolator):
     def generate_controls(self, points, velocities):
         """
         Generate movements and control points.
