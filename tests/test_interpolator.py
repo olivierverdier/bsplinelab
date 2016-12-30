@@ -6,6 +6,7 @@ import numpy as np
 from bspline import geometry
 from bspline.exponential import Exponential
 from bspline.riemann import Riemann
+from bspline.symmetric import Symmetric
 from bspline.boundary import make_boundaries
 
 def get_points_matrix(N=8, n=3, k=2):
@@ -56,16 +57,16 @@ def interpolator(request):
     print(data['riemann'].postmortem)
     return data
 
-def test_control_points(interpolator):
+@pytest.mark.parametrize('cls', [Exponential, Symmetric])
+def test_control_points(interpolator, cls):
     """
-    Test that the spline control points are the same as the Riemann implementation.
+    Test that the spline control points are the same for the three interpolations
     """
-    if isinstance(interpolator['geometry'], geometry.Grassmannian):
+    if isinstance(interpolator['geometry'], geometry.Grassmannian) and cls == Exponential:
         pytest.xfail("Exponential algorithm for Grassmannian not implemented")
-    I = Exponential(interpolator['points'], make_boundaries(*interpolator['boundary']), geometry=interpolator['geometry'])
-    Sspline = I.compute_spline()
-    Rspline = interpolator['Rspline']
-    npt.assert_almost_equal(Rspline.control_points, Sspline.control_points)
+    spline = cls(interpolator['points'], make_boundaries(*interpolator['boundary']), geometry=interpolator['geometry']).compute_spline()
+    expected = interpolator['Rspline'].control_points
+    npt.assert_almost_equal(spline.control_points, expected)
 
 
 def test_interpolate(interpolator):
