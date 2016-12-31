@@ -32,4 +32,4 @@ class Projective(Sphere):
         """
         Projection onto unique coordinate space.
         """
-        return 1j*np.einsum('...i,...j->...ij', P1, P1)
+        return 1j*np.einsum('...i,...j->...ij', P1, P1.conj())
