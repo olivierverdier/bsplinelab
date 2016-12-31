@@ -1,5 +1,6 @@
 import numpy as np
 from . import Sphere
+from . import  sinc
 
 class Projective(Sphere):
     def __init__(self):
