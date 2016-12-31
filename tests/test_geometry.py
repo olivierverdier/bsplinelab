@@ -60,3 +60,10 @@ def test_explog(geo):
         w = geo['geometry'].log(p, q)
         npt.assert_allclose(v, w, atol=1e-15)
 
+def test_on_manifold(geo):
+    """
+    Make sure that random_direction generates points on the manifold.
+    """
+    for size in geo['sizes']:
+        p, v = geo['geometry'].random_direction(size)
+        npt.assert_allclose(*geo['geometry'].on_manifold(np.array([p])), atol=1e-13)

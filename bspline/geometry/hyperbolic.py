@@ -45,3 +45,9 @@ class Hyperbolic(Geometry):
         vv=np.random.randn(size)
         v = np.insert(vv, 0, np.inner(pp,vv)/p[0])
         return p, v
+
+    def on_manifold(self, Ps):
+        Ps2 = np.square(Ps)
+        constraint = Ps2[:, 0] - np.sum(Ps2[:, 1:], axis=1)
+        return constraint, 1.
+
