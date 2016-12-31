@@ -99,9 +99,10 @@ def test_c2(interpolator, margin=.5):
         assert errs[1,imax] <= err
 
 def test_on_manifold(interpolator, N=40):
-    max = len(interpolator['points']) - 1
-    ts = max*np.random.rand(N)
-    pts = interpolator['Rspline'](ts)
+    """
+    Test that the control points are on the manifold.
+    """
+    pts = interpolator['Rspline'].control_points
     npt.assert_allclose(*interpolator['geometry'].on_manifold(pts), atol=1e-13)
 
 
