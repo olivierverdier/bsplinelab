@@ -9,7 +9,7 @@ class Sphere(Geometry):
 
     @classmethod
     def on_manifold(self, P):
-        return np.sum(np.square(P), axis=1), 1
+        return np.sum(P.conj()*P, axis=1), 1
 
     def geodesic(self, P1, P2, theta):
         """
