@@ -43,7 +43,12 @@ spline_data = [
         'geometry': geometry.Grassmannian(),
         'points' : get_points_matrix(),
         'boundary' : (np.array([[0.0,0.0], [0.0,0.0], [1.0,1.0]]), np.zeros((3,2))),
-     }
+     },
+    {
+        'geometry': geometry.Projective(),
+        'points' : np.array([[1,0], [np.sqrt(0.5),np.sqrt(0.5)*1j], [0,1]]),
+        'boundary': (np.zeros(2, dtype='c8'), np.zeros(2, dtype='c8')),
+    },
 ]
 
 
