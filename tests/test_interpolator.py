@@ -47,7 +47,7 @@ spline_data = [
     {
         'geometry': geometry.Projective(),
         'points' : np.array([[1,0], [np.sqrt(0.5),np.sqrt(0.5)*1j], [0,1]]),
-        'boundary': (np.zeros(2, dtype='c8'), np.zeros(2, dtype='c8')),
+        'boundary': (None, None),
     },
 ]
 
@@ -65,8 +65,11 @@ def test_control_points(interpolator, cls):
     """
     Test that the spline control points are the same for the three interpolations
     """
-    if isinstance(interpolator['geometry'], geometry.Grassmannian) and cls == Exponential:
+    geo = interpolator['geometry']
+    if isinstance(geo, geometry.Grassmannian) and cls == Exponential:
         pytest.xfail("Exponential algorithm for Grassmannian not implemented")
+    if isinstance(geo, geometry.Projective) and cls != Riemann:
+        pytest.xfail("Only Riemann for projective geometry so far")
     spline = cls(interpolator['points'], make_boundaries(*interpolator['boundary']), geometry=interpolator['geometry']).compute_spline()
     expected = interpolator['Rspline'].control_points
     npt.assert_almost_equal(spline.control_points, expected)
