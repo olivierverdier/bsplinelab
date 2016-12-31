@@ -2,8 +2,7 @@ import numpy as np
 from . import Geometry
 
 class SO3(Geometry):
-    def __init__(self):
-         self.type = 'SO3'
+
     def geodesic(self, P1,P2,theta):
         """
         Geodesics on SO3  calculated via formulas p. 363-364 in 'Lie group methods'

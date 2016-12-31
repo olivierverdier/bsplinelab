@@ -4,8 +4,6 @@ from . import Geometry, sinc
 
 
 class Sphere(Geometry):
-    def __init__(self):
-        self.type = 'sphere'
 
     @classmethod
     def on_manifold(self, P):

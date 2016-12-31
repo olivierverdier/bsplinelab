@@ -4,9 +4,6 @@ from . import Geometry, sinc, sinhc
 
 class Grassmannian(Geometry):
 
-    def __init__(self):
-        self.type = 'Grassmannian'
-
     def geodesic(self,P1, P2, theta): #(K,N,M,T), (K,1,T)
         ntd = np.ndim(P1)-3
         ntt = np.ndim(theta)-2

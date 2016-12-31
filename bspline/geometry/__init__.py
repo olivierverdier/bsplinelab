@@ -6,8 +6,6 @@ def exponential(xi):
     return Exp(xi)[0]
 
 class Geometry(object):
-    def __init__(self):
-        self.type ='flat'
 
     def geodesic(self,P1, P2, theta):
         """

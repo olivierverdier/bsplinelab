@@ -3,8 +3,10 @@ from . import Sphere
 from . import  sinc
 
 class Projective(Sphere):
-    def __init__(self):
-        self.type = 'complex projective plane'
+    """
+    Complex projective plane
+    """
+
     def geodesic(self,P1,P2,theta):
         if np.ndim(P1)==1:
             rotations = np.angle(np.inner(P1.conj(), P2))

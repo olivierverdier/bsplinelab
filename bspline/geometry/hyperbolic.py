@@ -2,8 +2,10 @@ import numpy as np
 from . import Geometry, sinhc
 
 class Hyperbolic(Geometry):
-    def __init__(self):
-        self.type = 'Hyperboloid'
+    """
+    Hyperboloid
+    """
+
     def geodesic(self, P1, P2, theta):
         if np.ndim(P1)==1:
              arg =np.array([np.arccosh(2*P1[0]*P2[0]-np.inner(P1, P2))])
