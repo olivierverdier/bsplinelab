@@ -44,7 +44,7 @@ class Interpolator():
         """
         geo_shape = np.shape(self.interpolation_points[0])
         new_shape = (3*self.size-2,) + geo_shape
-        all_points = np.zeros(new_shape)
+        all_points = np.zeros(new_shape, dtype=self.interpolation_points.dtype)
         all_points[::3] = self.interpolation_points
         all_points[1::3] = qRs
         all_points[2::3] = qLs
