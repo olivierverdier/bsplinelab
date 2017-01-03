@@ -49,6 +49,11 @@ spline_data = [
         'points' : np.array([[1,0], [np.sqrt(0.5),np.sqrt(0.5)*1j], [0,1]]),
         'boundary': (None, None),
     },
+    {
+        'geometry': geometry.Hyperbolic(),
+        'points': np.array([x for (x,v) in (geometry.Hyperbolic.random_direction(3) for i in range(4))]),
+        'boundary': (None, None),
+    },
 ]
 
 

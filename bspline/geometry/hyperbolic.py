@@ -39,6 +39,7 @@ class Hyperbolic(Geometry):
         s = np.inner(P1,W2)-2*P1[0]*W2[0]
         return (W2+s*P1)/sinhc(arg)+s*self.g(arg)*V1
 
+    @classmethod
     def random_direction(self, size):
         pp = np.random.randn(size)
         p = np.insert(pp, 0, np.sqrt(1+np.linalg.norm(pp)**2))
