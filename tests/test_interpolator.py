@@ -51,7 +51,7 @@ spline_data = [
     },
     {
         'geometry': geometry.Hyperbolic(),
-        'points': np.array([[1.,0,0], [0,1,0], [0,0,1.]]),
+        'points': np.array([[1.,0,0], [np.sqrt(2.),1,0], [np.sqrt(2.),0,1.]]),
         'boundary': (None, None),
     },
 ]
@@ -60,8 +60,6 @@ spline_data = [
 @pytest.fixture(params=spline_data)
 def interpolator(request):
     data = request.param
-    if isinstance(data['geometry'], geometry.Hyperbolic):
-        pytest.xfail("Unknown bug in hyperbolic geometry")
     data['riemann'] = Riemann(data['points'], make_boundaries(*data['boundary']), geometry=data['geometry'])
     data['Rspline'] = data['riemann'].compute_spline()
     print(data['riemann'].postmortem)
