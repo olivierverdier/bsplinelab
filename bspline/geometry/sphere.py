@@ -105,4 +105,4 @@ class Sphere(Geometry):
         angle = np.linalg.norm(V1)
         vw = np.inner(V1, W2)
         pw = np.inner(P1, W2)
-        return W2 + P1*((np.cos(angle)-1)*pw+sinc(angle)*vw) + V1*(self.h(angle)* vw-sinc(angle)*pw)
+        return W2 -P1*pw + V1*(self.h(angle)* vw-sinc(angle)*pw)
