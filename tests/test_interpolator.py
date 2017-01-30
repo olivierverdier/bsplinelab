@@ -75,8 +75,8 @@ def test_control_points(interpolator, cls):
         pytest.xfail("Exponential algorithm for Grassmannian not implemented")
     if isinstance(geo, geometry.Projective) and cls != Riemann:
         pytest.xfail("Only Riemann for projective geometry so far")
-    if isinstance(geo, geometry.Hyperbolic) and cls != Riemann:
-        pytest.xfail("Only Riemann for hyperbolic geometry so far")
+    if isinstance(geo, geometry.Hyperbolic) and cls == Symmetric:
+        pytest.xfail("Symmetric for hyperbolic geometry not implemented")
     spline = cls(interpolator['points'], make_boundaries(*interpolator['boundary']), geometry=interpolator['geometry']).compute_spline()
     expected = interpolator['Rspline'].control_points
     npt.assert_almost_equal(spline.control_points, expected)

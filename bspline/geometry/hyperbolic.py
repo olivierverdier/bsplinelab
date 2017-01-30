@@ -40,6 +40,12 @@ class Hyperbolic(Geometry):
         return (W2+s*P1)/sinhc(arg)+s*self.g(arg)*V1
 
     @classmethod
+    def connection(self, P, V):
+        cross = V.reshape(-1,1)*P
+        A = cross -cross.T
+        A[:,1:]=-A[:,1:]
+        return A
+
     def random_direction(self, size):
         pp = np.random.randn(size)
         p = np.insert(pp, 0, np.sqrt(1+np.linalg.norm(pp)**2))
