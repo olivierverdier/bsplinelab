@@ -41,6 +41,9 @@ class Geometry(object):
         """ (d exp_P1)^-1_V1 (W2) """
         raise NotImplementedError()
 
+    def allclose(self, P1, P2, *args, **kwargs):
+        return np.allclose(P1, P2, *args, **kwargs)
+
     @classmethod
     def on_manifold(self, P):
         """
