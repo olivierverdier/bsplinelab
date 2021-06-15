@@ -21,6 +21,15 @@ geo_data = [
         'sizes': [4],
     },
     {
+        'geometry': geometry.Projective(),
+        'geodesic': (
+            np.array([1.+0j,0,0]),
+            0.5*np.pi*np.array([1.j,1,0.j])/2,
+            np.array([1.j,1.j,0])/np.sqrt(2)
+        ),
+        'sizes': [4],
+    },
+    {
         'geometry': geometry.Hyperbolic(),
         'geodesic': (
             np.array([1.,0,0]),
@@ -37,7 +46,7 @@ geo_data = [
             np.array([[0., 0], [0,1], [1,0]]),
         ),
         'sizes': [(i,j) for i in range(2,50) for j in range(1,min(i,40))]
-    }
+    },
 ]
 
 
@@ -47,9 +56,11 @@ def geo(request):
 
 def test_exp(geo):
     p,v,q = geo['geodesic']
-    npt.assert_allclose(geo['geometry'].exp(p,v), q, atol=1e-15)
+    assert geo['geometry'].allclose(geo['geometry'].exp(p,v), q, atol=1e-15)
 
 def test_log(geo):
+    if isinstance(geo['geometry'], geometry.Projective):
+        pytest.xfail('Expected mismatch in the fibre direction')
     p,v,q = geo['geodesic']
     npt.assert_allclose(geo['geometry'].log(p,q), v, atol=1e-15)
 

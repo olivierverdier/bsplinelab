@@ -18,7 +18,7 @@ class Projective(Sphere):
         return super(Projective, self).geodesic(P1, np.exp(-1j*rotations)*P2, theta)
 
     def exp(self, P1, V1):
-        V1hor = V1+1j*np.inner(P1.conj(), V1).imag*P1
+        V1hor = V1-1j*np.inner(P1.conj(), V1).imag*P1
         return super(Projective, self).exp(P1, V1hor)
 
     def log(self, P1, P2):
