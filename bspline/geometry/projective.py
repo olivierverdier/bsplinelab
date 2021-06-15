@@ -22,8 +22,10 @@ class Projective(Sphere):
         return super(Projective, self).exp(P1, V1hor)
 
     def log(self, P1, P2):
-        rotations = np.angle(np.inner(P1.conj(), P2))
-        return super(Projective, self).log(P1, np.exp(-1j*rotations)*P2)
+        prod = np.inner(P1.conj(), P2)
+        mag = np.abs(prod)
+        rot = prod/np.abs(prod)
+        return super(Projective, self).log(P1, P2/rot)
 
     def dexpinv(self, P1, V1, W2):
         alpha = np.linalg.norm(V1)
