@@ -24,6 +24,8 @@ class Projective(Sphere):
     def log(self, P1, P2):
         prod = np.inner(P1.conj(), P2)
         mag = np.abs(prod)
+        if np.isclose(mag, 0): # P2 is antipodal to P1
+            return np.pi/2*P2
         rot = prod/np.abs(prod)
         return super(Projective, self).log(P1, P2/rot)
 

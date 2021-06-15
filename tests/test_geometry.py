@@ -88,3 +88,9 @@ def test_projective_allclose():
     theta = np.random.random_sample()
     p_ = np.exp(1j*2*np.pi*theta)*p
     assert proj.allclose(p, p_)
+
+def test_projective_antipodal():
+    P1 = np.array([1.+0j, 0, 0])
+    P2 = np.array([0.j, 1, 0])
+    proj = geometry.Projective()
+    proj.log(P1, P2)
