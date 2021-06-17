@@ -14,11 +14,10 @@ import numpy as np
 
 from bspline import geometry
 
-from bspline.c2spline import c2spline
-
 import bspline.plotting as splt
 import matplotlib.pyplot as plt
 
+from bspline.interpolation import cubic_spline, Riemann, Symmetric, Exponential
 
 
 
@@ -31,7 +30,8 @@ x01=x01/np.linalg.norm(x01)
 x02 = np.array([0, -0.3, 1])
 x02 = x02/np.linalg.norm(x02)
 initial_control_points= np.array([x01,x02])
-b = c2spline(interpolation_points, initial_control_points, geometry=geometry.Sphere_geometry())
+#b = c2spline(interpolation_points, initial_control_points, geometry=geometry.Sphere_geometry())
+b = cubic_spline(Exponential, interpolation_points, initial_control_points, geometry=geometry.Sphere())
 
 t=2.
 h = np.power(10.0, range(-2,-6,-1))

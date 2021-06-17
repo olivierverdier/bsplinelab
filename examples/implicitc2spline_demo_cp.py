@@ -8,10 +8,12 @@ Created on Wed Mar 23 11:52:48 2016
 from __future__ import division
 import numpy as np
 from bspline import geometry
-from bspline.c2spline import implicitc2spline
 import bspline.plotting as splt
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
+
+from bspline.interpolation import cubic_spline, Riemann, Symmetric, Exponential
+
 
 
 def cp1tobloch(u): # mapping from CP_1 to Bloch sphere
@@ -32,19 +34,17 @@ init_vel = np.zeros(d, dtype='complex128')
 end_vel = np.zeros(d, dtype='complex128')
 boundary_velocities=np.array([init_vel, end_vel])
 
-
-b= implicitc2spline(interpolation_points, geometry=geometry.CP_geometry(), Maxiter=10000)
+b = cubic_spline(Symmetric, interpolation_points, geometry=geometry.Projective())
 #h = np.power(10.0, range(-2,-6,-1))
-#print((b(t+1.5*h)-3*b(t+0.5*h)+3*b(t-0.5*h)-b(t-1.5*h))/(h*h).reshape(h.shape +(1,))) 
+#print((b(t+1.5*h)-3*b(t+0.5*h)+3*b(t-0.5*h)-b(t-1.5*h))/(h*h).reshape(h.shape +(1,)))
 #print("If C_2, these should approach zero.")
 
 # Plot using bspline.plotting (currently projected 2D plot)
-if True:
+if False:
     fig1=plt.figure(1)
     splt.plot(b, with_control_points=False)
     fig1.suptitle('Spline on S^2, stereographically projected onto R^2')
-    t=np.floor(N/2)    
-    
+    t=np.floor(N/2)
 
 
 # Plot second derivative
@@ -63,7 +63,7 @@ if True:
     fig2 = plt.figure(2)
     plt.plot(ts, np.angle(ddb), linestyle='None', marker=',')
     fig2.suptitle('Second derivative of spline')
-    
+
 
 
 
@@ -84,7 +84,7 @@ if d==2:
 
 
 if True:
-    
+
     fig4 = plt.figure(4)
     ts = np.linspace(0.,N-1,(N-1)*100)[1:-1]
     bv=b(ts)
@@ -99,7 +99,7 @@ if True: # tests c2-continuity in interpolation point
     ttest = np.floor(0.5*N)
     H=np.power(2.0, range(-2,-20,-1))
     bmatdiv = (bmat(ttest+1.5*H)-3*bmat(ttest+0.5*H)+3*bmat(ttest-0.5*H)-bmat(ttest-1.5*H))/H[:, np.newaxis, np.newaxis]**2
-    dd=np.linalg.norm(bmatdiv, axis=(1,2))    
+    dd=np.linalg.norm(bmatdiv, axis=(1,2))
     fig6=plt.figure(6)
     plt.loglog(H, dd)
 
@@ -116,5 +116,3 @@ if True: # tests zero acceleration at start-point
     dd2=dd2.flatten()
     fig7=plt.figure(7)
     plt.loglog(H2, dd2)
-        
-    

@@ -7,10 +7,11 @@ Created on Thu Jan 21 09:25:42 2016
 from __future__ import division
 import numpy as np
 from bspline import geometry
-from bspline.c2spline import implicitc2spline
 import bspline.plotting as splt
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
+
+from bspline.interpolation import cubic_spline, Riemann, Symmetric, Exponential
 
 
 N=5
@@ -25,7 +26,7 @@ end_vel = np.array([-1.0,0.0,1.0])
 #boundary_velocities=np.array([init_vel, end_vel])
 
 
-b= implicitc2spline(interpolation_points, geometry=geometry.Sphere_geometry())
+b= cubic_spline(Exponential, interpolation_points, geometry=geometry.Sphere())
 h = np.power(10.0, range(-2,-6,-1))
 t=1.0
 print((b(t+1.5*h)-3*b(t+0.5*h)+3*b(t-0.5*h)-b(t-1.5*h))/(h*h).reshape(h.shape +(1,))) 
