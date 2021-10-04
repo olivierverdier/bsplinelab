@@ -43,13 +43,13 @@ fig1=plt.figure(1)
 splt.plot(b)
 fig1.suptitle('Spline on S^2, stereographically projected onto R^2')
 
-
+import tqdm
 
 hh=1e-5
 ts = np.linspace(0.,3., 3*2000)
 ts= ts[1:-1]
 ddb=np.array([]).reshape(0,3)
-for tt in ts:
+for tt in tqdm.tqdm(ts):
     temp=np.array((b(tt+hh)-2*b(tt)+b(tt-hh))/(hh*hh))
     temp=temp[np.newaxis, :]
     ddb = np.append(ddb, temp, axis=0) # There should be a better way of doing this.

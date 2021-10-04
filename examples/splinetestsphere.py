@@ -55,11 +55,13 @@ h = np.power(10.0, range(-2,-7,-1))
 print((b(t+1.5*h)-3*b(t+0.5*h)+3*b(t-0.5*h)-b(t-1.5*h))/(h*h).reshape(h.shape +(1,))) 
 print("If C_2, these should approach zero.")
 
+import tqdm
+
 hh=1e-5
 ts = np.linspace(0.,2., 2*2000)
 ts= ts[1:-1]
 ddb=np.array([]).reshape(0,3)
-for tt in ts:
+for tt in tqdm.tqdm(ts):
     temp=np.array((b(tt+hh)-2*b(tt)+b(tt-hh))/(hh*hh))
     temp=temp[np.newaxis, :]
     ddb = np.append(ddb, temp, axis=0) # There should be a better way of doing this.

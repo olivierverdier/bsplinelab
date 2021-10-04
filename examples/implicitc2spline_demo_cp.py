@@ -104,6 +104,8 @@ if True: # tests c2-continuity in interpolation point
     fig6=plt.figure(6)
     plt.loglog(H, dd)
 
+import tqdm
+
 if True: # tests zero acceleration at start-point
     def bmat(t): return 1j*np.outer(b(t), b(t).conj())
     def ddmat(t,h): return (bmat(t+h)-2*bmat(t)+bmat(t-h))/h[..., np.newaxis, np.newaxis]**2
@@ -112,7 +114,7 @@ if True: # tests zero acceleration at start-point
     H2=np.power(2.0, range(-2,-20,-1))
     dd2 = np.zeros_like(H2)
     dd2=dd2[:, np.newaxis]
-    for (hh,dl) in zip(H2,dd2):
+    for (hh,dl) in tqdm.tqdm(list(zip(H2,dd2))):
         dl[:] = np.linalg.norm(((bmat(hh)-1j*ide).dot(ddmat(hh,hh)).dot(bmat(hh))+bmat(hh).dot(ddmat(hh,hh)).dot(bmat(hh)-1j*ide)))
     dd2=dd2.flatten()
     fig7=plt.figure(7)
