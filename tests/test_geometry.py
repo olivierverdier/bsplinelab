@@ -79,13 +79,14 @@ def test_on_manifold(geo):
         p, v = geo['geometry'].random_direction(size)
         npt.assert_allclose(*geo['geometry'].on_manifold(np.array([p])), atol=1e-13)
 
-def test_projective_allclose():
+def test_projective_allclose(rng=None):
+    rng = np.random.default_rng(rng)
     proj = geometry.Projective()
     assert proj.allclose(np.array([1.+0j,0,0]), np.array([1.+0j, 0,0]))
     assert not proj.allclose(np.array([1.+0j,0,0]), np.array([0, 1.+0j,0]))
     assert proj.allclose(np.array([1.+0j,0,0]), np.array([1j, 0,0]))
-    p,v = proj.random_direction(3)
-    theta = np.random.random_sample()
+    p,v = proj.random_direction(3, rng)
+    theta = rng.random()
     p_ = np.exp(1j*2*np.pi*theta)*p
     assert proj.allclose(p, p_)
 

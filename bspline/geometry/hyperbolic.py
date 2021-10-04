@@ -46,10 +46,11 @@ class Hyperbolic(Geometry):
         A[:,1:]=-A[:,1:]
         return A
 
-    def random_direction(self, size):
-        pp = np.random.randn(size)
+    def random_direction(self, size, rng=None):
+        rng = np.random.default_rng(rng)
+        pp = rng.standard_normal(size)
         p = np.insert(pp, 0, np.sqrt(1+np.linalg.norm(pp)**2))
-        vv=np.random.randn(size)
+        vv = rng.standard_normal(size)
         v = np.insert(vv, 0, np.inner(pp,vv)/p[0])
         return p, v
 

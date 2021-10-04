@@ -7,6 +7,7 @@ Created on Wed Mar 23 11:52:48 2016
 
 from __future__ import division
 import numpy as np
+rng = np.random.default_rng()
 from bspline import geometry
 import bspline.plotting as splt
 from mpl_toolkits.mplot3d import Axes3D
@@ -26,7 +27,7 @@ def bbloch(b, tt):
 
 d=2
 N=4
-interpolation_points =np.random.randn(N, d)+ 1j*np.random.randn(N,d)
+interpolation_points = rng.standard_normal((N, d))+ 1j*rng.standard_normal((N,d))
 interpolation_points = interpolation_points/np.array([np.linalg.norm(interpolation_points, axis=1)]).T
 #interpolation_points=np.array([[1,0], [np.sqrt(0.5),np.sqrt(0.5)*1j], [1,0]])
 #initial and end velocities:

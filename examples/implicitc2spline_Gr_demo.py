@@ -6,6 +6,7 @@ Created on Thu Jan 21 09:25:42 2016
 """
 from __future__ import division
 import numpy as np
+rng = np.random.default_rng()
 from bspline import geometry
 import matplotlib.pyplot as plt
 
@@ -17,9 +18,8 @@ k=2
 P1 = np.vstack((np.eye(k), np.zeros((n-k,k))))
 interpolation_points= np.tile(P1, (N,1,1))
 
-np.random.seed(0)
 for i in range(1,N):
-    P2 = P1+1.0*np.random.randn(n,k)
+    P2 = P1+1.0*rng.standard_normal((n,k))
     interpolation_points[i] = np.linalg.qr(P2)[0]
 
 from bspline.interpolation import cubic_spline, Riemann, Symmetric, Exponential

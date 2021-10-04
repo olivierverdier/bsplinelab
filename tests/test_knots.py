@@ -63,8 +63,9 @@ def test_knot_range(long_knots):
     k = Knots(np.arange(10))
     assert len(k.knot_range()) == 0
 
-def test_abscissae():
-    pts = np.random.random_sample([7,2])
+def test_abscissae(rng=None):
+    rng = np.random.default_rng(rng)
+    pts = rng.random([7,2])
     knots = [0,0,0,2,3,4,5,5,5]
     K = Knots(knots, degree=3)
     computed = K.abscissae()

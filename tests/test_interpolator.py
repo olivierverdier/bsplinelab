@@ -7,12 +7,12 @@ from bspline import geometry
 from bspline.interpolation import Riemann, Exponential, Symmetric
 from bspline.interpolation.boundary import make_boundaries
 
-def get_points_matrix(N=8, n=3, k=2):
+def get_points_matrix(N=8, n=3, k=2, rng=None):
+    rng = np.random.default_rng(rng)
     P1 = np.vstack((np.eye(k), np.zeros((n-k,k))))
     interpolation_points= np.tile(P1, (N,1,1))
-    np.random.seed(0)
     for i in range(1,N):
-        P2 = np.random.randn(n,k)
+        P2 = rng.standard_normal((n,k))
         interpolation_points[i] = np.linalg.qr(P2)[0]
     return interpolation_points
 
@@ -41,7 +41,7 @@ spline_data = [
     },
     {
         'geometry': geometry.Grassmannian(),
-        'points' : get_points_matrix(),
+        'points' : get_points_matrix(rng=1),
         'boundary' : (np.array([[0.0,0.0], [0.0,0.0], [1.0,1.0]]), np.zeros((3,2))),
      },
     {
