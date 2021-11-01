@@ -7,5 +7,5 @@ BSpline
 
 A basic implementation of B-splines in Python.
 
-Check out the [IPython notebook demo](http://nbviewer.ipython.org/github/olivierverdier/bsplinelab/blob/master/Demo.ipynb).
+Check out the [IPython notebook demo](https://gist.github.com/olivierverdier/8741bbd2fdac2967a1df0d99ec31c756).
 
